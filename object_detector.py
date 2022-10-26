@@ -1,24 +1,19 @@
 import cv2
-import numpy as np
 import configparser
-import object
+import support.detected_object as detected_object
 
 from cv2.dnn import (
     DNN_BACKEND_CUDA,
-    DNN_BACKEND_DEFAULT,
     DNN_BACKEND_OPENCV,
-    DNN_TARGET_CPU,
     DNN_TARGET_CUDA,
-    DNN_TARGET_OPENCL,
+    DNN_TARGET_CPU,
 )
 
 
 class ObjectDetector:
     def __init__(self, config=None, weights=None, labels=None):
         self.nms = 0.4
-        self.confidence = 0.5
-        # self.backend = DNN_BACKEND_OPENCV
-        # self.target = DNN_TARGET_CPU
+        self.confidence = 0.7
         self.backend = DNN_BACKEND_CUDA
         self.target = DNN_TARGET_CUDA
 
@@ -57,7 +52,7 @@ class ObjectDetector:
         objects = []
         for (label, confidence, box) in zip(text_labels, confidences, boxes):
             objects.append(
-                object.Object(
+                detected_object.DetectedObject(
                     label, confidence, x=box[0], y=box[1], w=box[2], h=box[3]
                 )
             )
