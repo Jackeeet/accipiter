@@ -3,6 +3,7 @@ from support.checkers import segments_intersect
 from support.primitives import Segment, Point, Text
 from support.detected_object import Detected, Tracked
 import object_detector as det
+from support.tracked_state import TrackedState
 
 DEBUG_detected_count = 0
 DEBUG_tracked_count = 0
@@ -34,7 +35,7 @@ def previous_position(pt: Point, pool: dict[Point, Tracked], margin: int) -> Poi
 
 
 def update_pool(pool: dict[Point, Tracked], objects: list[Detected]) -> dict[Point, Tracked]:
-    margin = 10
+    margin = 50
     for point in pool.values():
         point.FTL -= 1
 
@@ -51,9 +52,10 @@ def update_pool(pool: dict[Point, Tracked], objects: list[Detected]) -> dict[Poi
                 pool.pop(prev_corner)
                 pool[corner] = tracked
             else:
-                pool[corner] = Tracked(det_obj)
                 global DEBUG_tracked_count
                 DEBUG_tracked_count += 1
+                pool[corner] = Tracked(det_obj)
+                # pool[corner].num = DEBUG_tracked_count
         else:
             pool[corner].FTL = pool[corner].max_FTL
 
@@ -82,11 +84,11 @@ if __name__ == "__main__":
         while cap.isOpened():
             success, frame = cap.read()
             if success:
-                detected = [o for o in detector.return_objects(
-                    frame) if o.name == 'person']
+                # detected = [o for o in detector.return_objects(frame) if o.name == 'person']
+                detected = detector.return_objects(frame)
 
                 DEBUG_detected_count += len(detected)
-
+                color = 123
                 pool = update_pool(pool, detected)
 
                 for tracked in pool.values():
@@ -94,13 +96,14 @@ if __name__ == "__main__":
                         continue    # don't draw boxes from previous frames
 
                     if intersects(tracked, segment):
-                        count += 1
-                        draw_bounding_box(frame, tracked.obj.name,
-                                          tracked.obj.box, color=48)
+                        color = 48
+                        if tracked.state == TrackedState.INACTIVE:
+                            count += 1
+                            tracked.state = TrackedState.CROSSING
                     else:
-                        draw_bounding_box(
-                            frame, tracked.obj.name, tracked.obj.box)
+                        tracked.state = TrackedState.INACTIVE
 
+                draw_bounding_box(frame, tracked.obj.name,tracked.obj.box, color=color)
                 segment.draw_on(frame)
                 number.draw_on(frame, str(count))
 

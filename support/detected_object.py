@@ -1,4 +1,5 @@
 import support.primitives as gp
+from support.tracked_state import TrackedState
 
 
 class Detected:
@@ -18,6 +19,8 @@ class Tracked:
         self.id = obj.box.start
         self.obj = obj
         self.FTL = self.max_FTL
+        self.state = TrackedState.INACTIVE
+        # self.num = 0
 
     def __str__(self) -> str:
         return f"id: {self.id} FTL: {self.FTL}"
