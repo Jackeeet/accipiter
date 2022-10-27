@@ -1,13 +1,23 @@
-# from support.object_state import ObjectState
 import support.primitives as gp
 
 
-class DetectedObject:
-    def __init__(self, name, conf, x, y, w, h):
+class Detected:
+    def __init__(self, name, conf, x, y, w, h) -> None:
         self.name = name
         self.confidence = conf
         self.box = gp.Box(gp.Point(x, y), w, h)
-        # self.state = ObjectState.INACTIVE
 
     def __repr__(self) -> str:
-        return f'Object("{self.name}", {self.confidence}, {self.box.start.x}, {self.box.start.y}, {self.box.width}, {self.box.height}'
+        return f'DetectedObject("{self.name}", {self.confidence}, {self.box.start.x}, {self.box.start.y}, {self.box.width}, {self.box.height}'
+
+
+class Tracked:
+    max_FTL = 1
+
+    def __init__(self, obj: Detected) -> None:
+        self.id = obj.box.start
+        self.obj = obj
+        self.FTL = self.max_FTL
+
+    def __str__(self) -> str:
+        return f"id: {self.id} FTL: {self.FTL}"

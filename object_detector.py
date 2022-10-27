@@ -1,6 +1,6 @@
 import cv2
 import configparser
-import support.detected_object as detected_object
+import support.detected_object as do
 
 from cv2.dnn import (
     DNN_BACKEND_CUDA,
@@ -51,10 +51,8 @@ class ObjectDetector:
         text_labels = [self.labels[int(label)] for label in labels]
         objects = []
         for (label, confidence, box) in zip(text_labels, confidences, boxes):
-            objects.append(
-                detected_object.DetectedObject(
-                    label, confidence, x=box[0], y=box[1], w=box[2], h=box[3]
-                )
-            )
+            objects.append(do.Detected(
+                label, confidence, x=box[0], y=box[1], w=box[2], h=box[3]
+            ))
 
         return objects
