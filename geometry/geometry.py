@@ -1,6 +1,6 @@
 import numpy as np
 
-from support.primitives import Point, Segment
+from declarable.tools import Coords, Segment
 
 
 def segments_intersect(s1: Segment, s2: Segment) -> bool:
@@ -23,13 +23,13 @@ def segments_intersect(s1: Segment, s2: Segment) -> bool:
         or d3 == 0 and _on_segment(*p123) or d4 == 0 and _on_segment(*p124)
 
 
-def _direction(pi: Point, pj: Point, pk: Point) -> np.ndarray:
+def _direction(pi: Coords, pj: Coords, pk: Coords) -> np.ndarray:
     i = np.asarray(pi)
     j = np.asarray(pj)
     k = np.asarray(pk)
     return np.cross(k - i, j - i)
 
 
-def _on_segment(i: Point, j: Point, k: Point) -> bool:
+def _on_segment(i: Coords, j: Coords, k: Coords) -> bool:
     return min(i.x, j.x) <= k.x <= max(i.x, j.x) \
         and min(i.y, j.y) <= k.y <= max(i.y, j.y)

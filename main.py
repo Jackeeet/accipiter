@@ -1,9 +1,8 @@
 import cv2
-from support.checkers import segments_intersect
-from support.primitives import Segment, Point, Text
+import declared
+from declarable import Counter, Segment, Coords
 from support.detected_object import Detected, Tracked
-import object_detector as det
-from support.tracked_state import TrackedState
+from detectors.object_detector import ObjectDetector
 
 DEBUG_detected_count = 0
 DEBUG_tracked_count = 0
@@ -17,16 +16,7 @@ def draw_bounding_box(image, label, box, color=123) -> None:
                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
 
-def intersects(tracked: Tracked, seg: Segment) -> bool:
-    b = tracked.obj.box
-    diag1 = Segment(b.start, Point(b.start.x + b.width, b.start.y + b.height))
-    diag2 = Segment(Point(b.start.x + b.width, b.start.y),
-                    Point(b.start.x, b.start.y + b.height))
-
-    return segments_intersect(diag1, seg) or segments_intersect(diag2, seg)
-
-
-def previous_position(pt: Point, pool: dict[Point, Tracked], margin: int) -> Point:
+def previous_position(pt: Coords, pool: dict[Coords, Tracked], margin: int) -> Coords:
     for point in pool.keys():
         if abs(point.x - pt.x) <= margin and abs(point.y - pt.y) <= margin:
             return point
@@ -34,7 +24,7 @@ def previous_position(pt: Point, pool: dict[Point, Tracked], margin: int) -> Poi
     return None
 
 
-def update_pool(pool: dict[Point, Tracked], objects: list[Detected]) -> dict[Point, Tracked]:
+def update_pool(pool: dict[Coords, Tracked], objects: list[Detected]) -> dict[Coords, Tracked]:
     margin = 50
     for point in pool.values():
         point.FTL -= 1
@@ -63,7 +53,7 @@ def update_pool(pool: dict[Point, Tracked], objects: list[Detected]) -> dict[Poi
 
 
 if __name__ == "__main__":
-    detector = det.ObjectDetector()
+    detector = ObjectDetector()
     cap = cv2.VideoCapture('resources/videoplayback.mp4')
 
     if not cap.isOpened():
@@ -71,41 +61,40 @@ if __name__ == "__main__":
     else:
         frame_width = int(cap.get(3))
         frame_height = int(cap.get(4))
-
-        segment_x = int(frame_width * 1 / 3)
-        segment = Segment(Point(segment_x, 0),
-                          Point(segment_x, frame_height), color=(0, 0, 255))
-
-        number = Text((frame_width - 70, frame_height - 10))
-
-        count = 0
         pool = dict()   # all objects on screen
 
         while cap.isOpened():
             success, frame = cap.read()
             if success:
-                # detected = [o for o in detector.return_objects(frame) if o.name == 'person']
-                detected = detector.return_objects(frame)
+                detected = [o for o in detector.return_objects(
+                    frame) if o.name in declared.object_kinds]
 
                 DEBUG_detected_count += len(detected)
-                color = 123
+                colour = 123
                 pool = update_pool(pool, detected)
 
                 for tracked in pool.values():
                     if tracked.FTL != tracked.max_FTL:
                         continue    # don't draw boxes from previous frames
 
-                    if intersects(tracked, segment):
-                        color = 48
-                        if tracked.state == TrackedState.INACTIVE:
-                            count += 1
-                            tracked.state = TrackedState.CROSSING
-                    else:
-                        tracked.state = TrackedState.INACTIVE
+                    # if intersects(tracked, segment):
+                    #     colour = 226
+                    #     if tracked.state == TrackedState.INACTIVE:
+                    #         # count += 1
+                    #         tracked.state = TrackedState.CROSSING       # this is an event
+                    # else:
+                    #     tracked.state = TrackedState.INACTIVE
 
-                draw_bounding_box(frame, tracked.obj.name,tracked.obj.box, color=color)
-                segment.draw_on(frame)
-                number.draw_on(frame, str(count))
+                    for condition in declared.conditions:
+                        if condition.condition.check(tracked):
+                            for action in condition.actions:
+                                action.execute()
+
+                    draw_bounding_box(frame, tracked.obj.name, tracked.obj.box, color=colour)
+
+                # drawing all declared tools
+                for name, tool in declared.tools.items():
+                    tool.draw_on(frame)
 
                 cv2.imshow('output', frame)
                 if cv2.waitKey(25) & 0xFF == ord('q'):
