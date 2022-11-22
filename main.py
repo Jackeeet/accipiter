@@ -1,19 +1,11 @@
 import cv2
 import declared
-from declarable import Counter, Segment, Coords
+from declarable import Coords
 from support.detected_object import Detected, Tracked
 from detectors.object_detector import ObjectDetector
 
 DEBUG_detected_count = 0
 DEBUG_tracked_count = 0
-
-
-def draw_bounding_box(image, label, box, color=123) -> None:
-    label = str(label)
-    cv2.rectangle(image, (box.start.x, box.start.y),
-                  (box.start.x + box.width, box.start.y + box.height), color, 2)
-    cv2.putText(image, label, (box.start.x - 10, box.start.y - 10),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
 
 def previous_position(pt: Coords, pool: dict[Coords, Tracked], margin: int) -> Coords:
@@ -66,31 +58,26 @@ if __name__ == "__main__":
         while cap.isOpened():
             success, frame = cap.read()
             if success:
-                detected = [o for o in detector.return_objects(
-                    frame) if o.name in declared.object_kinds]
+                detected = [o for o in detector.return_objects(frame)
+                            if o.name in declared.object_kinds]
 
                 DEBUG_detected_count += len(detected)
-                colour = 123
                 pool = update_pool(pool, detected)
 
                 for tracked in pool.values():
                     if tracked.FTL != tracked.max_FTL:
-                        continue    # don't draw boxes from previous frames
+                        continue    # don't process boxes from previous frames
 
-                    # if intersects(tracked, segment):
-                    #     colour = 226
-                    #     if tracked.state == TrackedState.INACTIVE:
-                    #         # count += 1
-                    #         tracked.state = TrackedState.CROSSING       # this is an event
-                    # else:
-                    #     tracked.state = TrackedState.INACTIVE
-
+                    # checking all declared conditions
                     for condition in declared.conditions:
+                        # executing declared actions if the condition holds
                         if condition.condition.check(tracked):
                             for action in condition.actions:
+                                action.params['object'] = tracked
                                 action.execute()
 
-                    draw_bounding_box(frame, tracked.obj.name, tracked.obj.box, color=colour)
+                    # drawing the box
+                    tracked.obj.draw(frame)
 
                 # drawing all declared tools
                 for name, tool in declared.tools.items():

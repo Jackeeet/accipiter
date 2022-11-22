@@ -13,21 +13,25 @@ class Action:
         self.func(**self.params)
 
 
-def increment(counter: Counter) -> None:
+def increment(counter: Counter, object: Tracked = None) -> None:
     counter.increment()
 
 
-def decrement(counter: Counter) -> None:
+def decrement(counter: Counter, object: Tracked = None) -> None:
     counter.decrement()
 
 
-def reset(counter: Counter) -> None:
+def reset(counter: Counter, object: Tracked = None) -> None:
     counter.reset()
 
 
-def alert(message: str) -> None:
+def alert(message: str, object: Tracked = None) -> None:
     print(f"alert: {message}")
 
 
 def save(object: Tracked) -> None:
     print(f"saving: {object.obj.name} ({object.obj.box})")
+
+
+def set_colour(colour: tuple[int, int, int], object: Tracked) -> None:
+    object.obj.colour = colour
