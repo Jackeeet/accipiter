@@ -4,5 +4,5 @@ __pycache__
 .py[cod]
 output/
 resources/
-detectors/models/*
-declared.py
+videoanalytics/detection/darknet
+videoanalytics/detection/declared.py

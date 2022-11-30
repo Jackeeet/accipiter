@@ -1,6 +1,5 @@
 from cv2 import rectangle, putText, FONT_HERSHEY_SIMPLEX
-from declarable.tools import Box, Coords
-from support.tracked_state import TrackedState
+from . import Box, Coords
 
 
 class Detected:
@@ -20,16 +19,3 @@ class Detected:
         rectangle(frame, top_left, bottom_right, self.colour, 2)
         putText(frame, self.name, (self.box.start.x, self.box.start.y - 10),
                 FONT_HERSHEY_SIMPLEX, 0.5, self.colour, 2)
-
-
-class Tracked:
-    max_FTL = 1
-
-    def __init__(self, obj: Detected) -> None:
-        self.id = obj.box.start
-        self.obj = obj
-        self.FTL = self.max_FTL
-        self.state = TrackedState.INACTIVE
-
-    def __repr__(self) -> str:
-        return f"id: {self.id} FTL: {self.FTL}"

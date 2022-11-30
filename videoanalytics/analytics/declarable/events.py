@@ -1,10 +1,8 @@
 from typing import Any, Callable
 
-
 from .tools import Coords, Segment
-from geometry import segments_intersect
-from support.detected_object import Tracked
-from support.tracked_state import TrackedState
+from ..geometry import segments_intersect
+from ...objectmodels import Tracked, TrackedState
 
 
 class Event:
@@ -13,10 +11,10 @@ class Event:
         self._object_kind = object_kind
         self._params = params
 
-    def check(self, object: Tracked) -> bool:
-        if object.obj.name != self._object_kind:
+    def check(self, tracked: Tracked) -> bool:
+        if tracked.obj.name != self._object_kind:
             return False
-        return self._check_event(object, **self._params)
+        return self._check_event(tracked, **self._params)
 
 
 def intersects(tracked: Tracked, seg: Segment) -> bool:
@@ -24,8 +22,7 @@ def intersects(tracked: Tracked, seg: Segment) -> bool:
     diag1 = Segment(b.start, Coords(b.start.x + b.width, b.start.y + b.height))
     diag2 = Segment(Coords(b.start.x + b.width, b.start.y),
                     Coords(b.start.x, b.start.y + b.height))
-    intersect = segments_intersect(
-        diag1, seg) or segments_intersect(diag2, seg)
+    intersect = segments_intersect(diag1, seg) or segments_intersect(diag2, seg)
 
     new_intersection = False
     if not intersect:

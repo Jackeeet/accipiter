@@ -1,10 +1,7 @@
 import cv2
 from abc import ABC, abstractmethod
-from collections import namedtuple
 
-Coords = namedtuple("Coords", "x y")
-
-Box = namedtuple("Box", "start width height")
+from ...objectmodels import Coords
 
 
 class Tool(ABC):
@@ -37,7 +34,8 @@ class Segment(Tool):
 
 
 class Curve(Tool):
-    def __init__(self, center: Coords, radius: int, start: int, end: int, colour: tuple[int, int, int] = None, thickness: int = 2):
+    def __init__(self, center: Coords, radius: int, start: int, end: int, colour: tuple[int, int, int] = None,
+                 thickness: int = 2):
         self.center = center
         self.major_axis = radius
         self.minor_axis = radius
@@ -68,7 +66,8 @@ class Line(Tool):  # this is the old trajectory
 
 
 class Counter(Tool):
-    def __init__(self, start: int = 0, step: int = 1, draw: bool = False, origin: Coords = None, colour: tuple[int, int, int] = None, thickness: int = 2):
+    def __init__(self, start: int = 0, step: int = 1, draw: bool = False, origin: Coords = None,
+                 colour: tuple[int, int, int] = None, thickness: int = 2):
         super().__init__(colour, thickness)
         self._origin = origin
         self._font = cv2.FONT_HERSHEY_SIMPLEX
