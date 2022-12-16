@@ -18,14 +18,15 @@ class VideoHandler:
             success, frame = self._capture.read()
             if success:
                 self._analyzer.process_frame(frame)
-                cv2.imshow('output', frame)
-                if cv2.waitKey(25) & 0xFF == ord('q'):
-                    print('interrupted')
-                    break
+                yield b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + bytearray(frame) + b'\r\n'
+                # cv2.imshow('output', frame)
+                # if cv2.waitKey(25) & 0xFF == ord('q'):
+                #     print('interrupted')
+                #     break
             else:
                 print('reached video end')
                 break
 
     def __del(self):
         self._capture.release()
-        cv2.destroyAllWindows()
+        # cv2.destroyAllWindows()
