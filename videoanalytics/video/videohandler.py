@@ -1,3 +1,6 @@
+""" This class is really only necessary for running the video on the desktop,
+I'll either rewrite it into some sort of controller or delete it entirely later
+"""
 import cv2
 from ..analytics import Analyzer
 
@@ -18,15 +21,14 @@ class VideoHandler:
             success, frame = self._capture.read()
             if success:
                 self._analyzer.process_frame(frame)
-                yield b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + bytearray(frame) + b'\r\n'
-                # cv2.imshow('output', frame)
-                # if cv2.waitKey(25) & 0xFF == ord('q'):
-                #     print('interrupted')
-                #     break
+                cv2.imshow('output', frame)
+                if cv2.waitKey(25) & 0xFF == ord('q'):
+                    print('interrupted')
+                    break
             else:
                 print('reached video end')
                 break
 
     def __del(self):
         self._capture.release()
-        # cv2.destroyAllWindows()
+        cv2.destroyAllWindows()

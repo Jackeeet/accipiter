@@ -35,6 +35,8 @@ class Analyzer:
         for name, tool in tools.items():
             tool.draw_on(frame)
 
+        return frame
+
     @staticmethod
     def previous_position(pt: Coords, pool: dict[Coords, Tracked], margin: int) -> Coords | None:
         for point in pool.keys():

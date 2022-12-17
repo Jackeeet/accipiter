@@ -1,35 +1,10 @@
-# import threading
-#
-# from videoanalytics import VideoHandler
-# from fastapi import FastAPI, APIRouter, Header
-# from fastapi.responses import StreamingResponse
-#
-# outputFrame = None
-# lock = threading.Lock()
-#
-# app = FastAPI(title="Test API", openapi_url="/openapi.json")
-#
-# api_router = APIRouter()
-#
-#
-# @api_router.get("/video")
-# async def video_feed(range: str = Header(None)):
-#     start, end = range.replace("bytes=", "").split("-")
-#     start = int(start)
-#     end = int(end) if end else start + 1024 * 1024
-#
-#     # handler = VideoHandler()
-#
-#
-# app.include_router(api_router)
-#
-
 import asyncio
 import os
 
 from aiortc import RTCPeerConnection, RTCSessionDescription, MediaStreamTrack
 from aiortc.contrib.media import MediaPlayer, MediaRelay
 from av.frame import Frame
+from av import VideoFrame
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -37,7 +12,6 @@ from pydantic import BaseModel
 from videoanalytics.analytics import Analyzer
 
 ROOT = os.path.dirname(__file__)
-print(ROOT)
 
 app = FastAPI()
 
@@ -65,24 +39,28 @@ class Offer(BaseModel):
 class VideoTransformTrack(MediaStreamTrack):
     kind = "video"
 
-    def __init__(self, track):
+    def __init__(self, track, analyzer: Analyzer):
         super().__init__()
         self.track = track
-        self._analyzer = Analyzer()
+        self._analyzer = analyzer
 
     async def recv(self) -> Frame:
-        frame = await self.track.recv()
-        self._analyzer.process_frame(frame)
-        return frame
+        source_frame = await self.track.recv()
+        frame = self._analyzer.process_frame(source_frame.to_ndarray(format="bgr24"))
+        new_frame = VideoFrame.from_ndarray(frame, format="bgr24")
+        new_frame.pts = source_frame.pts
+        new_frame.time_base = source_frame.time_base
+        return new_frame
 
 
-def create_local_tracks():
+def create_local_tracks(analyzer: Analyzer):
     global relay, player, analyse
     options = {"framerate": "30", "video_size": "640x360"}
     if analyse:
         relay = MediaRelay()
+        # analyzer = Analyzer()
         player = MediaPlayer(ROOT + '/resources/videoplayback.mp4', options=options)
-        return None, VideoTransformTrack(relay.subscribe(player.video))
+        return None, VideoTransformTrack(relay.subscribe(player.video), analyzer)
     else:
 
         if relay is None:
@@ -120,8 +98,11 @@ async def offer(params: Offer):
             await pc.close()
             pcs.discard(pc)
 
+    # analyzer = Analyzer()
+
     # open media source
-    audio, video = create_local_tracks()
+    global analyzer
+    audio, video = create_local_tracks(analyzer)
 
     if audio:
         _ = pc.addTrack(audio)
@@ -147,6 +128,9 @@ async def on_shutdown():
 
 
 analyse = True
+# analyse = False
+
+analyzer = Analyzer()
 
 if __name__ == "__main__":
     import uvicorn
