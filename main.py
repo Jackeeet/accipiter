@@ -3,17 +3,20 @@ import os
 
 from aiortc import RTCPeerConnection, RTCSessionDescription, MediaStreamTrack
 from aiortc.contrib.media import MediaPlayer, MediaRelay
-from av.frame import Frame
 from av import VideoFrame
+from av.frame import Frame
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+from routers import rules
 from videoanalytics.analytics import Analyzer
 
 ROOT = os.path.dirname(__file__)
 
 app = FastAPI()
+
+app.include_router(rules.router)
 
 origins = [
     'http://localhost:3000'
@@ -58,23 +61,11 @@ def create_local_tracks(analyzer: Analyzer):
     options = {"framerate": "30", "video_size": "640x360"}
     if analyse:
         relay = MediaRelay()
-        # analyzer = Analyzer()
         player = MediaPlayer(ROOT + '/resources/videoplayback.mp4', options=options)
         return None, VideoTransformTrack(relay.subscribe(player.video), analyzer)
     else:
-
         if relay is None:
             player = MediaPlayer(ROOT + '/resources/videoplayback.mp4', options=options)
-            # if platform.system() == "Darwin":
-            #     player = MediaPlayer(
-            #         "default:none", format="avfoundation", options=options
-            #     )
-            # elif platform.system() == "Windows":
-            #     player = MediaPlayer(
-            #         "video=Integrated Camera", format="dshow", options=options
-            #     )
-            # else:
-            #     player = MediaPlayer("/dev/video0", format="v4l2", options=options)
             relay = MediaRelay()
         return None, relay.subscribe(player.video)
 
