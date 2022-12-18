@@ -1,1 +1,1 @@
-from .dependencies import *
+from .config_manager import *

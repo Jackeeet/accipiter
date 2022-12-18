@@ -7,9 +7,22 @@ from typing import Callable
 from fastapi import APIRouter, UploadFile, Depends, HTTPException, status
 from fastapi.responses import FileResponse
 
-from dependencies import rule_config
+from dependencies import rule_config, update_block
 
 router = APIRouter(prefix="/rules")
+
+
+@router.get("/active")
+async def active_file(cfg: dict = Depends(rule_config), ):
+    return {"filename": cfg["active_file_name"]}
+
+
+@router.post("/active/{filename}")
+async def set_active_file(filename: str, cfg: dict = Depends(rule_config),
+                          cfg_updater: Callable = Depends(update_block)):
+    await _access_db(cfg, action=None, check=_filename_exists, filename=filename)
+    cfg["active_file_name"] = filename
+    cfg_updater("rules", cfg)
 
 
 @router.get("")
@@ -37,7 +50,6 @@ async def update_file(filename: str, file: UploadFile, cfg: dict = Depends(rule_
         raise HTTPException(status_code=409, detail="Filename mismatch")
     await _access_db(cfg, action=None, check=_filename_exists, filename=filename)
     await _upload_file(file, filename, cfg)
-    return {"message": f"Successfully updated {filename}"}
 
 
 @router.delete("/{filename}", status_code=status.HTTP_204_NO_CONTENT)
@@ -74,6 +86,7 @@ def _filename_doesnt_exist(filename: str, db: list[str]):
         raise HTTPException(status_code=409, detail=f"A file with the name {filename} already exists.")
 
 
+# noinspection PyUnusedLocal
 async def _sort_items(db_file, filename, db: list[str]):
     return sorted(db)
 
