@@ -118,10 +118,10 @@ async def on_shutdown():
     pcs.clear()
 
 
-analyse = True
-# analyse = False
+# analyse = True
+analyse = False
 
-analyzer = Analyzer()
+analyzer = Analyzer() if analyse else None
 
 if __name__ == "__main__":
     import uvicorn

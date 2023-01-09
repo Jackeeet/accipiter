@@ -4,7 +4,7 @@ import sys
 from io import TextIOWrapper
 from typing import Callable
 
-from fastapi import APIRouter, UploadFile, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 
 from dependencies import rule_config, update_block
@@ -13,21 +13,27 @@ router = APIRouter(prefix="/rules")
 
 
 @router.get("/active")
-async def active_file(cfg: dict = Depends(rule_config), ):
-    return {"filename": cfg["active_file_name"]}
+async def active_file(cfg: dict = Depends(rule_config)):
+    return cfg["active_file"]
 
 
 @router.post("/active/{filename}")
 async def set_active_file(filename: str, cfg: dict = Depends(rule_config),
                           cfg_updater: Callable = Depends(update_block)):
     await _access_db(cfg, action=None, check=_filename_exists, filename=filename)
-    cfg["active_file_name"] = filename
+    cfg["active_file"] = filename
     cfg_updater("rules", cfg)
+
+
+@router.get("/check/{filename}")
+async def file_exists(filename: str, cfg: dict = Depends(rule_config)):
+    exists = await _file_in_db(cfg, filename)
+    return {"exists": exists}
 
 
 @router.get("")
 async def get_file_names(cfg: dict = Depends(rule_config)):
-    return await _access_db(cfg, action=_sort_items, check=None, filename=None)
+    return await _access_db(cfg, action=None, check=None, filename=None)
 
 
 @router.get("/{filename}")
@@ -37,27 +43,21 @@ async def get_file(filename: str, cfg: dict = Depends(rule_config)):
     return FileResponse(stored_file)
 
 
-@router.post("", status_code=status.HTTP_201_CREATED)
+@router.post("")
 async def upload(file: UploadFile, cfg: dict = Depends(rule_config)):
     await _upload_file(file, file.filename, cfg)
-    await _access_db(cfg, action=_add_filename, check=_filename_doesnt_exist, filename=file.filename)
+    await _access_db(cfg, action=_add_filename, check=None, filename=file.filename)
     return {"message": f"Successfully uploaded {file.filename}"}
 
 
-@router.post("/{filename}", status_code=status.HTTP_204_NO_CONTENT)
-async def update_file(filename: str, file: UploadFile, cfg: dict = Depends(rule_config)):
-    if filename != file.filename:
-        raise HTTPException(status_code=409, detail="Filename mismatch")
-    await _access_db(cfg, action=None, check=_filename_exists, filename=filename)
-    await _upload_file(file, filename, cfg)
-
-
-@router.delete("/{filename}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{filename}")
 async def delete_file(filename: str, cfg: dict = Depends(rule_config)):
-    await _access_db(cfg, action=_delete_filename, check=_filename_exists, filename=filename)
+    filenames = await _access_db(cfg, action=_delete_filename, check=_filename_exists, filename=filename)
     try:
         os.remove(sys.path[0] + cfg["files_dir"] + filename)
+        return filenames
     except OSError as ex:
+        await _access_db(cfg, action=_add_filename, check=None, filename=filename)
         raise HTTPException(status_code=409, detail=f"Could not delete the file: {ex}")
 
 
@@ -69,38 +69,46 @@ async def _access_db(cfg: dict, action: Callable = None, check: Callable = None,
             if check is not None:
                 check(filename, db)
             if action is not None:
-                result = await action(dbf, filename, db)
-                return result
-
+                await action(dbf, filename, db)
+            return db
     except FileNotFoundError:
         raise HTTPException(status_code=409, detail=f"Could not access the file database.")
 
 
+async def _file_in_db(cfg: dict, filename: str) -> bool:
+    """ Opens the db file and checks if the filename exists. """
+    db_file = sys.path[0] + cfg["db_file"]
+    try:
+        with open(db_file, "r+") as dbf:
+            db = json.load(dbf)
+            return filename in db
+    except FileNotFoundError:
+        raise HTTPException(status_code=409, detail=f"Could not access the file database.")
+
+
+# ---- Checks ----
 def _filename_exists(filename: str, db: list[str]):
+    """ Checks if the filename exists in a db file that's already open. """
     if filename not in db:
         raise HTTPException(status_code=409, detail=f"A file with the name {filename} does not exist.")
 
 
-def _filename_doesnt_exist(filename: str, db: list[str]):
-    if filename in db:
-        raise HTTPException(status_code=409, detail=f"A file with the name {filename} already exists.")
-
-
-# noinspection PyUnusedLocal
-async def _sort_items(db_file, filename, db: list[str]):
-    return sorted(db)
-
-
+# ---- Actions ----
 async def _delete_filename(db_file: TextIOWrapper, filename: str, db: list[str]):
-    db.remove(filename)
-    _rewrite_db(db_file, db)
+    if filename in db:
+        db.remove(filename)
+        _rewrite_db(db_file, db)
+    # perhaps filename not being in db should be an error
 
 
 async def _add_filename(db_file: TextIOWrapper, filename: str, db: list[str]):
-    db.append(filename)
-    _rewrite_db(db_file, db)
+    if filename not in db:
+        db.append(filename)
+        _rewrite_db(db_file, db)
+    # if it's already in the database, do nothing
 
 
+# ---- Helpers ----
 async def _upload_file(file: UploadFile, filename: str, cfg: dict):
     # todo check file extension
     try:
@@ -116,5 +124,5 @@ async def _upload_file(file: UploadFile, filename: str, cfg: dict):
 
 def _rewrite_db(db_file: TextIOWrapper, contents: list[str]):
     db_file.seek(0)
-    db_file.write(json.dumps(contents))
+    db_file.write(json.dumps(sorted(contents)))
     db_file.truncate()
