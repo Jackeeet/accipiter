@@ -1,7 +1,7 @@
 from typing import Any, Callable
 
 from .tools import Counter
-from ...objectmodels import Tracked
+from ...models import Tracked
 
 
 class Action:

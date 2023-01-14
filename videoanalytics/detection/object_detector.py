@@ -7,7 +7,7 @@ from cv2.dnn import (
     DNN_TARGET_CUDA,
 )
 
-from ..objectmodels import Detected
+from ..models import Detected
 
 
 class ObjectDetector:

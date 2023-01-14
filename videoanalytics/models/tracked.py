@@ -1,4 +1,4 @@
-from videoanalytics.objectmodels.detected import Detected
+from videoanalytics.models.detected import Detected
 from .tracked_state import TrackedState
 
 

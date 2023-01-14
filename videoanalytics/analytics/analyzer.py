@@ -1,7 +1,7 @@
 from .declarable.tools import Coords
-from .declared import *
+from . import declared
 from ..detection import ObjectDetector
-from ..objectmodels import Tracked, Detected
+from ..models import Tracked, Detected
 
 
 class Analyzer:
@@ -13,7 +13,7 @@ class Analyzer:
 
     def process_frame(self, frame):
         detected = [o for o in self.detector.return_objects(frame)
-                    if o.name in object_kinds]
+                    if o.name in declared.object_kinds]
         self.DEBUG_detected_count += len(detected)
         self.object_pool = self.update_pool(self.object_pool, detected)
         for tracked in self.object_pool.values():
@@ -21,7 +21,7 @@ class Analyzer:
                 continue  # don't process boxes from previous frames
 
             # checking all declared conditions
-            for condition in conditions:
+            for condition in declared.conditions:
                 # executing declared actions if the condition holds
                 if condition.condition.check(tracked):
                     for action in condition.actions:
@@ -32,7 +32,7 @@ class Analyzer:
             tracked.obj.draw(frame)
 
         # drawing all declared tools
-        for name, tool in tools.items():
+        for name, tool in declared.tools.items():
             tool.draw_on(frame)
 
         return frame

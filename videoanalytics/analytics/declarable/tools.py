@@ -1,7 +1,7 @@
 import cv2
 from abc import ABC, abstractmethod
 
-from ...objectmodels import Coords
+from ...models import Coords
 
 
 class Tool(ABC):

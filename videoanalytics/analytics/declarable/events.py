@@ -2,7 +2,7 @@ from typing import Any, Callable
 
 from .tools import Coords, Segment
 from ..geometry import segments_intersect
-from ...objectmodels import Tracked, TrackedState
+from ...models import Tracked, TrackedState
 
 
 class Event:

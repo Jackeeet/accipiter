@@ -14,8 +14,8 @@ def segments_intersect(s1: Segment, s2: Segment) -> bool:
     d3 = _direction(*p123)
     d4 = _direction(*p124)
 
-    p12_straddles_p34 = d1 > 0 and d2 < 0 or d1 < 0 and d2 > 0
-    p34_straddles_p12 = d3 > 0 and d4 < 0 or d3 < 0 and d4 > 0
+    p12_straddles_p34 = d1 > 0 > d2 or d1 < 0 < d2
+    p34_straddles_p12 = d3 > 0 > d4 or d3 < 0 < d4
     if p12_straddles_p34 and p34_straddles_p12:
         return True
 

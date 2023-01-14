@@ -1,13 +1,16 @@
+import importlib
 import json
 import os
 import sys
 from io import TextIOWrapper
 from typing import Callable
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, HTTPException, Response, status, UploadFile
 from fastapi.responses import FileResponse
 
 from dependencies import rule_config, update_block
+
+from redpoll.translator import TranslationError, Translator
 
 router = APIRouter(prefix="/rules")
 
@@ -17,12 +20,30 @@ async def active_file(cfg: dict = Depends(rule_config)):
     return cfg["active_file"]
 
 
-@router.post("/active/{filename}")
-async def set_active_file(filename: str, cfg: dict = Depends(rule_config),
+@router.post("/active/{filename}", status_code=200)
+async def set_active_file(filename: str,
+                          response: Response,
+                          cfg: dict = Depends(rule_config),
                           cfg_updater: Callable = Depends(update_block)):
     await _access_db(cfg, action=None, check=_filename_exists, filename=filename)
+
+    input_file = sys.path[0] + cfg["files_dir"] + filename
+    output_file = sys.path[0] + cfg["translated_rules_path"]
+    translator = Translator(input_file, output_file)
+    try:
+        translator.translate()
+    except TranslationError as t_err:
+        response.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
+        return {'message': t_err}
+
+    output_module = 'videoanalytics.analytics.declared'
+    if output_module in sys.modules:
+        import videoanalytics.analytics.declared
+        importlib.reload(videoanalytics.analytics.declared)
+
     cfg["active_file"] = filename
     cfg_updater("rules", cfg)
+    return {'message': 'Successfully set active file'}
 
 
 @router.get("/check/{filename}")
