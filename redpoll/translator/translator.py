@@ -4,7 +4,7 @@ from .filewriter import FileWriter
 from .objectmap import names
 from .translationerror import TranslationError
 from ..types import OpType
-from ..analyzer.syntactic import Parser
+from ..analyzer.syntactic import ParseError, Parser
 from ..expressions import *
 from ..resources import keywords as kw
 
@@ -62,8 +62,11 @@ class Translator(ExpressionVisitor):
         with open(self._source_path, 'r', encoding='utf8') as sourcefile:
             parser = Parser(sourcefile.read())
         root = parser.parse()
-        with FileWriter(self._output_path) as self._file:
-            self.visit_program(root)
+        try:
+            with FileWriter(self._output_path) as self._file:
+                self.visit_program(root)
+        except ParseError as err:
+            raise TranslationError(err)
 
     def visit_program(self, expr: ProgramExpr) -> None:
         self._file.writeln("__all__ = ['object_kinds', 'tools', 'conditions']")

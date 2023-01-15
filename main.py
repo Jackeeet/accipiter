@@ -1,13 +1,15 @@
 import asyncio
 import os
 
-from aiortc import RTCPeerConnection, RTCSessionDescription, MediaStreamTrack
+from aiortc import MediaStreamTrack, RTCPeerConnection, RTCSessionDescription
 from aiortc.contrib.media import MediaPlayer, MediaRelay
 from av import VideoFrame
 from av.frame import Frame
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 
 from routers import rules
 from videoanalytics.analytics import Analyzer
@@ -18,17 +20,31 @@ app = FastAPI()
 
 app.include_router(rules.router)
 
+
+async def catch_exceptions_middleware(request: Request, call_next):
+    try:
+        return await call_next(request)
+    except Exception as e:
+        content = {"message": "Internal server error", "details": str(e)}
+        return JSONResponse(content=content, status_code=500)
+
+
+app.middleware('http')(catch_exceptions_middleware)
+
 origins = [
     'http://localhost:3000',
-    'http://localhost:3000/'
+    'http://localhost:3000/',
+    'localhost:3000',
+    'localhost:3000/'
 ]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
+    # allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"]
+    allow_headers=["*"],
 )
 
 relay = None

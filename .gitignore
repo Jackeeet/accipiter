@@ -3,6 +3,5 @@
 __pycache__
 .py[cod]
 output/
-resources/
 videoanalytics/detection/darknet
 videoanalytics/detection/declared.py
