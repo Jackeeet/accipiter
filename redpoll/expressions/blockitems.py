@@ -3,11 +3,11 @@ __all__ = ['BlockItemExpr', 'ObjectExpr',
 
 from abc import abstractmethod
 
-from .expression import Expr
-from .declarable import DeclarableExpr, ActionExpr, EventExpr
-from .generic import BinaryExpr
-from .identifiers import ObjectIdExpr, ProcessingIdExpr
-from .visitor import ExpressionVisitor
+from redpoll.expressions.expression import Expr
+from redpoll.expressions.declarable import DeclarableExpr, ActionExpr, EventExpr
+from redpoll.expressions.generic import BinaryExpr
+from redpoll.expressions.identifiers import ObjectIdExpr, ProcessingIdExpr
+from redpoll.expressions.visitor import ExpressionVisitor
 
 
 class BlockItemExpr(Expr):

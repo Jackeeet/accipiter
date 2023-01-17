@@ -1,10 +1,10 @@
-from .parseerror import ParseError
-from ..lexical import Lexer
-from ..token import Token, TokenKind
-from ...expressions import *
-from ...types import OpType, DataType
-from ...resources import keywords as kw
-from ...resources.messages import parseerrors as err
+from redpoll.expressions import *
+from redpoll.types import OpType, DataType
+from redpoll.resources import keywords as kw
+from redpoll.resources.messages import parseerrors as err
+from redpoll.analyzer.token import Token, TokenKind
+from redpoll.analyzer.lexical import Lexer
+from redpoll.analyzer.syntactic.parseerror import ParseError
 
 
 class Parser:
@@ -16,6 +16,10 @@ class Parser:
             TokenKind.LINE: DataType.LINE,
             TokenKind.COUNTER: DataType.COUNTER
         }
+
+        self._value_firsts = {TokenKind.TOOL_ID_START, TokenKind.DOT,
+                              TokenKind.LEFT_BRACKET, TokenKind.COLOUR,
+                              TokenKind.NUMBER, TokenKind.STRING}
 
         self._lexer = Lexer(input_str)
         self._next_token()
@@ -131,7 +135,7 @@ class Parser:
             case TokenKind.NUMBER | TokenKind.STRING:
                 return self._parse_literal()
             case _:
-                raise ParseError(err.unexpected_token(self._token, "Значение параметра инструмента"))
+                raise ParseError(err.unexpected_token(self._token, "Значение параметра"))
 
     def _parse_tool_parts(self) -> ToolPartsExpr:
         parts: list[ToolExpr | ToolIdExpr] = []
@@ -183,7 +187,7 @@ class Parser:
             case TokenKind.ACTION_NAME:
                 return self._parse_action()
             case TokenKind.LEFT_BRACKET | TokenKind.IDENTIFIER | TokenKind.TOOL_ID_START | TokenKind.PROC_ID_START:
-                return self._parse_event_or()
+                return self._parse_event_disjunction()
             case _:
                 raise ParseError(err.unsupported_processing_type())
 
@@ -191,21 +195,19 @@ class Parser:
         expr = ActionExpr()
         expr.name = ActionIdExpr(self._read_value(TokenKind.ACTION_NAME))
         self._match(TokenKind.LEFT_BRACKET)
-        if self._token.kind == TokenKind.PARAM_NAME:
-            self._parse_named_param(expr.params)
-            self._parse_named_params(expr.params)
+        self._parse_params(expr.params)
         self._match(TokenKind.RIGHT_BRACKET)
         return expr
 
-    def _parse_event_or(self) -> BinaryExpr | EventExpr | ProcessingIdExpr:
-        left = self._parse_event_and()
+    def _parse_event_disjunction(self) -> BinaryExpr | EventExpr | ProcessingIdExpr:
+        left = self._parse_event_conjunction()
         while self._token.kind == TokenKind.OR:
             self._match(TokenKind.OR)
-            right = self._parse_event_and()
+            right = self._parse_event_conjunction()
             left = BinaryExpr(left, OpType.OR, right)
         return left
 
-    def _parse_event_and(self) -> BinaryExpr | EventExpr | ProcessingIdExpr:
+    def _parse_event_conjunction(self) -> BinaryExpr | EventExpr | ProcessingIdExpr:
         left = self._parse_event_or_event_id()
         while self._token.kind == TokenKind.AND:
             self._match(TokenKind.AND)
@@ -221,7 +223,7 @@ class Parser:
                 return self._parse_event()
             case TokenKind.LEFT_BRACKET:
                 self._match(TokenKind.LEFT_BRACKET)
-                event = self._parse_event_or()
+                event = self._parse_event_disjunction()
                 self._match(TokenKind.RIGHT_BRACKET)
                 return event
             case _:
@@ -239,18 +241,16 @@ class Parser:
         self._match(TokenKind.DOT)
         expr.name = EventIdExpr(self._read_value(TokenKind.EVENT_NAME))
         self._match(TokenKind.LEFT_BRACKET)
-        if self._token.kind == TokenKind.PARAM_NAME:
-            self._parse_named_param(expr.params)
-            self._parse_named_params(expr.params)
-        self._parse_named_params(expr.params)
+        self._parse_params(expr.params)
         self._match(TokenKind.RIGHT_BRACKET)
         return expr
 
-    def _parse_params(self, param_list: list[AtomicExpr]) -> None:
-        param_list.append(self._parse_value())
-        self._parse_next_params(param_list)
+    def _parse_params(self, param_list: list[ParamsExpr]) -> None:
+        if self._token.kind in self._value_firsts:
+            param_list.append(self._parse_value())
+            self._parse_next_params(param_list)
 
-    def _parse_next_params(self, param_list: list[AtomicExpr]) -> None:
+    def _parse_next_params(self, param_list: list[ParamsExpr]) -> None:
         while self._token.kind == TokenKind.COMMA:
             self._match(TokenKind.COMMA)
             param_list.append(self._parse_value())
@@ -258,7 +258,7 @@ class Parser:
     def _parse_condition(self) -> ConditionExpr:
         expr = ConditionExpr()
         self._match(TokenKind.IF)
-        expr.event = self._parse_event_or()
+        expr.event = self._parse_event_disjunction()
         self._match(TokenKind.COLON)
         self._parse_condition_actions(expr.actions)
         self._match(TokenKind.SEMICOLON)

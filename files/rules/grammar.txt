@@ -1,0 +1,140 @@
+<program>       ::= <object-block> <tool-block> <process-block> 
+
+<object-block>  ::= "объекты" ":" <object-list> ";"
+
+<object-list>   ::= <object-decl> <object-list>
+                  | ""
+
+<object-decl>   ::= <object-id> ";"
+
+<object-id>     ::= <id>
+
+<tool-block>    ::= "инструменты" ":" <tool-list> ";"
+
+<tool-list>     ::= <tool-decl> <tool-list> 
+                  | ""
+
+<tool-decl>     ::= <tool-id> ":" <tool> ";" 
+
+<tool>          ::= <type> <named-params>
+
+<tool-id>       ::= "*" <id>
+
+<type>          ::= <coord> 
+                  | "отрезок" 
+                  | "дуга" 
+                  | "область" 
+                  | "траектория"
+                  | "счетчик"
+
+<named-params>  ::= "," <named-param> <named-params> 
+                  | ""
+
+<named-param>   ::= <param-name> "=" <value> 
+
+<value>         ::= <tool-id> 
+                  | <int> 
+                  | <str> 
+                  | <coord> 
+                  | <colour>
+                  | <tool-parts>
+
+<tool-parts>    ::= "." "." "." "(" <tool-part> <next-parts> ")"
+
+<tool-part>     ::= <tool>
+                  | <tool-id>
+
+<next-parts>    ::= ";" <tool-part> <next-parts>
+                  | ""
+
+<coord>         ::= "(" <num> "," <num> ")"
+
+<colour>        ::= "rgb" "(" <num> "," <num> "," <num> ")"
+
+<process-block> ::= "обработка" ":" <process-list> ";"
+
+<process-list>  ::= <process-decl> <process-list>
+                  | <condition> <process-list>
+                  | ""
+
+<process-decl>  ::= <process-id> ":" <process-body> ";"
+
+<process-id>    ::= "_" <id>
+
+<process-body>  ::= <action> 
+                  | <event-or>
+
+<action>        ::= <action-id> "(" <opt-params> ")"
+                  | ""  
+
+<action-id>     ::= "оповестить"
+                  | "сохранить"
+                  | "увеличить"
+                  | "уменьшить"
+                  | "обнулить"
+
+<opt-params>    ::= <named-param> <named-params>
+
+; the next two rules are left-recursive because
+; otherwise they lose left associativity
+; and it seems easier to implement custom AST building
+; than double-check associativity rules
+
+<event-or>      ::= <event-or> "или" <event-and>
+                  | <event-and>
+
+<event-and>     ::= <event-and> "и" <event-or-id>
+                  | <event-or-id>
+
+<event-or-id>   ::= "(" <event-or> ")"
+                  | <event>
+                  | <process-id>
+
+<event>         ::= <object-id> "." <event-id> "(" <opt-params> ")"
+                  | <tool-id> "." <event-id> "(" <opt-params> ")"
+
+<event-id>      ::= "пересекает"
+                  | "входитВ"
+                  | "покидает"
+                  | "отклоняетсяОт"
+                  | "ускоряется"
+                  | "замедляется"
+                  | "неподвижен"
+                  | "появляется"
+                  | "исчезает"
+                  | "равен"
+                  | "превышает"
+
+<params>        ::= <value> <next-params>
+                  | ""
+
+<next-params>   ::= "," <value> <next-params>
+                  | ""
+
+<condition>     ::= "если" <event-or> ":" <action-list> ";"
+
+<action-list>   ::= <process-id> ";" <action-list>
+                  | <action> ";" <action-list>
+                  | ""
+
+; ---- helpers ----
+
+<id>            ::= 
+
+<int>           ::= "-" <num>
+                  | <num>
+
+<num>           ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+
+<str>           ::= '"' <text> '"'
+
+<param-name>    ::= 
+
+<text>          ::= 
+
+<comm-single>   ::= "-" "-" <text> "EOL"
+                  | "-" "-" <text> "EOT"
+
+<comm-multi>    ::= "\" "\" <comm-text> "/" "/"
+
+<comm-text>     ::= 

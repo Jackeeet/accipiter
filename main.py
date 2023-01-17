@@ -98,6 +98,7 @@ async def offer(params: Offer):
 
     pc = RTCPeerConnection()
     pcs.add(pc)
+    await pc.setRemoteDescription(offer_data)
 
     @pc.on("connectionstatechange")
     async def on_connectionstatechange():
@@ -105,8 +106,6 @@ async def offer(params: Offer):
         if pc.connectionState == "failed":
             await pc.close()
             pcs.discard(pc)
-
-    # analyzer = Analyzer()
 
     # open media source
     global analyzer
@@ -117,7 +116,6 @@ async def offer(params: Offer):
     if video:
         _ = pc.addTrack(video)
 
-    await pc.setRemoteDescription(offer_data)
     answer = await pc.createAnswer()
     await pc.setLocalDescription(answer)
 
@@ -135,8 +133,8 @@ async def on_shutdown():
     pcs.clear()
 
 
-# analyse = True
-analyse = False
+analyse = True
+# analyse = False
 
 analyzer = Analyzer() if analyse else None
 

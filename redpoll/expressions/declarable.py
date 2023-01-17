@@ -2,20 +2,22 @@ __all__ = ['DeclarableExpr', 'ActionExpr', 'EventExpr']
 
 from abc import abstractmethod
 
-from .expression import Expr
-from .identifiers import ActionIdExpr, EventIdExpr, ObjectIdExpr, ToolIdExpr
-from .paramexpressions import ParamsExpr
-from .visitor import ExpressionVisitor
+from redpoll.expressions.expression import Expr
+from redpoll.expressions.identifiers import ActionIdExpr, EventIdExpr, ObjectIdExpr, ToolIdExpr
+from redpoll.expressions.paramexpressions import ParamsExpr
+from redpoll.expressions.visitor import ExpressionVisitor
 
 
 class DeclarableExpr(Expr):
     """ Expressions that can be used as declaration bodies in the processing block."""
-    params: dict[str, ParamsExpr]
+    # params: dict[str, ParamsExpr]
+    params: list[ParamsExpr]
 
     @abstractmethod
     def __init__(self) -> None:
         super().__init__()
-        self.params = dict()
+        # self.params = dict()
+        self.params = []
 
     def __eq__(self, o: object) -> bool:
         if isinstance(o, DeclarableExpr):

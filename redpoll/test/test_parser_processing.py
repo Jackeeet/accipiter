@@ -17,7 +17,7 @@ def suffix():
 
 
 def test_parse_event_declaration(prefix, suffix):
-    declaration = "_пр1: человек.пересекает(элемент=*л1);"
+    declaration = "_пр1: человек.пересекает(*л1);"
     parser = Parser(prefix + declaration + suffix)
 
     program: ProgramExpr = parser.parse()
@@ -38,14 +38,14 @@ def test_parse_event_declaration(prefix, suffix):
 
     params: list[ParamsExpr] = event.params
     assert len(params) == 1
-    assert type(params['элемент']) is ToolIdExpr
-    assert params['элемент'].value == "л1"
+    assert type(params[0]) is ToolIdExpr
+    assert params[0].value == "л1"
 
 
 def test_parse_chain_event_decl(prefix, suffix):
-    declaration = "_пр1: человек.пересекает(элемент=*л1) или человек.пересекает(элемент=*л2) и\n" + \
-                  "_событие1 или (человек.пересекает(элемент=*л4)) и\n" + \
-                  "человек.покидает(элемент=*зона1) и человек.пересекает(элемент=*л5);"
+    declaration = "_пр1: человек.пересекает(*л1) или человек.пересекает(*л2) и\n" + \
+                  "_событие1 или (человек.пересекает(*л4)) и\n" + \
+                  "человек.покидает(*зона1) и человек.пересекает(*л5);"
     parser = Parser(prefix + declaration + suffix)
 
     program: ProgramExpr = parser.parse()
@@ -77,8 +77,8 @@ def test_parse_chain_event_decl(prefix, suffix):
 
 
 def test_parse_grouped_chain_decl(prefix, suffix):
-    declaration = "_пр1: (человек.пересекает(элемент=*л1) или человек.пересекает(элемент=*л2)) и\n" + \
-                  "(человек.пересекает(элемент=*л3) или человек.пересекает(элемент=*л4));"
+    declaration = "_пр1: (человек.пересекает(*л1) или человек.пересекает(*л2)) и\n" + \
+                  "(человек.пересекает(*л3) или человек.пересекает(*л4));"
     parser = Parser(prefix + declaration + suffix)
 
     program: ProgramExpr = parser.parse()
@@ -95,7 +95,7 @@ def test_parse_grouped_chain_decl(prefix, suffix):
 
 
 def test_parse_tool_event_declaration(prefix, suffix):
-    declaration = "_а: *сч1.равен(число=1000);"
+    declaration = "_а: *сч1.равен(1000);"
     parser = Parser(prefix + declaration + suffix)
 
     program: ProgramExpr = parser.parse()
@@ -106,11 +106,11 @@ def test_parse_tool_event_declaration(prefix, suffix):
     assert body.target.value == "сч1"
     assert body.name.value == "равен"
     assert len(body.params) == 1
-    assert body.params['число'] == AtomicExpr(1000, DataType.INT)
+    assert body.params[0] == AtomicExpr(1000, DataType.INT)
 
 
 def test_parse_action_declaration(prefix, suffix):
-    declaration = "_действие1: оповестить(сообщение=\"сообщение 1\");"
+    declaration = "_действие1: оповестить(\"сообщение 1\");"
     parser = Parser(prefix + declaration + suffix)
 
     program: ProgramExpr = parser.parse()
@@ -124,7 +124,7 @@ def test_parse_action_declaration(prefix, suffix):
     assert type(body.name) is ActionIdExpr
     assert body.name.value == "оповестить"
     assert len(body.params) == 1
-    assert body.params['сообщение'] == AtomicExpr("сообщение 1", DataType.STRING)
+    assert body.params[0] == AtomicExpr("сообщение 1", DataType.STRING)
 
 
 def test_parse_parameterless_action_declaration(prefix, suffix):
@@ -164,9 +164,9 @@ def test_parse_id_condition(prefix, suffix):
 
 
 def test_parse_event_condition(prefix, suffix):
-    check = "если (автомобиль.пересекает(элемент=*л2)):\n" + \
+    check = "если (автомобиль.пересекает(*л2)):\n" + \
             "    _действие1;\n" + \
-            "    оповестить(сообщение=\"сообщение\");\n" + \
+            "    оповестить(\"сообщение\");\n" + \
             ";"
     parser = Parser(prefix + check + suffix)
 
@@ -186,7 +186,7 @@ def test_parse_event_condition(prefix, suffix):
     assert actions[0].value == "действие1"
     assert type(actions[1]) is ActionExpr
     assert actions[1].name.value == "оповестить"
-    msg: AtomicExpr = actions[1].params["сообщение"]
+    msg: AtomicExpr = actions[1].params[0]
     assert type(msg) is AtomicExpr and msg.type == DataType.STRING
     assert msg.value == "'сообщение'"
 
@@ -208,7 +208,7 @@ def test_parse_double_id_condition(prefix, suffix):
 
 
 def test_parse_double_event_condition(prefix, suffix):
-    check = "если (автомобиль.пересекает(элемент=*л1)) и (автомобиль.пересекает(элемент=*л2)): ;"
+    check = "если (автомобиль.пересекает(*л1)) и (автомобиль.пересекает(*л2)): ;"
     parser = Parser(prefix + check + suffix)
 
     program: ProgramExpr = parser.parse()
@@ -224,7 +224,7 @@ def test_parse_double_event_condition(prefix, suffix):
 
 
 def test_parse_id_event_condition(prefix, suffix):
-    check = "если _событие1 и (автомобиль.пересекает(элемент=*л2)): ;"
+    check = "если _событие1 и (автомобиль.пересекает(*л2)): ;"
     parser = Parser(prefix + check + suffix)
 
     program: ProgramExpr = parser.parse()
@@ -239,7 +239,7 @@ def test_parse_id_event_condition(prefix, suffix):
 
 
 def test_parse_event_id_condition(prefix, suffix):
-    check = "если (автомобиль.пересекает(элемент=*л1)) и _событие2: ;"
+    check = "если (автомобиль.пересекает(*л1)) и _событие2: ;"
     parser = Parser(prefix + check + suffix)
 
     program: ProgramExpr = parser.parse()

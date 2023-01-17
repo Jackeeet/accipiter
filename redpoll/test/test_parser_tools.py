@@ -221,14 +221,14 @@ def test_raise_on_invalid_value(prefix, suffix):
     parser = Parser(prefix + "*о1: прямая, от=радиус, до=(2,2);" + suffix)
     with pytest.raises(ParseError) as error:
         _ = parser.parse()
-    assert "[Значение параметра инструмента]" in str(error.value)
+    assert "[Значение параметра]" in str(error.value)
 
 
 def test_raise_on_non_tool_id_tool_param_value(prefix, suffix):
     parser = Parser(prefix + "*л1: прямая, от=(20, 30), до=человек;" + suffix)
     with pytest.raises(ParseError) as error:
         _ = parser.parse()
-    assert "[Значение параметра инструмента]" in str(error.value)
+    assert "[Значение параметра]" in str(error.value)
 
 
 def test_raise_on_invalid_colour(prefix, suffix):
