@@ -193,9 +193,9 @@ class Parser:
 
     def _parse_action(self) -> ActionExpr:
         expr = ActionExpr()
-        expr.name = ActionIdExpr(self._read_value(TokenKind.ACTION_NAME))
+        expr.name = ActionNameExpr(self._read_value(TokenKind.ACTION_NAME))
         self._match(TokenKind.LEFT_BRACKET)
-        self._parse_params(expr.params)
+        self._parse_params(expr.args)
         self._match(TokenKind.RIGHT_BRACKET)
         return expr
 
@@ -239,9 +239,9 @@ class Parser:
             raise ParseError(err.unexpected_token(self._token, "Источник события"))
 
         self._match(TokenKind.DOT)
-        expr.name = EventIdExpr(self._read_value(TokenKind.EVENT_NAME))
+        expr.name = EventNameExpr(self._read_value(TokenKind.EVENT_NAME))
         self._match(TokenKind.LEFT_BRACKET)
-        self._parse_params(expr.params)
+        self._parse_params(expr.args)
         self._match(TokenKind.RIGHT_BRACKET)
         return expr
 

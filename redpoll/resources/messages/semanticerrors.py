@@ -18,6 +18,14 @@ def missing_required_tool_param():
     return "missing required tool param"
 
 
+def missing_required_action_param():
+    return "missing required action param"
+
+
+def missing_required_event_param():
+    return "missing required event param"
+
+
 def parameter_type_mismatch():
     return "parameter type mismatch"
 

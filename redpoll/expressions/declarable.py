@@ -3,25 +3,23 @@ __all__ = ['DeclarableExpr', 'ActionExpr', 'EventExpr']
 from abc import abstractmethod
 
 from redpoll.expressions.expression import Expr
-from redpoll.expressions.identifiers import ActionIdExpr, EventIdExpr, ObjectIdExpr, ToolIdExpr
+from redpoll.expressions.identifiers import ActionNameExpr, EventNameExpr, ObjectIdExpr, ToolIdExpr
 from redpoll.expressions.paramexpressions import ParamsExpr
 from redpoll.expressions.visitor import ExpressionVisitor
 
 
 class DeclarableExpr(Expr):
     """ Expressions that can be used as declaration bodies in the processing block."""
-    # params: dict[str, ParamsExpr]
-    params: list[ParamsExpr]
+    args: list[ParamsExpr]
 
     @abstractmethod
     def __init__(self) -> None:
         super().__init__()
-        # self.params = dict()
-        self.params = []
+        self.args = []
 
     def __eq__(self, o: object) -> bool:
         if isinstance(o, DeclarableExpr):
-            return self.params == o.params
+            return self.args == o.args
         return False
 
     def __ne__(self, o: object) -> bool:
@@ -29,9 +27,9 @@ class DeclarableExpr(Expr):
 
 
 class ActionExpr(DeclarableExpr):
-    name: ActionIdExpr | None
+    name: ActionNameExpr | None
 
-    def __init__(self, name: ActionIdExpr = None) -> None:
+    def __init__(self, name: ActionNameExpr = None) -> None:
         self.name = name
         super().__init__()
 
@@ -52,9 +50,9 @@ class ActionExpr(DeclarableExpr):
 
 class EventExpr(DeclarableExpr):
     target: ObjectIdExpr | ToolIdExpr | None
-    name: EventIdExpr | None
+    name: EventNameExpr | None
 
-    def __init__(self, target: ObjectIdExpr | ToolIdExpr = None, event: EventIdExpr = None) -> None:
+    def __init__(self, target: ObjectIdExpr | ToolIdExpr = None, event: EventNameExpr = None) -> None:
         self.target = target
         self.name = event
         super().__init__()

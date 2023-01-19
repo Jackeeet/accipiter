@@ -60,13 +60,13 @@ class ExpressionVisitor(ABC):
     def visit_action(self, expr) -> None: pass
 
     @abstractmethod
-    def visit_action_id(self, expr) -> None: pass
+    def visit_action_name(self, expr) -> None: pass
 
     @abstractmethod
     def visit_event(self, expr) -> None: pass
 
     @abstractmethod
-    def visit_event_id(self, expr) -> None: pass
+    def visit_event_name(self, expr) -> None: pass
 
     @abstractmethod
     def visit_binary(self, expr) -> None: pass

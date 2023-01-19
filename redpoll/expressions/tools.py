@@ -3,11 +3,12 @@ __all__ = ['ToolExpr', 'PointExpr', 'SegmentExpr', 'CurveExpr',
 
 from abc import ABC
 
-from .blockitems import BlockItemExpr
-from .identifiers import ToolIdExpr
-from .paramexpressions import AtomicExpr, ParamsExpr
-from .visitor import ExpressionVisitor
-from ..types import DataType
+from redpoll.expressions.blockitems import BlockItemExpr
+from redpoll.expressions.identifiers import ToolIdExpr
+from redpoll.expressions.paramexpressions import AtomicExpr, ParamsExpr
+from redpoll.expressions.visitor import ExpressionVisitor
+from redpoll.types import DataType
+import redpoll.resources.keywords as kw
 
 
 class ToolExpr(BlockItemExpr, ABC):
@@ -47,6 +48,10 @@ class ToolExpr(BlockItemExpr, ABC):
 
 
 class PointExpr(ToolExpr):
+    @property
+    def coords(self) -> AtomicExpr:
+        return self.params[kw.POINT]
+
     def accept(self, visitor: ExpressionVisitor):
         return visitor.visit_point(self)
 
@@ -56,11 +61,11 @@ class SegmentExpr(ToolExpr):
     # but that requires rewriting the parser again
     @property
     def start(self) -> AtomicExpr:
-        return self.params["от"]
+        return self.params[kw.FROM]
 
     @property
     def end(self) -> AtomicExpr:
-        return self.params["до"]
+        return self.params[kw.TO]
 
     def accept(self, visitor: ExpressionVisitor):
         return visitor.visit_segment(self)
@@ -97,7 +102,7 @@ class CurveExpr(ToolExpr):
 
     @property
     def center(self) -> AtomicExpr:
-        return self.params["центр"]
+        return self.params[kw.CENTER]
 
     def accept(self, visitor: ExpressionVisitor):
         return visitor.visit_curve(self)

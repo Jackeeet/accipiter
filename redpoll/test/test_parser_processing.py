@@ -33,10 +33,10 @@ def test_parse_event_declaration(prefix, suffix):
     assert type(event) is EventExpr
     assert type(event.target) is ObjectIdExpr
     assert event.target.value == "человек"
-    assert type(event.name) is EventIdExpr
+    assert type(event.name) is EventNameExpr
     assert event.name.value == "пересекает"
 
-    params: list[ParamsExpr] = event.params
+    params: list[ParamsExpr] = event.args
     assert len(params) == 1
     assert type(params[0]) is ToolIdExpr
     assert params[0].value == "л1"
@@ -105,8 +105,8 @@ def test_parse_tool_event_declaration(prefix, suffix):
     assert type(body.target) is ToolIdExpr
     assert body.target.value == "сч1"
     assert body.name.value == "равен"
-    assert len(body.params) == 1
-    assert body.params[0] == AtomicExpr(1000, DataType.INT)
+    assert len(body.args) == 1
+    assert body.args[0] == AtomicExpr(1000, DataType.INT)
 
 
 def test_parse_action_declaration(prefix, suffix):
@@ -121,10 +121,10 @@ def test_parse_action_declaration(prefix, suffix):
 
     body: ActionExpr = expr.body
     assert type(body) is ActionExpr
-    assert type(body.name) is ActionIdExpr
+    assert type(body.name) is ActionNameExpr
     assert body.name.value == "оповестить"
-    assert len(body.params) == 1
-    assert body.params[0] == AtomicExpr("сообщение 1", DataType.STRING)
+    assert len(body.args) == 1
+    assert body.args[0] == AtomicExpr("сообщение 1", DataType.STRING)
 
 
 def test_parse_parameterless_action_declaration(prefix, suffix):
@@ -139,9 +139,9 @@ def test_parse_parameterless_action_declaration(prefix, suffix):
 
     body: ActionExpr = expr.body
     assert type(body) is ActionExpr
-    assert type(body.name) is ActionIdExpr
+    assert type(body.name) is ActionNameExpr
     assert body.name.value == "сохранить"
-    assert len(body.params) == 0
+    assert len(body.args) == 0
 
 
 def test_parse_id_condition(prefix, suffix):
@@ -186,7 +186,7 @@ def test_parse_event_condition(prefix, suffix):
     assert actions[0].value == "действие1"
     assert type(actions[1]) is ActionExpr
     assert actions[1].name.value == "оповестить"
-    msg: AtomicExpr = actions[1].params[0]
+    msg: AtomicExpr = actions[1].args[0]
     assert type(msg) is AtomicExpr and msg.type == DataType.STRING
     assert msg.value == "'сообщение'"
 

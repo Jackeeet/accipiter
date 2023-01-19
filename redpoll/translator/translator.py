@@ -1,12 +1,13 @@
 from bidict import bidict
 
-from .filewriter import FileWriter
-from .objectmap import names
-from .translationerror import TranslationError
-from ..types import OpType
-from ..analyzer.syntactic import ParseError, Parser
-from ..expressions import *
-from ..resources import keywords as kw
+from redpoll.analyzer.semantic import Analyzer, SemanticError
+from redpoll.analyzer.syntactic import ParseError
+from redpoll.expressions import *
+from redpoll.resources import keywords as kw
+from redpoll.translator.filewriter import FileWriter
+from redpoll.translator.objectmap import names
+from redpoll.translator.translationerror import TranslationError
+from redpoll.types import OpType
 
 
 class Translator(ExpressionVisitor):
@@ -25,10 +26,10 @@ class Translator(ExpressionVisitor):
         kw.STEP: "step",
         kw.POINT: "at",
 
-        kw.ELEMENT: "element",
-        kw.MESSAGE: "message",
-        kw.NUMBER: "count",
-        kw.COUNT: "counter",
+        # kw.ELEMENT: "element",
+        # kw.MESSAGE: "message",
+        # kw.NUMBER: "count",
+        # kw.COUNT: "counter",
     }
 
     _action_names: dict[str, str] = {
@@ -49,8 +50,12 @@ class Translator(ExpressionVisitor):
         self._source_path = source
         self._output_path = output
 
+        self._object_kinds = bidict()
         self._tools = bidict()
         self._declarations = bidict()
+
+    def _next_obj_index(self) -> int:
+        return len(self._object_kinds)
 
     def _next_tool_index(self) -> int:
         return len(self._tools)
@@ -59,26 +64,27 @@ class Translator(ExpressionVisitor):
         return len(self._declarations)
 
     def translate(self) -> None:
-        with open(self._source_path, 'r', encoding='utf8') as sourcefile:
-            parser = Parser(sourcefile.read())
-        root = parser.parse()
         try:
-            with FileWriter(self._output_path) as self._file:
-                self.visit_program(root)
-        except ParseError as err:
+            with open(self._source_path, 'r', encoding='utf8') as sourcefile:
+                analyzer = Analyzer(sourcefile.read())
+            root = analyzer.analyze()
+        except (ParseError, SemanticError) as err:
             raise TranslationError(err)
+
+        with FileWriter(self._output_path) as self._file:
+            self.visit_program(root)
 
     def visit_program(self, expr: ProgramExpr) -> None:
         self._file.writeln("__all__ = ['object_kinds', 'tools', 'conditions']")
 
-        self._file.writeln("print(\"'declared' loaded\")")
+        self._file.writeln()
+        self._file.writeln("from videoanalytics.analytics.declarable.actions import *")
+        self._file.writeln("from videoanalytics.analytics.declarable.condition import *")
+        self._file.writeln("from videoanalytics.analytics.declarable.events import *")
+        self._file.writeln("from videoanalytics.analytics.declarable.tools import *")
+        self._file.writeln()
 
-        self._file.writeln()
-        self._file.writeln("from .declarable.actions import *")
-        self._file.writeln("from .declarable.condition import *")
-        self._file.writeln("from .declarable.events import *")
-        self._file.writeln("from .declarable.tools import *")
-        self._file.writeln()
+        self._file.writeln("print(\"'declared' loaded\")")
 
         expr.objects.accept(self)
         expr.tools.accept(self)
@@ -96,7 +102,13 @@ class Translator(ExpressionVisitor):
         self._file.write("', ")
 
     def visit_object_id(self, expr: ObjectIdExpr) -> None:
-        self._file.write(names[expr.value])
+        if expr.value in self._object_kinds.inverse:
+            index = self._object_kinds.inverse[expr.value]
+            self._file.write(f"object_kinds[{index}]")
+        else:
+            index = self._next_obj_index()
+            self._object_kinds[index] = expr.value
+            self._file.write(names[expr.value])
 
     def visit_tool_block(self, expr: ToolBlockExpr) -> None:
         self._file.writeln("tools: dict[int, Tool | tuple[int, int]] = dict()")
@@ -174,7 +186,6 @@ class Translator(ExpressionVisitor):
             item.accept(self)
 
     def visit_processing_id(self, expr: ProcessingIdExpr) -> None:
-        # todo extract method
         if expr.value in self._declarations.inverse:
             index = self._declarations.inverse[expr.value]
         else:
@@ -201,26 +212,36 @@ class Translator(ExpressionVisitor):
         self._file.writeln()
 
     def visit_action(self, expr: ActionExpr) -> None:
-        self._handle_decl_body("Action", expr)
-
-    def visit_action_id(self, expr: ActionIdExpr) -> None:
-        self._file.write(self._action_names[expr.value])
-
-    def visit_event(self, expr: EventExpr) -> None:
-        self._handle_decl_body("Event", expr)
-
-    def _handle_decl_body(self, kind: str, expr: ActionExpr | EventExpr) -> None:
-        self._file.write(f"{kind}(")
+        self._file.write("Action(")
         expr.name.accept(self)
         self._file.write(",{")
-        for name, value in expr.params.items():
-            self._file.write(f"'{self._param_names[name]}'")
+        assert (len(expr.attrs.param_names) == len(expr.args))
+        for name, value in zip(expr.attrs.param_names, expr.args):
+            self._file.write(f"'{name}'")
             self._file.write(": ")
             value.accept(self)
             self._file.write(",")
         self._file.write("})")
 
-    def visit_event_id(self, expr: EventIdExpr) -> None:
+    def visit_action_name(self, expr: ActionNameExpr) -> None:
+        self._file.write(self._action_names[expr.value])
+
+    def visit_event(self, expr: EventExpr) -> None:
+        self._file.write("Event(")
+        expr.name.accept(self)
+        self._file.write(",")
+        expr.target.accept(self)
+        self._file.write(",{")
+
+        assert (len(expr.attrs.param_names) == len(expr.args))
+        for name, value in zip(expr.attrs.param_names, expr.args):
+            self._file.write(f"'{name}'")
+            self._file.write(": ")
+            value.accept(self)
+            self._file.write(",")
+        self._file.write("})")
+
+    def visit_event_name(self, expr: EventNameExpr) -> None:
         self._file.write(self._event_names[expr.value])
 
     def visit_binary(self, expr: BinaryExpr) -> None:

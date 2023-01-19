@@ -17,12 +17,12 @@ class Event:
         return self._check_event(tracked, **self._params)
 
 
-def intersects(tracked: Tracked, seg: Segment) -> bool:
+def intersects(tracked: Tracked, segment: Segment) -> bool:
     b = tracked.obj.box
     diag1 = Segment(b.start, Coords(b.start.x + b.width, b.start.y + b.height))
     diag2 = Segment(Coords(b.start.x + b.width, b.start.y),
                     Coords(b.start.x, b.start.y + b.height))
-    intersect = segments_intersect(diag1, seg) or segments_intersect(diag2, seg)
+    intersect = segments_intersect(diag1, segment) or segments_intersect(diag2, segment)
 
     new_intersection = False
     if not intersect:

@@ -34,7 +34,7 @@ async def set_active_file(filename: str,
         translator.translate()
     except TranslationError as t_err:
         response.status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
-        return {'message': t_err}
+        return {'message': str(t_err)}
 
     output_module = 'videoanalytics.analytics.declared'
     if output_module in sys.modules:

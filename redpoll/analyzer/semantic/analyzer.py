@@ -1,9 +1,9 @@
-from .semanticerror import SemanticError
-from ..syntactic import Parser
-from ...expressions import *
-from ...types import DataType
-from ...resources import keywords as kw
-from ...resources.messages import semanticerrors as err
+from redpoll.analyzer.semantic.lookup import action, event, tool
+from redpoll.analyzer.semantic.semanticerror import SemanticError
+from redpoll.analyzer.syntactic import Parser
+from redpoll.expressions import *
+from redpoll.resources.messages import semanticerrors as err
+from redpoll.types import DataType
 
 
 class Analyzer(ExpressionVisitor):
@@ -12,48 +12,13 @@ class Analyzer(ExpressionVisitor):
     def __init__(self, input_str: str):
         parser = Parser(input_str)
         self._ast = parser.parse()
-        self._default_params = {kw.COLOUR, kw.THICKNESS}
-
-        # обязательные параметры для инструмента
-        self._required_tool_params = {
-            DataType.POINT: {kw.POINT},
-            DataType.SEGMENT: {kw.FROM, kw.TO},
-            DataType.CURVE: {kw.CENTER, kw.RADIUS, kw.ANGLE_FROM, kw.ANGLE_TO},
-            DataType.AREA: {kw.CONTENTS},
-            DataType.LINE: {kw.CONTENTS},
-            DataType.COUNTER: {kw.START, kw.STEP}
-        }
-
-        # допустимые параметры для инструмента
-        self._tool_param_lists = {k: v.union(self._default_params) if k != DataType.POINT else v
-                                  for k, v in self._required_tool_params.items()}
-
-        # допустимые типы данных для параметров инструментов
-        self._param_types = {
-            kw.CONTENTS: {DataType.COMPOSITE},
-            kw.FROM: {DataType.COORDS, DataType.POINT},
-            kw.TO: {DataType.COORDS, DataType.POINT},
-            kw.ANGLE_FROM: {DataType.INT},
-            kw.ANGLE_TO: {DataType.INT},
-            kw.POINT: {DataType.COORDS, DataType.TOOL_ID},
-            kw.COLOUR: {DataType.COLOUR},
-            kw.THICKNESS: {DataType.INT},
-            kw.CENTER: {DataType.COORDS, DataType.POINT},
-            kw.RADIUS: {DataType.INT},
-            kw.START: {DataType.INT},
-            kw.STEP: {DataType.INT}
-        }
-
         # таблица для хранения объектов, связанных с идентификаторами
         self._id_tools = dict()
 
-        # допустимые типы данных для частей составного инструмента
-        self._part_types = {DataType.SEGMENT, DataType.CURVE}
-
-    def analyze(self) -> bool:
+    def analyze(self) -> ProgramExpr:
         try:
             self.visit_program(self._ast)
-            return True
+            return self._ast
         except SemanticError:
             raise
 
@@ -78,10 +43,10 @@ class Analyzer(ExpressionVisitor):
         expr.id.accept(self)
 
     def visit_tool_block(self, expr: ToolBlockExpr) -> None:
-        tool: ToolExpr
-        for tool in expr.items:
-            tool.accept(self)
-            tool_id = tool.attrs.name
+        t: ToolExpr
+        for t in expr.items:
+            t.accept(self)
+            tool_id = t.attrs.name
             if tool_id in expr.attrs.names:
                 raise SemanticError(err.duplicated_tool_id())
             expr.attrs.names.add(tool_id)
@@ -97,6 +62,7 @@ class Analyzer(ExpressionVisitor):
                     raise SemanticError(err.unconnected_line())
             case _:
                 raise ValueError(err.unsupported_tool_part_type())
+        return True
 
     def _get_part_endpoints(self, composite: ToolPartsExpr) -> set[AtomicExpr]:
         points: set[AtomicExpr] = set()
@@ -114,8 +80,11 @@ class Analyzer(ExpressionVisitor):
             if part in existing_parts_of_same_type:
                 raise SemanticError(err.duplicated_tool_part())
             existing_parts_of_same_type.add(part)
-            points.add(part.start)
-            points.add(part.end)
+
+            start = self._id_tools[part.start.value].coords if isinstance(part.start, ToolIdExpr) else part.start
+            end = self._id_tools[part.end.value].coords if isinstance(part.end, ToolIdExpr) else part.end
+            points.add(start)
+            points.add(end)
         return points
 
     def _get_part_by_id(self, part: ToolIdExpr):
@@ -155,7 +124,8 @@ class Analyzer(ExpressionVisitor):
 
     def _run_tool_checks(self, expr: ToolExpr) -> None:
         for param_name, param_value in expr.params.items():
-            if param_name not in self._tool_param_lists[expr.attrs.datatype]:
+            if param_name not in tool.param_lists[expr.attrs.datatype]:
+                # if param_name not in self._tool_param_lists[expr.attrs.datatype]:
                 raise SemanticError(err.unexpected_parameter_name(param_name))
             expr.attrs.filled_params.add(param_name)
 
@@ -167,12 +137,12 @@ class Analyzer(ExpressionVisitor):
                 elif param_value.attrs.name not in self._id_tools:
                     raise SemanticError(err.undeclared_tool_variable(param_value.attrs.name))
 
-            if param_value.attrs.datatype not in self._param_types[param_name]:
+            if param_value.attrs.datatype not in tool.param_types[param_name]:
                 raise SemanticError(err.parameter_type_mismatch())
 
             if param_value.attrs.datatype == DataType.COMPOSITE:
                 self._check_composite_shape(expr.attrs.datatype, param_value)
-        if not expr.attrs.filled_params.issuperset(self._required_tool_params[expr.attrs.datatype]):
+        if not expr.attrs.filled_params.issuperset(tool.required_params[expr.attrs.datatype]):
             raise SemanticError(err.missing_required_tool_param())
 
     def _visit_tool(self, expr: ToolExpr, datatype: DataType) -> None:
@@ -202,28 +172,56 @@ class Analyzer(ExpressionVisitor):
         expr.attrs.datatype = expr.type
 
     def visit_processing_block(self, expr: ProcessingBlockExpr) -> None:
-        pass
+        for procExpr in expr.items:
+            procExpr.accept(self)
 
     def visit_processing_id(self, expr: ProcessingIdExpr) -> None:
         expr.attrs.name = expr.value
 
     def visit_condition(self, expr: ConditionExpr) -> None:
-        pass
+        expr.event.accept(self)
+        for act in expr.actions:
+            act.accept(self)
 
     def visit_declaration(self, expr: DeclarationExpr) -> None:
-        pass
+        expr.name.accept(self)
+        expr.body.accept(self)
+
+    def _visit_declarable_params(self, param_names, arguments, attrs):
+        param_name: str
+        arg: ParamsExpr
+        for (param_name, arg) in zip(param_names, arguments):
+            arg.accept(self)
+            # todo check types
+            attrs.param_names.append(param_name)
 
     def visit_action(self, expr: ActionExpr) -> None:
-        pass
+        action_name = expr.name.value
+        required = action.required_params[action_name]
+        if len(expr.args) < len(required):
+            raise SemanticError(err.missing_required_action_param())
+        extra = action.extra_params[action_name]
+        params = [*required, *extra]
+        self._visit_declarable_params(params, expr.args, expr.attrs)
 
-    def visit_action_id(self, expr: ActionIdExpr) -> None:
+    def visit_action_name(self, expr: ActionNameExpr) -> None:
         pass
 
     def visit_event(self, expr: EventExpr) -> None:
-        pass
+        expr.target.accept(self)
+        event_name = expr.name.value
+        required = event.required_params[event_name]
+        if len(expr.args) < len(required):
+            raise SemanticError(err.missing_required_event_param())
+        extra = event.extra_params[event_name]
+        params = [*required, *extra]
+        self._visit_declarable_params(params, expr.args, expr.attrs)
 
-    def visit_event_id(self, expr: EventIdExpr) -> None:
+    def visit_event_name(self, expr: EventNameExpr) -> None:
         pass
 
     def visit_binary(self, expr: BinaryExpr) -> None:
-        pass
+        if expr.left:
+            expr.left.accept(self)
+        if expr.right:
+            expr.right.accept(self)

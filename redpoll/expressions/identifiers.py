@@ -1,5 +1,5 @@
 __all__ = ['IdentifierExpr', 'ObjectIdExpr', 'ToolIdExpr',
-           'ProcessingIdExpr', 'ActionIdExpr', 'EventIdExpr']
+           'ProcessingIdExpr', 'ActionNameExpr', 'EventNameExpr']
 
 from abc import abstractmethod
 
@@ -60,7 +60,7 @@ class ProcessingIdExpr(IdentifierExpr):
         visitor.visit_processing_id(self)
 
 
-class ActionIdExpr(IdentifierExpr):
+class ActionNameExpr(IdentifierExpr):
     def __init__(self, value: str) -> None:
         super().__init__(value)
 
@@ -68,10 +68,10 @@ class ActionIdExpr(IdentifierExpr):
         return f"ActionIdExpr({self.value})"
 
     def accept(self, visitor: ExpressionVisitor):
-        visitor.visit_action_id(self)
+        visitor.visit_action_name(self)
 
 
-class EventIdExpr(IdentifierExpr):
+class EventNameExpr(IdentifierExpr):
     def __init__(self, value: str) -> None:
         super().__init__(value)
 
@@ -79,4 +79,4 @@ class EventIdExpr(IdentifierExpr):
         return f"EventIdExpr({self.value})"
 
     def accept(self, visitor: ExpressionVisitor):
-        visitor.visit_event_id(self)
+        visitor.visit_event_name(self)
