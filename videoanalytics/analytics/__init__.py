@@ -1,1 +1,1 @@
-from .analyzer import Analyzer
+from videoanalytics.analytics.analyzer import Analyzer

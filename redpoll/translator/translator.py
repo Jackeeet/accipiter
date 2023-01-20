@@ -25,11 +25,6 @@ class Translator(ExpressionVisitor):
         kw.START: "start",
         kw.STEP: "step",
         kw.POINT: "at",
-
-        # kw.ELEMENT: "element",
-        # kw.MESSAGE: "message",
-        # kw.NUMBER: "count",
-        # kw.COUNT: "counter",
     }
 
     _action_names: dict[str, str] = {
@@ -42,7 +37,7 @@ class Translator(ExpressionVisitor):
     }
 
     _event_names: dict[str, str] = {
-        kw.CROSSING: "intersects",
+        kw.CROSSING: "crosses",
         kw.EQUALS: "equals"
     }
 
@@ -245,7 +240,7 @@ class Translator(ExpressionVisitor):
         self._file.write(self._event_names[expr.value])
 
     def visit_binary(self, expr: BinaryExpr) -> None:
-        self._file.writeln("BinaryEventChain(")
+        self._file.writeln("EventChain(")
         self._file.write("        left=")
         expr.left.accept(self)
         self._file.writeln(",")

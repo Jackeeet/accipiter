@@ -7,7 +7,7 @@ from cv2.dnn import (
     DNN_TARGET_CUDA,
 )
 
-from ..models import Detected
+from videoanalytics.models import Detected
 
 
 class ObjectDetector:

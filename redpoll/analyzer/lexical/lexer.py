@@ -1,8 +1,8 @@
-from .state import State
-from .lexererror import LexerError
-from .transliterator import Symbol, Transliterator
-from ..token import Token, TokenKind
-from ...resources import keywords as kw
+from redpoll.analyzer.lexical.lexererror import LexerError
+from redpoll.analyzer.lexical.state import State
+from redpoll.analyzer.lexical.transliterator import Symbol, Transliterator
+from redpoll.analyzer.token import Token, TokenKind
+from redpoll.resources import keywords as kw
 
 
 class Lexer:

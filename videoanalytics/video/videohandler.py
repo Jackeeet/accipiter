@@ -2,7 +2,7 @@
 I'll either rewrite it into some sort of controller or delete it entirely later
 """
 import cv2
-from ..analytics import Analyzer
+from videoanalytics.analytics import Analyzer
 
 
 class VideoHandler:

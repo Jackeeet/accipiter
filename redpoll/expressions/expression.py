@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
-from .attributes import Attributes
-from .visitor import ExpressionVisitor
+from redpoll.expressions.attributes import Attributes
+from redpoll.expressions.visitor import ExpressionVisitor
 
 
 class Expr(ABC):

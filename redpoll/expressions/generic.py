@@ -1,9 +1,9 @@
 __all__ = ['ProgramExpr', 'BinaryExpr']
 
-from .expression import Expr
-from .blocks import ObjectBlockExpr, ToolBlockExpr, ProcessingBlockExpr
-from .visitor import ExpressionVisitor
-from ..types import OpType
+from redpoll.expressions.expression import Expr
+from redpoll.expressions.blocks import ObjectBlockExpr, ToolBlockExpr, ProcessingBlockExpr
+from redpoll.expressions.visitor import ExpressionVisitor
+from redpoll.types import OpType
 
 
 class ProgramExpr(Expr):

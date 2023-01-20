@@ -1,1 +1,1 @@
-from .videohandler import VideoHandler
+from videoanalytics.video.videohandler import VideoHandler

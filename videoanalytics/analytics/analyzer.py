@@ -1,7 +1,6 @@
-from .declarable.tools import Coords
 from . import declared
-from ..detection import ObjectDetector
-from ..models import Tracked, Detected
+from videoanalytics.detection import ObjectDetector
+from videoanalytics.models import Tracked, Detected, Coords
 
 
 class Analyzer:

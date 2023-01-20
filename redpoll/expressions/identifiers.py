@@ -3,8 +3,8 @@ __all__ = ['IdentifierExpr', 'ObjectIdExpr', 'ToolIdExpr',
 
 from abc import abstractmethod
 
-from .paramexpressions import ParamsExpr
-from .visitor import ExpressionVisitor
+from redpoll.expressions.paramexpressions import ParamsExpr
+from redpoll.expressions.visitor import ExpressionVisitor
 
 
 class IdentifierExpr(ParamsExpr):

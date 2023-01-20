@@ -2,8 +2,8 @@ __all__ = ['BlockExpr', 'ObjectBlockExpr', 'ToolBlockExpr', 'ProcessingBlockExpr
 
 from abc import abstractmethod
 
-from .expression import Expr
-from .visitor import ExpressionVisitor
+from redpoll.expressions.expression import Expr
+from redpoll.expressions.visitor import ExpressionVisitor
 
 
 class BlockExpr(Expr):

@@ -1,5 +1,5 @@
 from videoanalytics.models.detected import Detected
-from .tracked_state import TrackedState
+from videoanalytics.models.tracked_state import TrackedState
 
 
 class Tracked:

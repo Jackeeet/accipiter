@@ -2,9 +2,9 @@ __all__ = ['ParamsExpr', 'AtomicExpr', 'ToolPartsExpr']
 
 from abc import ABC
 
-from .expression import Expr
-from .visitor import ExpressionVisitor
-from ..types import DataType
+from redpoll.expressions.expression import Expr
+from redpoll.expressions.visitor import ExpressionVisitor
+from redpoll.types import DataType
 
 
 class ParamsExpr(Expr, ABC):

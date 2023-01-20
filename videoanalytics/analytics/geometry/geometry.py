@@ -1,6 +1,7 @@
 import numpy as np
 
-from ..declarable.tools import Segment, Coords
+from videoanalytics.analytics.declarable.tools import Segment
+from videoanalytics.models import Coords
 
 
 def segments_intersect(s1: Segment, s2: Segment) -> bool:
