@@ -2,7 +2,7 @@ __all__ = ['ParamsExpr', 'ToolPartsExpr']
 
 from abc import ABC
 
-from redpoll.expressions.expression import Expr
+from redpoll.expressions.expr import Expr
 from redpoll.expressions.visitor import ExpressionVisitor
 
 

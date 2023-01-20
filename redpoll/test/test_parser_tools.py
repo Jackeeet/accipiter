@@ -2,8 +2,12 @@ import pytest
 
 from redpoll.types import DataType
 from redpoll.analyzer.syntactic import ParseError, Parser
-from redpoll.expressions import AreaExpr, CurveExpr, LineExpr, PointExpr, ProgramExpr, SegmentExpr, ToolExpr, \
-    ToolIdExpr, CoordsExpr, ColourExpr, IntExpr
+from redpoll.expressions import AreaExpr, CurveExpr, LineExpr, PointExpr, SegmentExpr, ToolExpr, \
+    ToolIdExpr
+from redpoll.expressions.programexpr import ProgramExpr
+from redpoll.expressions.atomics.intexpr import IntExpr
+from redpoll.expressions.atomics.coordsexpr import CoordsExpr
+from redpoll.expressions.atomics.colourexpr import ColourExpr
 from redpoll.expressions.paramexpressions import ToolPartsExpr, ParamsExpr
 from redpoll.resources import keywords as kw
 from redpoll.resources.messages import parseerrors as err

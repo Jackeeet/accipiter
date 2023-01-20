@@ -2,6 +2,13 @@ from redpoll.analyzer.semantic.lookup import action, event, tool
 from redpoll.analyzer.semantic.semanticerror import SemanticError
 from redpoll.analyzer.syntactic import Parser
 from redpoll.expressions import *
+from redpoll.expressions.atomics.colourexpr import ColourExpr
+from redpoll.expressions.atomics.coordsexpr import CoordsExpr
+from redpoll.expressions.atomics.floatexpr import FloatExpr
+from redpoll.expressions.atomics.intexpr import IntExpr
+from redpoll.expressions.atomics.stringexpr import StringExpr
+from redpoll.expressions.binaryexpr import BinaryExpr
+from redpoll.expressions.programexpr import ProgramExpr
 from redpoll.resources.messages import semanticerrors as err
 from redpoll.types import DataType
 

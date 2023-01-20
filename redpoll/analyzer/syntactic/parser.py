@@ -100,7 +100,7 @@ class Parser:
             return expr
 
         if self._token.kind in self._complex_tool_types:
-            expr = ToolExpr.instantiate_with_type(self._complex_tool_types[self._token.kind])
+            expr = instantiate_tool_with_type(self._complex_tool_types[self._token.kind])
             expr.params[kw.COLOUR] = ColourExpr((0, 0, 0))
             expr.params[kw.THICKNESS] = IntExpr(1)
             self._next_token()

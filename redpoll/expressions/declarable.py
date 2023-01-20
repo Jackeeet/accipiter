@@ -2,7 +2,7 @@ __all__ = ['DeclarableExpr', 'ActionExpr', 'EventExpr']
 
 from abc import abstractmethod
 
-from redpoll.expressions.expression import Expr
+from redpoll.expressions.expr import Expr
 from redpoll.expressions.identifiers import ActionNameExpr, EventNameExpr, ObjectIdExpr, ToolIdExpr
 from redpoll.expressions.paramexpressions import ParamsExpr
 from redpoll.expressions.visitor import ExpressionVisitor
