@@ -106,7 +106,7 @@ def test_parse_tool_event_declaration(prefix, suffix):
     assert body.target.value == "сч1"
     assert body.name.value == "равен"
     assert len(body.args) == 1
-    assert body.args[0] == AtomicExpr(1000, DataType.INT)
+    assert body.args[0] == IntExpr(1000)
 
 
 def test_parse_action_declaration(prefix, suffix):
@@ -124,7 +124,7 @@ def test_parse_action_declaration(prefix, suffix):
     assert type(body.name) is ActionNameExpr
     assert body.name.value == "оповестить"
     assert len(body.args) == 1
-    assert body.args[0] == AtomicExpr("сообщение 1", DataType.STRING)
+    assert body.args[0] == StringExpr("сообщение 1")
 
 
 def test_parse_parameterless_action_declaration(prefix, suffix):
@@ -186,8 +186,8 @@ def test_parse_event_condition(prefix, suffix):
     assert actions[0].value == "действие1"
     assert type(actions[1]) is ActionExpr
     assert actions[1].name.value == "оповестить"
-    msg: AtomicExpr = actions[1].args[0]
-    assert type(msg) is AtomicExpr and msg.type == DataType.STRING
+    msg: StringExpr = actions[1].args[0]
+    assert type(msg) is StringExpr and msg.type == DataType.STRING
     assert msg.value == "'сообщение'"
 
 

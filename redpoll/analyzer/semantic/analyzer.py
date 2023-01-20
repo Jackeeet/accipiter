@@ -141,6 +141,7 @@ class Analyzer(ExpressionVisitor):
                 raise SemanticError(err.parameter_type_mismatch())
 
             if param_value.attrs.datatype == DataType.COMPOSITE:
+                param_value: ToolPartsExpr
                 self._check_composite_shape(expr.attrs.datatype, param_value)
         if not expr.attrs.filled_params.issuperset(tool.required_params[expr.attrs.datatype]):
             raise SemanticError(err.missing_required_tool_param())
@@ -168,7 +169,23 @@ class Analyzer(ExpressionVisitor):
     def visit_counter(self, expr: CounterExpr) -> None:
         self._visit_tool(expr, DataType.COUNTER)
 
-    def visit_atomic(self, expr: AtomicExpr) -> None:
+    def visit_colour(self, expr: ColourExpr) -> None:
+        self._visit_atomic(expr)
+
+    def visit_coords(self, expr: CoordsExpr) -> None:
+        self._visit_atomic(expr)
+
+    def visit_float(self, expr: FloatExpr) -> None:
+        self._visit_atomic(expr)
+
+    def visit_int(self, expr: IntExpr) -> None:
+        self._visit_atomic(expr)
+
+    def visit_string(self, expr: StringExpr) -> None:
+        self._visit_atomic(expr)
+
+    @staticmethod
+    def _visit_atomic(expr: AtomicExpr) -> None:
         expr.attrs.datatype = expr.type
 
     def visit_processing_block(self, expr: ProcessingBlockExpr) -> None:

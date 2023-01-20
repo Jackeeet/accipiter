@@ -33,7 +33,7 @@ class Translator(ExpressionVisitor):
         kw.RESET: "reset",
         kw.ALERT: "alert",
         kw.SAVE: "save",
-        kw.SET_COLOUR: "set_colour",
+        kw.FLASH: "flash",
     }
 
     _event_names: dict[str, str] = {
@@ -77,6 +77,7 @@ class Translator(ExpressionVisitor):
         self._file.writeln("from videoanalytics.analytics.declarable.condition import *")
         self._file.writeln("from videoanalytics.analytics.declarable.events import *")
         self._file.writeln("from videoanalytics.analytics.declarable.tools import *")
+        self._file.writeln("from videoanalytics.models import Coords")
         self._file.writeln()
 
         self._file.writeln("print(\"'declared' loaded\")")
@@ -168,7 +169,23 @@ class Translator(ExpressionVisitor):
     def visit_counter(self, expr: CounterExpr) -> None:
         self._visit_parametrised_tools(expr, "Counter")
 
-    def visit_atomic(self, expr: AtomicExpr) -> None:
+    def visit_colour(self, expr: ColourExpr) -> None:
+        self._visit_atomic(expr)
+
+    def visit_coords(self, expr: CoordsExpr) -> None:
+        self._file.write("Coords")
+        self._visit_atomic(expr)
+
+    def visit_float(self, expr: FloatExpr) -> None:
+        self._visit_atomic(expr)
+
+    def visit_int(self, expr: IntExpr) -> None:
+        self._visit_atomic(expr)
+
+    def visit_string(self, expr: StringExpr) -> None:
+        self._visit_atomic(expr)
+
+    def _visit_atomic(self, expr: AtomicExpr) -> None:
         self._file.write(str(expr.value))
 
     def visit_processing_block(self, expr: ProcessingBlockExpr) -> None:

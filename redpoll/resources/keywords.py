@@ -47,6 +47,6 @@ SAVE = "сохранить"
 INCREMENT = "увеличить"
 DECREMENT = "уменьшить"
 RESET = "обнулить"
-SET_COLOUR = ""
+FLASH = "высветить"
 # general
 COLOUR_TOKEN = "rgb"

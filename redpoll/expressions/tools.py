@@ -3,9 +3,10 @@ __all__ = ['ToolExpr', 'PointExpr', 'SegmentExpr', 'CurveExpr',
 
 from abc import ABC
 
+from redpoll.expressions import CoordsExpr
 from redpoll.expressions.blockitems import BlockItemExpr
 from redpoll.expressions.identifiers import ToolIdExpr
-from redpoll.expressions.paramexpressions import AtomicExpr, ParamsExpr
+from redpoll.expressions.paramexpressions import ParamsExpr
 from redpoll.expressions.visitor import ExpressionVisitor
 from redpoll.types import DataType
 import redpoll.resources.keywords as kw
@@ -49,22 +50,22 @@ class ToolExpr(BlockItemExpr, ABC):
 
 class PointExpr(ToolExpr):
     @property
-    def coords(self) -> AtomicExpr:
+    def coords(self) -> CoordsExpr:
+        # noinspection PyTypeChecker
         return self.params[kw.POINT]
 
     def accept(self, visitor: ExpressionVisitor):
         return visitor.visit_point(self)
 
 
+# noinspection PyTypeChecker
 class SegmentExpr(ToolExpr):
-    # the return type really should be CoordsExpr
-    # but that requires rewriting the parser again
     @property
-    def start(self) -> AtomicExpr:
+    def start(self) -> CoordsExpr:
         return self.params[kw.FROM]
 
     @property
-    def end(self) -> AtomicExpr:
+    def end(self) -> CoordsExpr:
         return self.params[kw.TO]
 
     def accept(self, visitor: ExpressionVisitor):
@@ -85,15 +86,16 @@ class SegmentExpr(ToolExpr):
         return f"SegmentExpr({self.start}, {self.end})"
 
 
+# noinspection PyTypeChecker
 class CurveExpr(ToolExpr):
     # this should calculate the start point
     # from the center, radius and the start angle
     @property
-    def start(self) -> AtomicExpr:
+    def start(self) -> CoordsExpr:
         return self.params["asdf"]
 
     @property
-    def end(self) -> AtomicExpr:
+    def end(self) -> CoordsExpr:
         return self.params["asdf"]
 
     @property
@@ -101,7 +103,7 @@ class CurveExpr(ToolExpr):
         return self.params["радиус"]
 
     @property
-    def center(self) -> AtomicExpr:
+    def center(self) -> CoordsExpr:
         return self.params[kw.CENTER]
 
     def accept(self, visitor: ExpressionVisitor):

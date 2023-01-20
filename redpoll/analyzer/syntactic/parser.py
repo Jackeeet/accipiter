@@ -19,7 +19,7 @@ class Parser:
 
         self._value_firsts = {TokenKind.TOOL_ID_START, TokenKind.DOT,
                               TokenKind.LEFT_BRACKET, TokenKind.COLOUR,
-                              TokenKind.NUMBER, TokenKind.STRING}
+                              TokenKind.NUMBER, TokenKind.STRING, TokenKind.IDENTIFIER}
 
         self._lexer = Lexer(input_str)
         self._next_token()
@@ -61,9 +61,12 @@ class Parser:
             objects.append(self._parse_object_declaration())
 
     def _parse_object_declaration(self) -> ObjectExpr:
-        obj = ObjectExpr(ObjectIdExpr(self._read_value(TokenKind.IDENTIFIER)))
+        obj = ObjectExpr(self._parse_object_id())
         self._match(TokenKind.SEMICOLON)
         return obj
+
+    def _parse_object_id(self):
+        return ObjectIdExpr(self._read_value(TokenKind.IDENTIFIER))
 
     def _parse_tool_list(self, tool_list: list[ToolExpr]) -> None:
         while self._token.kind == TokenKind.TOOL_ID_START:
@@ -93,15 +96,13 @@ class Parser:
         if self._token.kind == TokenKind.LEFT_BRACKET:
             coords = self._parse_coordinates()
             expr = PointExpr()
-            expr.params[kw.POINT] = AtomicExpr(
-                (coords.value[0], coords.value[1]),
-                DataType.COORDS)
+            expr.params[kw.POINT] = CoordsExpr((coords.value[0], coords.value[1]))
             return expr
 
         if self._token.kind in self._complex_tool_types:
             expr = ToolExpr.instantiate_with_type(self._complex_tool_types[self._token.kind])
-            expr.params[kw.COLOUR] = AtomicExpr((0, 0, 0), DataType.COLOUR)
-            expr.params[kw.THICKNESS] = AtomicExpr(1, DataType.INT)
+            expr.params[kw.COLOUR] = ColourExpr((0, 0, 0))
+            expr.params[kw.THICKNESS] = IntExpr(1)
             self._next_token()
             return expr
 
@@ -124,6 +125,8 @@ class Parser:
 
     def _parse_value(self) -> ParamsExpr:
         match self._token.kind:
+            case TokenKind.IDENTIFIER:
+                return self._parse_object_id()
             case TokenKind.TOOL_ID_START:
                 return self._parse_tool_id()
             case TokenKind.DOT:
@@ -275,16 +278,13 @@ class Parser:
     def _parse_literal(self) -> AtomicExpr:
         match self._token.kind:
             case TokenKind.NUMBER:
-                # return IntExpr(int(self._read_value(TokenKind.NUMBER)))
-                return AtomicExpr(int(self._read_value(TokenKind.NUMBER)), DataType.INT)
+                return IntExpr(int(self._read_value(TokenKind.NUMBER)))
             case TokenKind.STRING:
-                # return StringExpr(self._read_value(TokenKind.STRING))
-                return AtomicExpr(self._read_value(TokenKind.STRING), DataType.STRING)
+                return StringExpr(self._read_value(TokenKind.STRING))
             case _:
                 raise ParseError(err.unexpected_token(self._token, "Литерал"))
 
     def _parse_colour(self) -> AtomicExpr:
-        # colour = ColourExpr
         self._match(TokenKind.COLOUR)
         # noinspection DuplicatedCode
         self._match(TokenKind.LEFT_BRACKET)
@@ -294,17 +294,16 @@ class Parser:
         self._match(TokenKind.COMMA)
         b = int(self._read_value(TokenKind.NUMBER))
         self._match(TokenKind.RIGHT_BRACKET)
-        return AtomicExpr((r, g, b), DataType.COLOUR)
+        return ColourExpr((r, g, b))
 
     def _parse_coordinates(self) -> AtomicExpr:
-        # coords = CoordExpr()
         # noinspection DuplicatedCode
         self._match(TokenKind.LEFT_BRACKET)
         x = int(self._read_value(TokenKind.NUMBER))
         self._match(TokenKind.COMMA)
         y = int(self._read_value(TokenKind.NUMBER))
         self._match(TokenKind.RIGHT_BRACKET)
-        return AtomicExpr((x, y), DataType.COORDS)
+        return CoordsExpr((x, y))
 
     def _read_token(self, kind: TokenKind) -> Token:
         """Возвращает текущий токен, если его тип совпадает с указанным,

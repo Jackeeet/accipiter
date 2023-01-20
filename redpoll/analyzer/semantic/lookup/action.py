@@ -12,7 +12,7 @@ required_params = {
     kw.INCREMENT: {pn.COUNTER},
     kw.DECREMENT: {pn.COUNTER},
     kw.RESET: {pn.COUNTER},
-    kw.SET_COLOUR: {pn.TOOL, pn.COLOUR}
+    kw.FLASH: {pn.DRAWABLE, pn.COLOUR}
 }
 
 """ Необязательные параметры действий 
@@ -27,5 +27,5 @@ extra_params = {
     kw.INCREMENT: set(),
     kw.DECREMENT: set(),
     kw.RESET: set(),
-    kw.SET_COLOUR: set()
+    kw.FLASH: set()
 }

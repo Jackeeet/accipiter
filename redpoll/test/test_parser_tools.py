@@ -2,8 +2,9 @@ import pytest
 
 from redpoll.types import DataType
 from redpoll.analyzer.syntactic import ParseError, Parser
-from redpoll.expressions import AreaExpr, CurveExpr, LineExpr, PointExpr, ProgramExpr, SegmentExpr, ToolExpr, ToolIdExpr
-from redpoll.expressions.paramexpressions import ToolPartsExpr, AtomicExpr, ParamsExpr
+from redpoll.expressions import AreaExpr, CurveExpr, LineExpr, PointExpr, ProgramExpr, SegmentExpr, ToolExpr, \
+    ToolIdExpr, CoordsExpr, ColourExpr, IntExpr
+from redpoll.expressions.paramexpressions import ToolPartsExpr, ParamsExpr
 from redpoll.resources import keywords as kw
 from redpoll.resources.messages import parseerrors as err
 
@@ -31,7 +32,7 @@ def test_parse_named_point(prefix, suffix):
     assert len(expr.params.items()) == 1
 
     assert kw.POINT in expr.params
-    assert expr.params[kw.POINT] == AtomicExpr((1, 2), DataType.COORDS)
+    assert expr.params[kw.POINT] == CoordsExpr((1, 2))
 
 
 def test_parse_segment_named_params(prefix, suffix):
@@ -43,20 +44,20 @@ def test_parse_segment_named_params(prefix, suffix):
     assert type(expr) is SegmentExpr
     assert len(expr.params.items()) == 4
     assert kw.FROM in expr.params and kw.TO in expr.params
-    from_expr: ParamsExpr = expr.params[kw.FROM]
-    to_expr: ParamsExpr = expr.params[kw.TO]
-    assert type(from_expr) is AtomicExpr and type(to_expr) is AtomicExpr
+    from_expr: CoordsExpr = expr.params[kw.FROM]
+    to_expr: CoordsExpr = expr.params[kw.TO]
+    assert type(from_expr) is CoordsExpr and type(to_expr) is CoordsExpr
     assert from_expr.value == (2, 2)
     assert to_expr.value == (4, 4)
 
     # default parameters must be set as the syntactic analysis goes
     assert kw.COLOUR in expr.params and kw.THICKNESS in expr.params
     # default colour is black
-    colour: ParamsExpr = expr.params[kw.COLOUR]
-    assert type(colour) is AtomicExpr and colour.type == DataType.COLOUR
+    colour: ColourExpr = expr.params[kw.COLOUR]
+    assert type(colour) is ColourExpr and colour.type == DataType.COLOUR
     assert colour.value == (0, 0, 0)
     # default line thickness is 1
-    assert expr.params[kw.THICKNESS] == AtomicExpr(1, DataType.INT)
+    assert expr.params[kw.THICKNESS] == IntExpr(1)
 
 
 def test_parse_colour_param(prefix, suffix):
@@ -106,7 +107,7 @@ def test_parse_composite(prefix, suffix):
     assert type(content.parts[1]) is CurveExpr
     inner_tool: CurveExpr = content.parts[1]
     assert kw.RADIUS in inner_tool.params
-    assert inner_tool.params[kw.RADIUS] == AtomicExpr(1, DataType.INT)
+    assert inner_tool.params[kw.RADIUS] == IntExpr(1)
 
 
 def test_parse_multiple_tools_block(prefix, suffix):
@@ -219,13 +220,6 @@ def test_raise_on_duplicate_tool_param(prefix, suffix):
 
 def test_raise_on_invalid_value(prefix, suffix):
     parser = Parser(prefix + "*о1: прямая, от=радиус, до=(2,2);" + suffix)
-    with pytest.raises(ParseError) as error:
-        _ = parser.parse()
-    assert "[Значение параметра]" in str(error.value)
-
-
-def test_raise_on_non_tool_id_tool_param_value(prefix, suffix):
-    parser = Parser(prefix + "*л1: прямая, от=(20, 30), до=человек;" + suffix)
     with pytest.raises(ParseError) as error:
         _ = parser.parse()
     assert "[Значение параметра]" in str(error.value)

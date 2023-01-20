@@ -16,4 +16,4 @@ def unsupported_processing_type():
 
 def unexpected_token(token, location: str = None):
     loc_string = f"[{location}] " if location else ""
-    return f"{loc_string}Неожиданный токен: {token.kind}"
+    return f"{loc_string}Неожиданный токен: {token.kind} ({token.value})"

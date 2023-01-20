@@ -70,6 +70,7 @@ class Lexer:
             kw.INCREMENT: TokenKind.ACTION_NAME,
             kw.DECREMENT: TokenKind.ACTION_NAME,
             kw.RESET: TokenKind.ACTION_NAME,
+            kw.FLASH: TokenKind.ACTION_NAME,
             # general
             kw.COLOUR_TOKEN: TokenKind.COLOUR,
         }

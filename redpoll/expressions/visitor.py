@@ -42,7 +42,19 @@ class ExpressionVisitor(ABC):
     def visit_counter(self, expr) -> None: pass
 
     @abstractmethod
-    def visit_atomic(self, expr) -> None: pass
+    def visit_colour(self, expr) -> None: pass
+
+    @abstractmethod
+    def visit_coords(self, expr) -> None: pass
+
+    @abstractmethod
+    def visit_float(self, expr) -> None: pass
+
+    @abstractmethod
+    def visit_int(self, expr) -> None: pass
+
+    @abstractmethod
+    def visit_string(self, expr) -> None: pass
 
     @abstractmethod
     def visit_processing_block(self, expr) -> None: pass
