@@ -8,17 +8,17 @@ from redpoll.resources.translation import paramnames as pn
 """
 
 required_params = {
-    kw.CROSSING: {pn.SEGMENT},
-    kw.ENTERING: {pn.AREA},
-    kw.LEAVING: {pn.AREA},
-    kw.DIVERTS_FROM: {pn.LINE},
-    kw.SPEEDING_UP: set(),
-    kw.SLOWING_DOWN: set(),
-    kw.STILL: set(),
-    kw.APPEARS: set(),
-    kw.DISAPPEARS: set(),
-    kw.EQUALS: {pn.NUMBER},
-    kw.ABOVE: {pn.NUMBER},
+    kw.CROSSING: [pn.SEGMENT],
+    kw.ENTERING: [pn.AREA],
+    kw.LEAVING: [pn.AREA],
+    kw.DIVERTS_FROM: [pn.LINE],
+    kw.SPEEDING_UP: [],
+    kw.SLOWING_DOWN: [],
+    kw.STILL: [],
+    kw.APPEARS: [],
+    kw.DISAPPEARS: [],
+    kw.EQUALS: [pn.NUMBER],
+    kw.ABOVE: [pn.NUMBER],
     # todo maybe add BELOW as well
 }
 
@@ -29,15 +29,15 @@ required_params = {
 """
 
 extra_params = {
-    kw.CROSSING: {pn.SIDE},
-    kw.ENTERING: set(),
-    kw.LEAVING: set(),
-    kw.DIVERTS_FROM: set(),
-    kw.SPEEDING_UP: set(),
-    kw.SLOWING_DOWN: set(),
-    kw.STILL: {pn.PERIOD},
-    kw.APPEARS: set(),
-    kw.DISAPPEARS: set(),
-    kw.EQUALS: set(),
-    kw.ABOVE: set(),
+    kw.CROSSING: [pn.SIDE],
+    kw.ENTERING: [],
+    kw.LEAVING: [],
+    kw.DIVERTS_FROM: [],
+    kw.SPEEDING_UP: [],
+    kw.SLOWING_DOWN: [],
+    kw.STILL: [pn.PERIOD],
+    kw.APPEARS: [],
+    kw.DISAPPEARS: [],
+    kw.EQUALS: [],
+    kw.ABOVE: [],
 }

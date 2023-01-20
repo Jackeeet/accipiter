@@ -1,1 +1,5 @@
-["input.rdl", "input2.rdl", "test.rdl"]
+[
+  "input.rdl",
+  "input2.rdl",
+  "sample.rdl"
+]

@@ -7,12 +7,12 @@ from redpoll.resources.translation import paramnames as pn
 что и параметры в соответствующем действию множестве.
 """
 required_params = {
-    kw.ALERT: {pn.MESSAGE},
-    kw.SAVE: set(),
-    kw.INCREMENT: {pn.COUNTER},
-    kw.DECREMENT: {pn.COUNTER},
-    kw.RESET: {pn.COUNTER},
-    kw.FLASH: {pn.DRAWABLE, pn.COLOUR}
+    kw.ALERT: [pn.MESSAGE],
+    kw.SAVE: [],
+    kw.INCREMENT: [pn.COUNTER],
+    kw.DECREMENT: [pn.COUNTER],
+    kw.RESET: [pn.COUNTER],
+    kw.FLASH: [pn.DRAWABLE, pn.COLOUR]
 }
 
 """ Необязательные параметры действий 
@@ -22,10 +22,10 @@ required_params = {
 """
 
 extra_params = {
-    kw.ALERT: set(),
-    kw.SAVE: {pn.MESSAGE},
-    kw.INCREMENT: set(),
-    kw.DECREMENT: set(),
-    kw.RESET: set(),
-    kw.FLASH: set()
+    kw.ALERT: [],
+    kw.SAVE: [pn.MESSAGE],
+    kw.INCREMENT: [],
+    kw.DECREMENT: [],
+    kw.RESET: [],
+    kw.FLASH: []
 }
