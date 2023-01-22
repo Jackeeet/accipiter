@@ -6,7 +6,7 @@ class Tracked:
     max_FTL = 1
 
     def __init__(self, obj: Detected) -> None:
-        self.id = obj.box.start
+        self.id = obj.box.start_angle
         self.obj = obj
         self.FTL = self.max_FTL
         self.state = TrackedState.INACTIVE

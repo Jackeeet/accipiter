@@ -50,7 +50,7 @@ class Analyzer:
             point.FTL -= 1
 
         for det_obj in objects:
-            corner = det_obj.box.start
+            corner = det_obj.box.start_angle
             if corner not in pool.keys():
                 prev_corner = Analyzer.previous_position(corner, pool, margin)
                 # this seems a bit too complicated, there's probably a better way to do the same thing

@@ -9,7 +9,7 @@ _default_params = {kw.COLOUR, kw.THICKNESS}
 required_params: dict[DataType, set[str]] = {
     DataType.POINT: {kw.POINT},
     DataType.SEGMENT: {kw.FROM, kw.TO},
-    DataType.CURVE: {kw.CENTER, kw.RADIUS, kw.ANGLE_FROM, kw.ANGLE_TO},
+    DataType.Arc: {kw.CENTER, kw.RADIUS, kw.ANGLE_FROM, kw.ANGLE_TO},
     DataType.AREA: {kw.CONTENTS},
     DataType.LINE: {kw.CONTENTS},
     DataType.COUNTER: {kw.START, kw.STEP}
@@ -36,4 +36,4 @@ param_types = {
 }
 
 """ Допустимые типы данных для частей составного инструмента. """
-part_types = {DataType.SEGMENT, DataType.CURVE}
+part_types = {DataType.SEGMENT, DataType.Arc}

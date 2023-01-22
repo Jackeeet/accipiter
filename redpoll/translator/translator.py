@@ -157,8 +157,8 @@ class Translator(ExpressionVisitor):
     def visit_segment(self, expr: SegmentExpr) -> None:
         self._visit_parametrised_tools(expr, "Segment")
 
-    def visit_curve(self, expr: CurveExpr) -> None:
-        self._visit_parametrised_tools(expr, "Curve")
+    def visit_arc(self, expr: ArcExpr) -> None:
+        self._visit_parametrised_tools(expr, "Arc")
 
     def visit_area(self, expr: AreaExpr) -> None:
         self._visit_parametrised_tools(expr, "Area")

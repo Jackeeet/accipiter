@@ -11,7 +11,7 @@ class TokenKind(str, Enum):
     PROCESSING = "обработка"
     # tool types
     SEGMENT = "прямая"
-    CURVE = "кривая"
+    ARC = "кривая"
     AREA = "зона"
     LINE = "траектория"
     COUNTER = "счетчик"

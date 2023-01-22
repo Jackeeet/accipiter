@@ -264,7 +264,7 @@ def test_raise_on_unconnected_area_with_segments():
     assert err.unconnected_area() in str(error.value)
 
 
-def test_raise_on_unconnected_area_with_curve():
+def test_raise_on_unconnected_area_with_arc():
     source = """объекты:; инструменты:
         *з1: зона, состав = ...(
             прямая, от = (20, 20), до = (20, 30);
@@ -308,7 +308,7 @@ def test_raise_on_duplicated_segment():
     assert err.duplicated_tool_part() in str(error.value)
 
 
-def test_raise_on_duplicated_curve():
+def test_raise_on_duplicated_arc():
     source = """объекты:; инструменты:
         *f1: линия, состав = ...(
             дуга, центр = (20, 30), радиус = 20, уголОт = 0, уголДо = 180;
@@ -322,7 +322,7 @@ def test_raise_on_duplicated_curve():
     assert err.duplicated_tool_part() in str(error.value)
 
 
-def test_two_curves_making_circle():
+def test_two_arcs_making_circle():
     source = """объекты:; инструменты:
         *з1: зона, состав = ...(
             дуга, центр = (20, 30), радиус = 20, уголОт = 0, уголДо = 90;
@@ -335,7 +335,7 @@ def test_two_curves_making_circle():
     assert success
 
 
-def test_curve_and_line_making_area():
+def test_arc_and_line_making_area():
     source = """объекты:; инструменты:
         *л1: прямая, от = (20, 20), до = (20, 40);
         *з1: зона, состав = ...(

@@ -31,7 +31,7 @@ class Lexer:
             kw.PROCESSING: TokenKind.PROCESSING,
             # tool types
             kw.SEGMENT: TokenKind.SEGMENT,
-            kw.CURVE: TokenKind.CURVE,
+            kw.ARC: TokenKind.ARC,
             kw.AREA: TokenKind.AREA,
             kw.LINE: TokenKind.LINE,
             kw.COUNTER: TokenKind.COUNTER,

@@ -2,7 +2,7 @@ import pytest
 
 from redpoll.types import DataType
 from redpoll.analyzer.syntactic import ParseError, Parser
-from redpoll.expressions import AreaExpr, CurveExpr, LineExpr, PointExpr, SegmentExpr, ToolExpr, \
+from redpoll.expressions import AreaExpr, ArcExpr, LineExpr, PointExpr, SegmentExpr, ToolExpr, \
     ToolIdExpr
 from redpoll.expressions.programexpr import ProgramExpr
 from redpoll.expressions.atomics.intexpr import IntExpr
@@ -81,7 +81,7 @@ def test_parse_identifier_param(prefix, suffix):
 
     program: ProgramExpr = parser.parse()
 
-    expr: CurveExpr = program.tools.items[0]
+    expr: ArcExpr = program.tools.items[0]
     assert kw.CENTER in expr.params
     assert type(expr.params[kw.CENTER]) is ToolIdExpr
     assert expr.params[kw.CENTER].value == "точка_1"
@@ -108,8 +108,8 @@ def test_parse_composite(prefix, suffix):
     assert len(content.parts) == 2
     assert type(content.parts[0]) is ToolIdExpr
     assert content.parts[0].value == "о1"
-    assert type(content.parts[1]) is CurveExpr
-    inner_tool: CurveExpr = content.parts[1]
+    assert type(content.parts[1]) is ArcExpr
+    inner_tool: ArcExpr = content.parts[1]
     assert kw.RADIUS in inner_tool.params
     assert inner_tool.params[kw.RADIUS] == IntExpr(1)
 

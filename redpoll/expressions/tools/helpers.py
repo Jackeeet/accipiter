@@ -1,4 +1,4 @@
-from redpoll.expressions.tools import ToolExpr, PointExpr, SegmentExpr, CurveExpr, AreaExpr, LineExpr, CounterExpr
+from redpoll.expressions.tools import ToolExpr, PointExpr, SegmentExpr, ArcExpr, AreaExpr, LineExpr, CounterExpr
 from redpoll.types import DataType
 
 
@@ -8,8 +8,8 @@ def instantiate_tool_with_type(tool_type: DataType) -> ToolExpr:
             return PointExpr()
         case DataType.SEGMENT:
             return SegmentExpr()
-        case DataType.CURVE:
-            return CurveExpr()
+        case DataType.Arc:
+            return ArcExpr()
         case DataType.AREA:
             return AreaExpr()
         case DataType.LINE:

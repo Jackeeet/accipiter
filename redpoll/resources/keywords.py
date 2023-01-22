@@ -7,7 +7,7 @@ TOOLS = "инструменты"
 PROCESSING = "обработка"
 # tool types
 SEGMENT = "прямая"
-CURVE = "дуга"
+ARC = "дуга"
 AREA = "зона"
 LINE = "линия"
 COUNTER = "счетчик"
@@ -30,17 +30,17 @@ NUMBER = "число"
 MESSAGE = "сообщение"
 COUNT = "сч"
 # event names
-CROSSING = "пересекает"
-ENTERING = "входитВ"
-LEAVING = "покидает"
+CROSSING = "пересекает" #
+ENTERING = "входитВ" #
+LEAVING = "покидает" #
 DIVERTS_FROM = "отклоняетсяОт"
 SPEEDING_UP = "ускоряется"
 SLOWING_DOWN = "замедляется"
-STILL = "неподвижен"
-APPEARS = "появляется"
-DISAPPEARS = "исчезает"
-EQUALS = "равен"
-ABOVE = "превышает"
+STILL = "неподвижен" #
+APPEARS = "появляется" #
+DISAPPEARS = "исчезает" #
+EQUALS = "равен" #
+ABOVE = "превышает" #
 # action names
 ALERT = "оповестить"
 SAVE = "сохранить"

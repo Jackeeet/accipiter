@@ -5,7 +5,7 @@ from redpoll.resources import keywords as kw
 
 
 # noinspection PyTypeChecker
-class CurveExpr(ToolExpr):
+class ArcExpr(ToolExpr):
     # this should calculate the start point
     # from the center, radius and the start angle
     @property
@@ -25,10 +25,10 @@ class CurveExpr(ToolExpr):
         return self.params[kw.CENTER]
 
     def accept(self, visitor: ExpressionVisitor):
-        return visitor.visit_curve(self)
+        return visitor.visit_arc(self)
 
     def __eq__(self, o: object) -> bool:
-        if isinstance(o, CurveExpr):
+        if isinstance(o, ArcExpr):
             # the last two checks might be unnecessary,
             # but I don't know basic geometry,
             # so I'm going to leave this as it is

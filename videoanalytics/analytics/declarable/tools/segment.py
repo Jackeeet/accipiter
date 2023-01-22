@@ -11,4 +11,4 @@ class Segment(Tool):
         super().__init__(colour, thickness)
 
     def draw_on(self, image):
-        cv2.line(image, self.start, self.end, self.colour, thickness=self.thickness)
+        cv2.line(image, self.start.xy, self.end.xy, self.colour, thickness=self.thickness)

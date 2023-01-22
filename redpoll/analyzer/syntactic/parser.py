@@ -11,7 +11,7 @@ class Parser:
     def __init__(self, input_str: str) -> None:
         self._complex_tool_types = {
             TokenKind.SEGMENT: DataType.SEGMENT,
-            TokenKind.CURVE: DataType.CURVE,
+            TokenKind.ARC: DataType.Arc,
             TokenKind.AREA: DataType.AREA,
             TokenKind.LINE: DataType.LINE,
             TokenKind.COUNTER: DataType.COUNTER
@@ -154,7 +154,7 @@ class Parser:
         match self._token.kind:
             case TokenKind.TOOL_ID_START:
                 return self._parse_tool_id()
-            case TokenKind.SEGMENT | TokenKind.CURVE | TokenKind.AREA | TokenKind.LINE | TokenKind.COUNTER:
+            case TokenKind.SEGMENT | TokenKind.ARC | TokenKind.AREA | TokenKind.LINE | TokenKind.COUNTER:
                 return self._parse_tool()
             case _:
                 raise ParseError(err.unexpected_token(self._token, "Часть составного инструмента"))

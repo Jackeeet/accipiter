@@ -1,5 +1,5 @@
 from videoanalytics.analytics.declarable.tools import Segment
-from videoanalytics.analytics.geometry import segments_intersect
+from videoanalytics.algorithms import segments_intersect
 from videoanalytics.models import Tracked, TrackedState
 
 

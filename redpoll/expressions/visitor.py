@@ -30,7 +30,7 @@ class ExpressionVisitor(ABC):
     def visit_segment(self, expr) -> None: pass
 
     @abstractmethod
-    def visit_curve(self, expr) -> None: pass
+    def visit_arc(self, expr) -> None: pass
 
     @abstractmethod
     def visit_area(self, expr) -> None: pass
