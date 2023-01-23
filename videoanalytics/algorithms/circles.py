@@ -12,24 +12,26 @@ def segment_arc_intersect(segment: Segment, arc: Arc) -> bool:
 
 def on_arc(point: Coords, arc: Arc) -> bool:
     norm_arc = arc.normalized
-    min_x = min(norm_arc.start.x, norm_arc.end.x)
-    min_y = min(norm_arc.start.y, norm_arc.end.y)
-    max_x = max(norm_arc.start.x, norm_arc.end.x)
-    max_y = max(norm_arc.start.y, norm_arc.end.y)
     sx, sy, ex, ey = np.sign(
         [norm_arc.start.x, norm_arc.start.y, norm_arc.end.x, norm_arc.end.y]
     )
+
+    min_x = min(arc.start.x, arc.end.x)
+    min_y = min(arc.start.y, arc.end.y)
+    max_x = max(arc.start.x, arc.end.x)
+    max_y = max(arc.start.y, arc.end.y)
 
     in_zero_x = 0 <= point.x <= max_x
     in_zero_y = 0 <= point.y <= max_y
     in_x_bounds = min_x <= point.x <= max_x
     in_y_bounds = min_y <= point.y <= max_y
-    in_x_radius = min_x <= point.x <= arc.radius
-    in_y_radius = min_y <= point.y <= arc.radius
+    in_x_radius = min_x <= point.x <= arc.center.x + arc.radius
+    in_y_radius = min_y <= point.y <= arc.center.y + arc.radius
 
-    # принадлежность точки к дуге рассчитывается по меньшей из дуг окружности,
-    # если текущая дуга - большая, в конце результат инвертируется
-    invert = abs(arc.end_angle - arc.start_angle) > 180
+    if arc.is_semicircular and sx == 0:
+        return in_zero_x if sy < 0 else in_x_radius
+    if arc.is_semicircular and sy == 0:
+        return in_zero_y if sx > 0 else in_y_radius
 
     if sx == ex:
         # концы дуги в одной четверти
@@ -39,22 +41,28 @@ def on_arc(point: Coords, arc: Arc) -> bool:
         elif sx < 0:
             in_arc = in_zero_x and in_y_bounds
         # концы дуги в правой половине
-        else:
+        elif sx > 0:
             in_arc = in_x_radius and in_y_bounds
+        else:  # sx == 0 and ex == 0
+            raise NotImplementedError("unreachable: sx == ex, sx == 0")
     elif sy == ey:
         # концы дуги в нижней половине
         if sx < 0:
             in_arc = in_x_bounds and in_y_radius
         # концы дуги в верхней половине
-        else:
+        elif sx > 0:
             in_arc = in_x_bounds and in_zero_y
+        else:
+            raise NotImplementedError("unreachable: sy == ey, sx == 0")
     # концы дуги в противоположных четвертях
     else:
         in_x = in_zero_x if sy < 0 else in_x_radius
         in_y = in_zero_y if sx < 0 else in_y_radius
         in_arc = in_x and in_y
 
-    return not in_arc if invert else in_arc
+    # принадлежность точки к дуге рассчитывается по меньшей из дуг окружности,
+    # если дуга - большая, результат инвертируется
+    return in_arc if arc.is_minor else not in_arc
 
 
 def segment_circle_intersection_points(segment: Segment, centre: Coords, radius: int) -> set[Coords]:
