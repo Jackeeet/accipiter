@@ -38,12 +38,20 @@ class Arc(Tool):
 
     @property
     def normalized(self) -> 'Arc':
-        """  Нормализованная дуга c теми же параметрами, что и исходная.
+        """  Нормализованная дуга с теми же параметрами, что и исходная.
 
-        :return: дуга с центром в точке (0,0)
+        :return: Дуга с центром в точке (0,0)
         """
         return Arc(Coords(0, 0), self.radius, self.start_angle, self.end_angle,
                    self.colour, self.thickness)
+
+    @property
+    def complement(self) -> 'Arc':
+        """ Дуга, дополняющая исходную до окружности.
+
+        :return: Дополняющая дуга
+        """
+        return Arc(self.center, self.radius, self.end_angle, self.start_angle)
 
     @property
     def is_minor(self) -> bool:
@@ -54,7 +62,19 @@ class Arc(Tool):
         return self.angle < 180
 
     @property
+    def is_major(self) -> bool:
+        """ Определяет, является ли дуга большей дугой окружности.
+
+        :return: True, если дуга больше 180 градусов, иначе False
+        """
+        return self.angle > 180
+
+    @property
     def is_semicircular(self) -> bool:
+        """ Определяет, является ли дуга полуокружностью.
+
+        :return: True, если дуга - полуокружность, иначе False
+        """
         return self.angle == 180
 
     def draw_on(self, image):
@@ -67,7 +87,7 @@ class Arc(Tool):
     def __eq__(self, o: object) -> bool:
         if isinstance(o, Arc):
             return self.center == o.center and self.radius == o.radius \
-                   and self.start_angle == o.start_angle and self.end_angle == o.end_angle
+                and self.start_angle == o.start_angle and self.end_angle == o.end_angle
 
     def __ne__(self, o: object) -> bool:
         return not self.__eq__(o)

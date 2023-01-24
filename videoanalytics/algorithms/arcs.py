@@ -11,76 +11,81 @@ def segment_arc_intersect(segment: Segment, arc: Arc) -> bool:
 
 
 def on_arc(point: Coords, arc: Arc) -> bool:
+    if point == arc.start or point == arc.end:
+        return True
+
     if arc.is_semicircular:
         return on_semicircular(point, arc)
 
+    minor_arc = arc if arc.is_minor else arc.complement
+    on_minor = on_minor_arc(point, minor_arc)
+    return on_minor if arc.is_minor else not on_minor
+
+
+def on_minor_arc(point: Coords, arc: Arc) -> bool:
+    if not arc.is_minor:
+        raise ValueError  # todo add message
+
     sx, sy, ex, ey = end_signs(arc)
     zero_count = [sx, sy, ex, ey].count(0)
-    in_zero_x, in_zero_y, in_x_bounds, \
-        in_y_bounds, in_x_radius, in_y_radius = arc_bounds(point, arc)
-
+    in_0_x, in_0_y, in_x, in_y, in_x_radius, in_y_radius = arc_bounds(point, arc)
     if sx == ex:
-        in_arc = on_vertical_half_arc(ey, in_x_bounds, in_x_radius, in_y_bounds, in_zero_x, sx, sy)
-    elif sy == ey:
-        in_arc = on_horizontal_half_arc(ex, in_x_bounds, in_y_bounds, in_y_radius, in_zero_y, sx, sy)
-    elif zero_count == 1:
+        return on_vertical_half_arc(sx, sy, ey, in_x, in_y, in_x_radius, in_0_x)
+    if sy == ey:
+        return on_horizontal_half_arc(sx, sy, ex, in_x, in_y, in_y_radius, in_0_y)
+    if zero_count == 1:
         # 90 < кол-во градусов < 180, один конец на оси
-        in_arc = on_quarter_end(sx, sy, ex, ey, in_x_bounds, in_x_radius, in_y_bounds,
-                                in_y_radius, in_zero_x, in_zero_y)
-    elif zero_count == 2:
+        return on_quarter_end(sx, sy, ex, ey, in_x, in_y, in_x_radius, in_y_radius, in_0_x, in_0_y)
+    if zero_count == 2:
         # ровно 90 градусов (случаи со 180 градусами покрываются раньше)
-        in_arc = on_quarter_arc(sx, sy, in_zero_x, in_zero_y, in_x_radius, in_y_radius)
-    else:
-        in_arc = on_opposite_quarters_arc(in_x_radius, in_y_radius, in_zero_x, in_zero_y, sx, sy)
+        return on_quarter_arc(sx, sy, in_0_x, in_0_y, in_x_radius, in_y_radius)
 
-    # принадлежность точки к дуге рассчитывается по меньшей из дуг окружности,
-    # если дуга - большая, результат инвертируется
-    return in_arc if arc.is_minor else not in_arc
+    return on_opposite_quarters_arc(sx, sy, in_x_radius, in_y_radius, in_0_x, in_0_y)
 
 
-def on_quarter_end(sx, sy, ex, ey, in_x_bounds, in_x_radius, in_y_bounds, in_y_radius, in_zero_x, in_zero_y):
+def on_quarter_end(sx, sy, ex, ey, in_x, in_y, in_x_radius, in_y_radius, in_0_x, in_0_y) -> bool:
     if sy == 0 or ey == 0:
-        return in_x_bounds and (in_zero_y if sx > 0 else in_y_radius)
+        return in_x and (in_0_y if sx > 0 else in_y_radius)
     if sx == 0 or ex == 0:
-        return (in_zero_x if sy < 0 else in_x_radius) and in_y_bounds
+        return (in_0_x if sy < 0 else in_x_radius) and in_y
     raise NotImplementedError("unreachable")
 
 
-def on_horizontal_half_arc(ex, in_x_bounds, in_y_bounds, in_y_radius, in_zero_y, sx, sy) -> bool:
+def on_horizontal_half_arc(sx, sy, ex, in_x, in_y, in_y_radius, in_0_y) -> bool:
     if sx == 0 or ex == 0:
         # концы дуги в одной четверти
-        return in_x_bounds and in_y_bounds
+        return in_x and in_y
 
     if sy < 0:
         # концы дуги в верхней половине
-        return in_x_bounds and in_zero_y
+        return in_x and in_0_y
 
     if sy > 0:
         # концы дуги в нижней половине
-        return in_x_bounds and in_y_radius
+        return in_x and in_y_radius
 
     raise NotImplementedError("unreachable")
 
 
-def on_vertical_half_arc(ey, in_x_bounds, in_x_radius, in_y_bounds, in_zero_x, sx, sy) -> bool:
+def on_vertical_half_arc(sx, sy, ey, in_x, in_y, in_x_radius, in_0_x) -> bool:
     if sy == ey or sy == 0 or ey == 0:
         # концы дуги в одной четверти
-        return in_x_bounds and in_y_bounds
+        return in_x and in_y
 
     if sx < 0:
         # концы дуги в левой половине
-        return in_zero_x and in_y_bounds
+        return in_0_x and in_y
 
     if sx > 0:
         # концы дуги в правой половине
-        return in_x_radius and in_y_bounds
+        return in_x_radius and in_y
 
     raise NotImplementedError("unreachable")
 
 
-def on_opposite_quarters_arc(in_x_radius, in_y_radius, in_zero_x, in_zero_y, sx, sy) -> bool:
-    in_x = in_zero_x if sy < 0 else in_x_radius
-    in_y = in_zero_y if sx < 0 else in_y_radius
+def on_opposite_quarters_arc(sx, sy, in_x_radius, in_y_radius, in_0_x, in_0_y) -> bool:
+    in_x = in_0_x if sy < 0 else in_x_radius
+    in_y = in_0_y if sx > 0 else in_y_radius
     return in_x and in_y
 
 
@@ -99,14 +104,14 @@ def on_semicircular(point: Coords, arc: Arc) -> bool:
         raise ValueError  # todo add error message
 
     sx, sy, _, _ = end_signs(arc)
-    in_zero_x, in_zero_y, _, _, in_x_radius, in_y_radius = arc_bounds(point, arc)
+    in_0_x, in_0_y, _, _, in_x_radius, in_y_radius = arc_bounds(point, arc)
 
     if sx == 0:
         # дуга в левой/правой половине
-        return in_zero_x if sy < 0 else in_x_radius
+        return in_0_x if sy < 0 else in_x_radius
     if sy == 0:
         # дуга в нижней/верхней половине
-        return in_zero_y if sx > 0 else in_y_radius
+        return in_0_y if sx > 0 else in_y_radius
 
     # дуга во 2 или в 3 четверти
     split_at_left_half = sy < 0 < sx or sx < 0 and sy < 0
@@ -127,13 +132,13 @@ def arc_bounds(point: Coords, arc: Arc) -> list[bool]:
     max_x = max(arc.start.x, arc.end.x)
     max_y = max(arc.start.y, arc.end.y)
 
-    in_zero_x = 0 <= point.x <= max_x
-    in_zero_y = 0 <= point.y <= max_y
-    in_x_bounds = min_x <= point.x <= max_x
-    in_y_bounds = min_y <= point.y <= max_y
+    in_0_x = 0 <= point.x <= max_x
+    in_0_y = 0 <= point.y <= max_y
+    in_x = min_x <= point.x <= max_x
+    in_y = min_y <= point.y <= max_y
     in_x_radius = min_x <= point.x <= arc.center.x + arc.radius
     in_y_radius = min_y <= point.y <= arc.center.y + arc.radius
-    return [in_zero_x, in_zero_y, in_x_bounds, in_y_bounds, in_x_radius, in_y_radius]
+    return [in_0_x, in_0_y, in_x, in_y, in_x_radius, in_y_radius]
 
 
 def segment_circle_intersection_points(segment: Segment, centre: Coords, radius: int) -> set[Coords]:

@@ -136,7 +136,7 @@ points_not_on_quarters = [
     [top_right], [top_left], [bottom_left], [bottom_right],
 
     [Coords(8, 3), Coords(0, 3)],
-    [Coords(0, 3), Coords(8, 3)],
+    [Coords(3, 0), Coords(3, 8)],
     [Coords(0, 5), Coords(8, 5)],
     [Coords(5, 8), Coords(5, 0)],
 
@@ -155,9 +155,23 @@ arcs = semicircular + quarters + [
     Arc(c, r, 270, 225),
     Arc(c, r, 0, 315),
     # 3/8
-
+    Arc(c, r, 45, 180),
+    Arc(c, r, 135, 270),
+    Arc(c, r, 225, 0),
+    Arc(c, r, 315, 90),
+    Arc(c, r, 0, 135),
+    Arc(c, r, 90, 225),
+    Arc(c, r, 180, 315),
+    Arc(c, r, 270, 45),
     # 5/8
-
+    Arc(c, r, 180, 45),
+    Arc(c, r, 270, 135),
+    Arc(c, r, 0, 225),
+    Arc(c, r, 90, 315),
+    Arc(c, r, 135, 0),
+    Arc(c, r, 225, 90),
+    Arc(c, r, 315, 180),
+    Arc(c, r, 45, 270),
     # sign() != 0 for all the following arcs' edges
     # vertical
     Arc(c, r, 100, 260),
@@ -188,16 +202,24 @@ points_on_arcs = points_on_semis + points_on_quarters + [
     [left, bottom_left, bottom, right, top],
     [bottom_left, bottom, right, top, left],
     [bottom_right, right, top, left, bottom],
-    # # 3/8
-    # [],
-    # [],
-    # [],
-    # [],
-    # # 5/8
-    # [],
-    # [],
-    # [],
-    # [],
+    # 3/8
+    [top_right, top, top_left, left],
+    [top_left, left, bottom_left, bottom],
+    [bottom_left, bottom, bottom_right, right],
+    [bottom_right, right, top_right, top],
+    [right, top_right, top, top_left],
+    [top, top_left, left, bottom_left],
+    [left, bottom_left, bottom, bottom_right],
+    [bottom, bottom_right, right, top_right],
+    # 5/8
+    [left, bottom_right, top_right],
+    [bottom, right, top_left],
+    [right, top_left, bottom_left],
+    [top, left, bottom_right],
+    [top_left, bottom, right],
+    [bottom_left, right, top],
+    [bottom_right, top, left],
+    [top_right, left, bottom],
     # vertical
     [Coords(3, 0), left, Coords(3, 8)],
     [right, Coords(5, 0), Coords(5, 8)],
@@ -224,16 +246,24 @@ points_not_on_arcs = points_not_on_semis + points_not_on_quarters + [
     [bottom, top_right],
     # 7/8
     [Coords(3, 0)], [Coords(0, 5)], [Coords(3, 8)], [Coords(8, 5)],
-    # # 3/8
-    # [],
-    # [],
-    # [],
-    # [],
-    # # 5/8
-    # [],
-    # [],
-    # [],
-    # [],
+    # 3/8
+    [bottom_left, bottom, bottom_right, right],
+    [bottom_right, right, top_right, top],
+    [top_right, top, top_left, left],
+    [top_left, left, bottom_left, bottom],
+    [left, bottom_left, bottom, bottom_right],
+    [bottom, bottom_right, right, top_right],
+    [right, top_right, top, top_left],
+    [top, top_left, left, bottom_left],
+    # 5/8
+    [top, top_left],
+    [left, bottom_left],
+    [bottom, bottom_right],
+    [right, top_right],
+    [top_right, top],
+    [top_left, left],
+    [bottom_left, bottom],
+    [bottom_right, right],
     # vertical
     [top, bottom],
     [top, bottom],
