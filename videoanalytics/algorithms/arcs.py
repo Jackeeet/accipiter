@@ -15,6 +15,7 @@ def on_arc(point: Coords, arc: Arc) -> bool:
         return on_semicircular(point, arc)
 
     sx, sy, ex, ey = end_signs(arc)
+    zero_count = [sx, sy, ex, ey].count(0)
     in_zero_x, in_zero_y, in_x_bounds, \
         in_y_bounds, in_x_radius, in_y_radius = arc_bounds(point, arc)
 
@@ -22,14 +23,27 @@ def on_arc(point: Coords, arc: Arc) -> bool:
         in_arc = on_vertical_half_arc(ey, in_x_bounds, in_x_radius, in_y_bounds, in_zero_x, sx, sy)
     elif sy == ey:
         in_arc = on_horizontal_half_arc(ex, in_x_bounds, in_y_bounds, in_y_radius, in_zero_y, sx, sy)
-    elif sx == 0 or sy == 0 or ex == 0 or ey == 0:
-        in_arc = on_quarter_arc()
+    elif zero_count == 1:
+        # 90 < кол-во градусов < 180, один конец на оси
+        in_arc = on_quarter_end(sx, sy, ex, ey, in_x_bounds, in_x_radius, in_y_bounds,
+                                in_y_radius, in_zero_x, in_zero_y)
+    elif zero_count == 2:
+        # ровно 90 градусов (случаи со 180 градусами покрываются раньше)
+        in_arc = on_quarter_arc(sx, sy, in_zero_x, in_zero_y, in_x_radius, in_y_radius)
     else:
         in_arc = on_opposite_quarters_arc(in_x_radius, in_y_radius, in_zero_x, in_zero_y, sx, sy)
 
     # принадлежность точки к дуге рассчитывается по меньшей из дуг окружности,
     # если дуга - большая, результат инвертируется
     return in_arc if arc.is_minor else not in_arc
+
+
+def on_quarter_end(sx, sy, ex, ey, in_x_bounds, in_x_radius, in_y_bounds, in_y_radius, in_zero_x, in_zero_y):
+    if sy == 0 or ey == 0:
+        return in_x_bounds and (in_zero_y if sx > 0 else in_y_radius)
+    if sx == 0 or ex == 0:
+        return (in_zero_x if sy < 0 else in_x_radius) and in_y_bounds
+    raise NotImplementedError("unreachable")
 
 
 def on_horizontal_half_arc(ex, in_x_bounds, in_y_bounds, in_y_radius, in_zero_y, sx, sy) -> bool:
@@ -70,9 +84,14 @@ def on_opposite_quarters_arc(in_x_radius, in_y_radius, in_zero_x, in_zero_y, sx,
     return in_x and in_y
 
 
-def on_quarter_arc() -> bool:
+def on_quarter_arc(sx, sy, in_zero_x, in_zero_y, in_x_radius, in_y_radius) -> bool:
     # оба конца дуги на краях одной четверти
-    raise NotImplementedError
+    if sx == 0:
+        return (in_zero_x and in_zero_y) if sy < 0 else (in_x_radius and in_y_radius)
+    if sy == 0:
+        return (in_zero_x and in_y_radius) if sx < 0 else (in_x_radius and in_zero_y)
+
+    raise NotImplementedError("unreachable")
 
 
 def on_semicircular(point: Coords, arc: Arc) -> bool:
@@ -80,8 +99,7 @@ def on_semicircular(point: Coords, arc: Arc) -> bool:
         raise ValueError  # todo add error message
 
     sx, sy, _, _ = end_signs(arc)
-    in_zero_x, in_zero_y, in_x_bounds, \
-        in_y_bounds, in_x_radius, in_y_radius = arc_bounds(point, arc)
+    in_zero_x, in_zero_y, _, _, in_x_radius, in_y_radius = arc_bounds(point, arc)
 
     if sx == 0:
         # дуга в левой/правой половине
@@ -89,18 +107,13 @@ def on_semicircular(point: Coords, arc: Arc) -> bool:
     if sy == 0:
         # дуга в нижней/верхней половине
         return in_zero_y if sx > 0 else in_y_radius
-    if sy < 0 < sx:
-        # начало в 1 четверти, дуга во 2 четверти
-        raise NotImplementedError
-    if sx < 0 and sy < 0:
-        # дуга в 3 четверти
-        raise NotImplementedError
-    if sx < 0 < sy:
-        # дуга в 4 четверти
-        raise NotImplementedError
-    if sx > 0 and sy > 0:
-        # дуга в 1 четверти
-        raise NotImplementedError
+
+    # дуга во 2 или в 3 четверти
+    split_at_left_half = sy < 0 < sx or sx < 0 and sy < 0
+    split_degrees = 180 if split_at_left_half else 0
+    first = Arc(arc.center, arc.radius, arc.start_angle, split_degrees)
+    second = Arc(arc.center, arc.radius, split_degrees, arc.end_angle)
+    return on_arc(point, first) or on_arc(point, second)
 
 
 def end_signs(arc: Arc) -> np.ndarray:
