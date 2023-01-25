@@ -36,7 +36,7 @@ class Lexer:
             kw.LINE: TokenKind.LINE,
             kw.COUNTER: TokenKind.COUNTER,
             # tool parameter names
-            kw.CONTENTS: TokenKind.PARAM_NAME,
+            kw.COMPONENTS: TokenKind.PARAM_NAME,
             kw.FROM: TokenKind.PARAM_NAME,
             kw.TO: TokenKind.PARAM_NAME,
             kw.ANGLE_FROM: TokenKind.PARAM_NAME,

@@ -1,5 +1,6 @@
 [
+  "arc.rdl",
   "input.rdl",
-  "input2.rdl",
-  "sample.rdl"
+  "line.rdl",
+  "segment.rdl"
 ]

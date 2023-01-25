@@ -1,24 +1,23 @@
+import math
+
 from redpoll.expressions import ExpressionVisitor
 from redpoll.expressions.atomics.coordsexpr import CoordsExpr
 from redpoll.expressions.tools.toolexpr import ToolExpr
 from redpoll.resources import keywords as kw
 
 
-# noinspection PyTypeChecker
 class ArcExpr(ToolExpr):
-    # this should calculate the start point
-    # from the center, radius and the start angle
     @property
     def start(self) -> CoordsExpr:
-        return self.params["asdf"]
+        return self.coords_from_degrees(self.params[kw.ANGLE_FROM].value)
 
     @property
     def end(self) -> CoordsExpr:
-        return self.params["asdf"]
+        return self.coords_from_degrees(self.params[kw.ANGLE_TO].value)
 
     @property
     def radius(self) -> int:
-        return self.params["радиус"]
+        return self.params[kw.RADIUS].value
 
     @property
     def center(self) -> CoordsExpr:
@@ -26,6 +25,13 @@ class ArcExpr(ToolExpr):
 
     def accept(self, visitor: ExpressionVisitor):
         return visitor.visit_arc(self)
+
+    def coords_from_degrees(self, deg_angle: int) -> CoordsExpr:
+        rad_angle = math.radians(deg_angle)
+        return CoordsExpr((
+            self.center.x + round(self.radius * math.cos(rad_angle)),
+            self.center.y + round(self.radius * -math.sin(rad_angle))
+        ))
 
     def __eq__(self, o: object) -> bool:
         if isinstance(o, ArcExpr):

@@ -12,7 +12,7 @@ AREA = "зона"
 LINE = "линия"
 COUNTER = "счетчик"
 # tool parameter names
-CONTENTS = "состав"
+COMPONENTS = "состав"
 FROM = "от"
 TO = "до"
 ANGLE_FROM = "уголОт"

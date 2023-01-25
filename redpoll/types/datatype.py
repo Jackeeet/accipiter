@@ -13,7 +13,7 @@ class DataType(Enum):
     TOOL_ID = "идентификатор(инструмент)",
     POINT = "точка",
     SEGMENT = "прямая",
-    Arc = "кривая",
+    ARC = "кривая",
     AREA = "зона",
     LINE = "линия",
     COUNTER = "счетчик"

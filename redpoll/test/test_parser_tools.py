@@ -102,8 +102,8 @@ def test_parse_composite(prefix, suffix):
 
     params = expr.params
     assert len(params) == 3
-    assert kw.CONTENTS in params
-    content: ToolPartsExpr = params[kw.CONTENTS]
+    assert kw.COMPONENTS in params
+    content: ToolPartsExpr = params[kw.COMPONENTS]
     assert type(content) is ToolPartsExpr
     assert len(content.parts) == 2
     assert type(content.parts[0]) is ToolIdExpr
@@ -151,8 +151,8 @@ def test_parse_single_part_composite(prefix, suffix):
     assert expr.id.value == "тр1"
 
     assert len(expr.params) == 3
-    assert kw.CONTENTS in expr.params
-    content: ToolPartsExpr = expr.params[kw.CONTENTS]
+    assert kw.COMPONENTS in expr.params
+    content: ToolPartsExpr = expr.params[kw.COMPONENTS]
     assert len(content.parts) == 1
     assert type(content.parts[0]) is ToolIdExpr
     assert content.parts[0].value == "о1"
