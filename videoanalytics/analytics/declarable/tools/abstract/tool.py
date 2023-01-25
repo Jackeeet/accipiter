@@ -8,4 +8,4 @@ class Tool(ABC):
         self.thickness = thickness or 1
 
     @abstractmethod
-    def draw_on(self, image): pass
+    def draw_on(self, image) -> None: pass

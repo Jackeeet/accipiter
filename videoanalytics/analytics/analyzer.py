@@ -1,6 +1,7 @@
 from . import declared
 from videoanalytics.detection import ObjectDetector
 from videoanalytics.models import Tracked, Detected, Coords
+from videoanalytics.analytics.declarable.tools.abstract import Markup
 
 
 class Analyzer:
@@ -13,8 +14,11 @@ class Analyzer:
     def process_frame(self, frame):
         detected = [o for o in self.detector.return_objects(frame)
                     if o.name in declared.object_kinds]
+
         self.DEBUG_detected_count += len(detected)
-        self.object_pool = self.update_pool(self.object_pool, detected)
+
+        markup = [tool for tool in declared.tools if isinstance(tool, Markup)]
+        self.object_pool = self.update_pool(self.object_pool, detected, markup)
         for tracked in self.object_pool.values():
             if tracked.FTL != tracked.max_FTL:
                 continue  # don't process boxes from previous frames
@@ -37,14 +41,18 @@ class Analyzer:
         return frame
 
     @staticmethod
-    def previous_position(pt: Coords, pool: dict[Coords, Tracked], margin: int) -> Coords | None:
+    def previous_position(
+            pt: Coords, pool: dict[Coords, Tracked], margin: int
+    ) -> Coords | None:
         for point in pool.keys():
             if abs(point.x - pt.x) <= margin and abs(point.y - pt.y) <= margin:
                 return point
 
         return None
 
-    def update_pool(self, pool: dict[Coords, Tracked], objects: list[Detected]) -> dict[Coords, Tracked]:
+    def update_pool(
+            self, pool: dict[Coords, Tracked], objects: list[Detected], markup: list[Markup]
+    ) -> dict[Coords, Tracked]:
         margin = 50
         for point in pool.values():
             point.FTL -= 1
@@ -63,7 +71,7 @@ class Analyzer:
                     pool[corner] = tracked
                 else:
                     self.DEBUG_tracked_count += 1
-                    pool[corner] = Tracked(det_obj)
+                    pool[corner] = Tracked(det_obj, markup)
             else:
                 pool[corner].FTL = pool[corner].max_FTL
 
