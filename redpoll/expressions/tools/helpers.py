@@ -8,7 +8,7 @@ def instantiate_tool_with_type(tool_type: DataType) -> ToolExpr:
             return PointExpr()
         case DataType.SEGMENT:
             return SegmentExpr()
-        case DataType.Arc:
+        case DataType.ARC:
             return ArcExpr()
         case DataType.AREA:
             return AreaExpr()

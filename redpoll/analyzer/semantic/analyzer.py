@@ -75,7 +75,7 @@ class Analyzer(ExpressionVisitor):
         points: set[AtomicExpr] = set()
         parts = {
             DataType.SEGMENT: set(),
-            DataType.Arc: set()
+            DataType.ARC: set()
         }
         part: SegmentExpr | ArcExpr | ToolIdExpr
         for part in composite.parts:
@@ -118,7 +118,7 @@ class Analyzer(ExpressionVisitor):
                 # so if the item does not have a type attached to it at this point
                 # it can only be an undeclared variable
                 raise SemanticError(err.undeclared_tool_part())
-            if item.attrs.datatype not in {DataType.SEGMENT, DataType.Arc}:
+            if item.attrs.datatype not in {DataType.SEGMENT, DataType.ARC}:
                 raise SemanticError(err.unsupported_tool_part_type())
             expr.attrs.value_types.add(item.attrs.datatype)
 
@@ -165,7 +165,7 @@ class Analyzer(ExpressionVisitor):
         self._visit_tool(expr, DataType.SEGMENT)
 
     def visit_arc(self, expr: ArcExpr) -> None:
-        self._visit_tool(expr, DataType.Arc)
+        self._visit_tool(expr, DataType.ARC)
 
     def visit_area(self, expr: AreaExpr) -> None:
         self._visit_tool(expr, DataType.AREA)

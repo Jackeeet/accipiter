@@ -11,5 +11,5 @@ param_types = {
     pn.PERIOD: {DataType.INT},
     # pn.SIDE: {DataType.},
     pn.SEGMENT: {DataType.SEGMENT},
-    pn.TOOL: {DataType.SEGMENT, DataType.Arc, DataType.AREA, DataType.LINE, DataType.COUNTER},
+    pn.TOOL: {DataType.SEGMENT, DataType.ARC, DataType.AREA, DataType.LINE, DataType.COUNTER},
 }

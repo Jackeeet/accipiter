@@ -11,7 +11,7 @@ class Parser:
     def __init__(self, input_str: str) -> None:
         self._complex_tool_types = {
             TokenKind.SEGMENT: DataType.SEGMENT,
-            TokenKind.ARC: DataType.Arc,
+            TokenKind.ARC: DataType.ARC,
             TokenKind.AREA: DataType.AREA,
             TokenKind.LINE: DataType.LINE,
             TokenKind.COUNTER: DataType.COUNTER

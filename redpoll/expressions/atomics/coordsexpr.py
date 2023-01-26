@@ -10,6 +10,14 @@ class CoordsExpr(AtomicExpr):
         super().__init__(value)
 
     @property
+    def x(self):
+        return self.value[0]
+
+    @property
+    def y(self):
+        return self.value[1]
+
+    @property
     def type(self) -> DataType:
         return DataType.COORDS
 

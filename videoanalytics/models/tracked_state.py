@@ -2,7 +2,7 @@ from enum import Flag, auto
 
 
 class TrackedState(Flag):
-    NONE = auto()
+    NONE = 0
     CROSSING_LEFT = auto()
     CROSSING_RIGHT = auto()
     CROSSING_TOP = auto()

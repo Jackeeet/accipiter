@@ -8,7 +8,7 @@ from redpoll.resources.translation import paramnames as pn
 """
 
 required_params = {
-    kw.CROSSING: [pn.SEGMENT],
+    kw.CROSSING: [pn.TOOL],
     kw.ENTERING: [pn.AREA],
     kw.LEAVING: [pn.AREA],
     kw.DIVERTS_FROM: [pn.LINE],

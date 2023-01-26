@@ -86,21 +86,24 @@ class Arc(Component, Intersectable):
 
     def draw_on(self, image) -> None:
         cv2.ellipse(
-            image, self.center, (self.major_axis, self.minor_axis), 0,
-            self.start_angle, self.end_angle,
+            image, self.center.xy, (self.major_axis, self.minor_axis),
+            0, self.start_angle, self.end_angle,
             self.colour, self.thickness
         )
 
     def __eq__(self, o: object) -> bool:
         if isinstance(o, Arc):
             return self.center == o.center and self.radius == o.radius \
-                and self.start_angle == o.start_angle and self.end_angle == o.end_angle
+                   and self.start_angle == o.start_angle and self.end_angle == o.end_angle
 
     def __ne__(self, o: object) -> bool:
         return not self.__eq__(o)
 
     def __repr__(self) -> str:
         return f"Arc({self.center}, {self.radius}, {self.start_angle}, {self.end_angle})"
+
+    def __hash__(self) -> int:
+        return hash((self.center, self.radius, self.start_angle, self.end_angle))
 
     @staticmethod
     def segment_arc_intersect(segment: Segment, arc: 'Arc') -> bool:

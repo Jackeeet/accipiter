@@ -17,7 +17,7 @@ class Analyzer:
 
         self.DEBUG_detected_count += len(detected)
 
-        markup = [tool for tool in declared.tools if isinstance(tool, Markup)]
+        markup = [tool for tool in declared.tools.values() if isinstance(tool, Markup)]
         self.object_pool = self.update_pool(self.object_pool, detected, markup)
         for tracked in self.object_pool.values():
             if tracked.FTL != tracked.max_FTL:
@@ -58,7 +58,7 @@ class Analyzer:
             point.FTL -= 1
 
         for det_obj in objects:
-            corner = det_obj.box.start_angle
+            corner = det_obj.box.start
             if corner not in pool.keys():
                 prev_corner = Analyzer.previous_position(corner, pool, margin)
                 # this seems a bit too complicated, there's probably a better way to do the same thing

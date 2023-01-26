@@ -13,11 +13,11 @@ from redpoll.types import OpType
 class Translator(ExpressionVisitor):
     _file: FileWriter
     _param_names: dict[str, str] = {
-        kw.CONTENTS: "contents",
+        kw.COMPONENTS: "components",
         kw.FROM: "start",
         kw.TO: "end",
-        kw.ANGLE_FROM: "start",
-        kw.ANGLE_TO: "end",
+        kw.ANGLE_FROM: "start_angle",
+        kw.ANGLE_TO: "end_angle",
         kw.COLOUR: "colour",
         kw.THICKNESS: "thickness",
         kw.CENTER: "center",

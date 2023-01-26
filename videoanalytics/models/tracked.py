@@ -8,7 +8,7 @@ class Tracked:
     max_FTL = 1
 
     def __init__(self, obj: Detected, markup: list[Markup]) -> None:
-        self.id = obj.box.start_angle
+        self.id = obj.box.start
         self.obj = obj
         self.FTL = self.max_FTL
         self.states = {m: TrackedState.NONE for m in markup}
