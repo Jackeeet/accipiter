@@ -1,140 +1,142 @@
-<program>       ::= <object-block> <tool-block> <process-block> 
+program       = object-block, tool-block, process-block. 
 
-<object-block>  ::= "объекты" ":" <object-list> ";"
+(* ---- определения блока объектов ---- *)
 
-<object-list>   ::= <object-decl> <object-list>
-                  | ""
+object-block  = "объекты", ":", object-list, ";".
 
-<object-decl>   ::= <object-id> ";"
+object-list   = {object-decl}.
 
-<object-id>     ::= <id>
+object-decl   = object-id, ";".
 
-<tool-block>    ::= "инструменты" ":" <tool-list> ";"
+object-id     = id.
 
-<tool-list>     ::= <tool-decl> <tool-list> 
-                  | ""
+(* ---- определения блока инструментов ---- *)
 
-<tool-decl>     ::= <tool-id> ":" <tool> ";" 
+tool-block    = "инструменты", ":", tool-list, ";".
 
-<tool>          ::= <type> <named-params>
+tool-list     = {tool-decl}.
 
-<tool-id>       ::= "*" <id>
+tool-decl     = tool-id, ":", tool, ";".
 
-<type>          ::= <coord> 
-                  | "прямая"
-                  | "дуга"
-                  | "зона"
-                  | "линия"
-                  | "счетчик"
+tool-id       = "*", id.
 
-<named-params>  ::= "," <named-param> <named-params> 
-                  | ""
+tool          = type, named-params.
 
-<named-param>   ::= <param-name> "=" <value> 
+type          = coords
+              | "прямая"
+              | "дуга"
+              | "зона"
+              | "линия"
+              | "счетчик".
 
-<value>         ::= <tool-id> 
-                  | <int> 
-                  | <str> 
-                  | <coord> 
-                  | <colour>
-                  | <tool-parts>
+(* ---- определения блока обработки ---- *)
 
-<tool-parts>    ::= "." "." "." "(" <tool-part> <next-parts> ")"
+process-block = "обработка", ":", process-list, ";".
 
-<tool-part>     ::= <tool>
-                  | <tool-id>
+process-list  = {(process-decl | condition)}.
 
-<next-parts>    ::= ";" <tool-part> <next-parts>
-                  | ""
+process-decl  = process-id, ":", process-body, ";".
 
-<coord>         ::= "(" <int> "," <int> ")"
+process-id    = "_", id.
 
-<colour>        ::= "rgb" "(" <int> "," <int> "," <int> ")"
+process-body  = action 
+              | event-disj.
 
-<process-block> ::= "обработка" ":" <process-list> ";"
+action        = [action-name, "(", params, ")"].
 
-<process-list>  ::= <process-decl> <process-list>
-                  | <condition> <process-list>
-                  | ""
+action-name   = "оповестить"
+              | "сохранить"
+              | "увеличить"
+              | "уменьшить"
+              | "обнулить".
 
-<process-decl>  ::= <process-id> ":" <process-body> ";"
+event-disj    = [event-disj, "или",] event-conj.
 
-<process-id>    ::= "_" <id>
+event-conj    = [event-conj, "и",] event-or-id.
 
-<process-body>  ::= <action> 
-                  | <event-or>
+event-or-id   = event
+              | "(", event-disj, ")"
+              | process-id.
 
-<action>        ::= <action-id> "(" <opt-params> ")"
-                  | ""  
+event         = (object-id | tool-id), ".", event-name, "(", params, ")".
 
-<action-id>     ::= "оповестить"
-                  | "сохранить"
-                  | "увеличить"
-                  | "уменьшить"
-                  | "обнулить"
+event-name    = "пересекает"
+              | "входитВ"
+              | "покидает"
+              | "отклоняетсяОт"
+              | "ускоряется"
+              | "замедляется"
+              | "неподвижен"
+              | "появляется"
+              | "исчезает"
+              | "равен"
+              | "превышает"
+              | "ниже".
 
-<opt-params>    ::= <named-param> <named-params>
+condition     = "если", event-disj, ":", {(process-id | action), ";"}, ";".
 
-; the next two rules are left-recursive because
-; otherwise they lose left associativity
-; and it seems easier to implement custom AST building
-; than double-check associativity rules
+(* ---- вспомогательные определения ---- *)
 
-<event-or>      ::= <event-or> "или" <event-and>
-                  | <event-and>
+id            = (letter | latin), {letter | latin | "_" | number}.
 
-<event-and>     ::= <event-and> "и" <event-or-id>
-                  | <event-or-id>
+letter        = "А" | "Б" | "В" | "Г" | "Д" | "Е" 
+              | "Ё" | "Ж" | "З" | "И" | "Й" | "К" 
+              | "Л" | "М" | "Н" | "О" | "П" | "Р"
+              | "С" | "Т" | "У" | "Ф" | "Х" | "Ц" 
+              | "Ч" | "Ш" | "Щ" | "Ъ" | "Ы" | "Ь" 
+              | "Э" | "Ю" | "Я" | "а" | "б" | "в" 
+              | "г" | "д" | "е" | "ё" | "ж" | "з" 
+              | "и" | "й" | "к" | "л" | "м" | "н" 
+              | "о" | "п" | "р" | "с" | "т" | "у" 
+              | "ф" | "х" | "ц" | "ч" | "ш" | "щ" 
+              | "ъ" | "ы" | "ь" | "э" | "ю" | "я". 
 
-<event-or-id>   ::= "(" <event-or> ")"
-                  | <event>
-                  | <process-id>
+latin         = "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I"
+              | "J" | "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R"
+              | "S" | "T" | "U" | "V" | "W" | "X" | "Y" | "Z" | "a"
+              | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j"
+              | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s"
+              | "t" | "u" | "v" | "w" | "x" | "y" | "z".
 
-<event>         ::= <object-id> "." <event-id> "(" <opt-params> ")"
-                  | <tool-id> "." <event-id> "(" <opt-params> ")"
+number        = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9".
 
-<event-id>      ::= "пересекает"
-                  | "входитВ"
-                  | "покидает"
-                  | "отклоняетсяОт"
-                  | "ускоряется"
-                  | "замедляется"
-                  | "неподвижен"
-                  | "появляется"
-                  | "исчезает"
-                  | "равен"
-                  | "превышает"
+int           = ["-"], number.
 
-<params>        ::= <value> <next-params>
-                  | ""
+string        = '"', {character}, '"'.
 
-<next-params>   ::= "," <value> <next-params>
-                  | ""
+(* множество значений нетерминала character представляет собой множество любых возможных символов, включая множества значений нетерминалов letter, latin и number. *)
 
-<condition>     ::= "если" <event-or> ":" <action-list> ";"
+coords        = "(", int, ",", int, ")".
 
-<action-list>   ::= <process-id> ";" <action-list>
-                  | <action> ";" <action-list>
-                  | ""
+colour        = "rgb", "(", int, ",", int, ",", int, ")".
 
-; ---- helpers ----
+value         = int
+              | string
+              | coords
+              | colour
+              | object-id
+              | tool-id
+              | tool-parts
+              | side-disj.
 
-<id>            ::= 
+side-disj     = [side-disj, "или", ] side-conj.              
 
-<int>           ::= "-" <num>
-                  | <num>
+side-conj     = [side-conj, "и", ] side.
 
-<num>           ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+side          = "слева"
+              | "сверху"              
+              | "справа"              
+              | "снизу"
+              | "(", side-disj, ")".
 
-<str>           ::= '"' <text> '"'
+params        = [value, {",", value}].
 
-<param-name>    ::= 
+named-params  = {",", param-name, "=", value}.
 
-<text>          ::= 
+param-name    = ""
+              | ""
+              | "".
 
-<comm-single>   ::= "-" "-" <text> "EOL"
-                  | "-" "-" <text> "EOT"
+comment-line  = 2 * "-", {character – "\n"}, ("\n" | EOT).
 
-<comm-multi>    ::= "\" "\" <comm-text> "/" "/"
-
-<comm-text>     ::= 
+(* EOT – фиктивный терминал, обозначающий конец текста. *)

@@ -77,7 +77,7 @@ class Translator(ExpressionVisitor):
         self._file.writeln("from videoanalytics.analytics.declarable.condition import *")
         self._file.writeln("from videoanalytics.analytics.declarable.events import *")
         self._file.writeln("from videoanalytics.analytics.declarable.tools import *")
-        self._file.writeln("from videoanalytics.models import Coords")
+        self._file.writeln("from videoanalytics.models import Coords, Side")
         self._file.writeln()
 
         self._file.writeln("print(\"'declared' loaded\")")
@@ -273,3 +273,6 @@ class Translator(ExpressionVisitor):
         expr.right.accept(self)
         self._file.writeln()
         self._file.write("    )")
+
+    def visit_side(self, expr: SideExpr) -> None:
+        self._file.write(f"Side({expr.value})")

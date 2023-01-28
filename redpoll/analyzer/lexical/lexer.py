@@ -22,6 +22,7 @@ class Lexer:
             Symbol.UNDERSCORE, Symbol.NUMBER
         }
         self._keywords = {
+            # logic / control flow
             kw.IF: TokenKind.IF,
             kw.OR: TokenKind.OR,
             kw.AND: TokenKind.AND,
@@ -47,11 +48,6 @@ class Lexer:
             kw.RADIUS: TokenKind.PARAM_NAME,
             kw.START: TokenKind.PARAM_NAME,
             kw.STEP: TokenKind.PARAM_NAME,
-            # processing parameter names
-            kw.ELEMENT: TokenKind.PARAM_NAME,
-            kw.NUMBER: TokenKind.PARAM_NAME,
-            kw.MESSAGE: TokenKind.PARAM_NAME,
-            kw.COUNT: TokenKind.PARAM_NAME,
             # event names
             kw.CROSSING: TokenKind.EVENT_NAME,
             kw.ENTERING: TokenKind.EVENT_NAME,
@@ -71,6 +67,11 @@ class Lexer:
             kw.DECREMENT: TokenKind.ACTION_NAME,
             kw.RESET: TokenKind.ACTION_NAME,
             kw.FLASH: TokenKind.ACTION_NAME,
+            # constants
+            kw.SIDE_LEFT: TokenKind.SIDE,
+            kw.SIDE_TOP: TokenKind.SIDE,
+            kw.SIDE_RIGHT: TokenKind.SIDE,
+            kw.SIDE_BOTTOM: TokenKind.SIDE,
             # general
             kw.COLOUR_TOKEN: TokenKind.COLOUR,
         }

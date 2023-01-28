@@ -25,6 +25,7 @@ class TokenKind(str, Enum):
     PARAM_NAME = "параметр"
     EVENT_NAME = "событие"
     ACTION_NAME = "действие"
+    SIDE = "сторона"
     LEFT_BRACKET = "("
     RIGHT_BRACKET = ")"
     COLON = ":"

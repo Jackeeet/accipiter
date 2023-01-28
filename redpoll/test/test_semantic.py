@@ -275,7 +275,7 @@ def test_raise_on_unconnected_area_with_arc():
 
     with pytest.raises(SemanticError) as error:
         _ = analyzer.analyze()
-    assert err.unconnected_area in str(error.value)
+    assert err.unconnected_area() in str(error.value)
 
 
 def test_raise_on_unconnected_line():

@@ -16,4 +16,5 @@ class DataType(Enum):
     ARC = "кривая",
     AREA = "зона",
     LINE = "линия",
-    COUNTER = "счетчик"
+    COUNTER = "счетчик",
+    SIDE = "сторона"

@@ -82,3 +82,6 @@ class ExpressionVisitor(ABC):
 
     @abstractmethod
     def visit_binary(self, expr) -> None: pass
+
+    @abstractmethod
+    def visit_side(self, expr) -> None: pass

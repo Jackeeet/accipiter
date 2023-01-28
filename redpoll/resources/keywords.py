@@ -1,3 +1,4 @@
+# logic / control flow
 IF = "если"
 OR = "или"
 AND = "и"
@@ -24,23 +25,19 @@ RADIUS = "радиус"
 START = "старт"
 STEP = "шаг"
 POINT = "точка"
-# processing parameter names (will be removed eventually)
-ELEMENT = "элемент"
-NUMBER = "число"
-MESSAGE = "сообщение"
-COUNT = "сч"
 # event names
-CROSSING = "пересекает" #
-ENTERING = "входитВ" #
-LEAVING = "покидает" #
+CROSSING = "пересекает"
+ENTERING = "входитВ"
+LEAVING = "покидает"
 DIVERTS_FROM = "отклоняетсяОт"
 SPEEDING_UP = "ускоряется"
 SLOWING_DOWN = "замедляется"
-STILL = "неподвижен" #
-APPEARS = "появляется" #
-DISAPPEARS = "исчезает" #
-EQUALS = "равен" #
-ABOVE = "превышает" #
+STILL = "неподвижен"
+APPEARS = "появляется"
+DISAPPEARS = "исчезает"
+EQUALS = "равен"
+ABOVE = "превышает"
+BELOW = "ниже"
 # action names
 ALERT = "оповестить"
 SAVE = "сохранить"
@@ -48,5 +45,10 @@ INCREMENT = "увеличить"
 DECREMENT = "уменьшить"
 RESET = "обнулить"
 FLASH = "высветить"
+# constants
+SIDE_LEFT = "слева"
+SIDE_TOP = "сверху"
+SIDE_RIGHT = "справа"
+SIDE_BOTTOM = "снизу"
 # general
 COLOUR_TOKEN = "rgb"

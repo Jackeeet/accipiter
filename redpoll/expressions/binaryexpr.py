@@ -3,10 +3,6 @@ from redpoll.types import OpType
 
 
 class BinaryExpr(Expr):
-    # the following type hints introduce circular references and other problems
-    # left: 'BinaryExpr' | EventExpr | ProcessingIdExpr | None
-    # right: 'BinaryExpr' | EventExpr | ProcessingIdExpr | None
-
     def __init__(self, left=None, op: OpType = None, right=None) -> None:
         super().__init__()
         self.left = left

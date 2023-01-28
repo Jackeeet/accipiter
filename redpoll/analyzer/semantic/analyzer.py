@@ -229,6 +229,7 @@ class Analyzer(ExpressionVisitor):
         self._visit_declarable_params(params, expr.args, expr.attrs)
 
     def visit_action_name(self, expr: ActionNameExpr) -> None:
+        # todo implement
         pass
 
     def visit_event(self, expr: EventExpr) -> None:
@@ -242,6 +243,7 @@ class Analyzer(ExpressionVisitor):
         self._visit_declarable_params(params, expr.args, expr.attrs)
 
     def visit_event_name(self, expr: EventNameExpr) -> None:
+        # todo implement
         pass
 
     def visit_binary(self, expr: BinaryExpr) -> None:
@@ -249,3 +251,7 @@ class Analyzer(ExpressionVisitor):
             expr.left.accept(self)
         if expr.right:
             expr.right.accept(self)
+
+    def visit_side(self, expr: SideExpr) -> None:
+        # todo implement
+        pass

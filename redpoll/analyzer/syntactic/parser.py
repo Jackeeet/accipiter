@@ -18,7 +18,7 @@ class Parser:
         }
 
         self._value_firsts = {TokenKind.TOOL_ID_START, TokenKind.DOT,
-                              TokenKind.LEFT_BRACKET, TokenKind.COLOUR,
+                              TokenKind.LEFT_BRACKET, TokenKind.COLOUR, TokenKind.SIDE,
                               TokenKind.NUMBER, TokenKind.STRING, TokenKind.IDENTIFIER}
 
         self._lexer = Lexer(input_str)
@@ -137,6 +137,8 @@ class Parser:
                 return self._parse_colour()
             case TokenKind.NUMBER | TokenKind.STRING:
                 return self._parse_literal()
+            case TokenKind.SIDE:
+                return self._parse_side_disjunction()
             case _:
                 raise ParseError(err.unexpected_token(self._token, "Значение параметра"))
 
@@ -305,11 +307,39 @@ class Parser:
         self._match(TokenKind.RIGHT_BRACKET)
         return CoordsExpr((x, y))
 
+    def _parse_side_disjunction(self) -> BinaryExpr | SideExpr:
+        left = self._parse_side_conjunction()
+        while self._token.kind == TokenKind.OR:
+            self._match(TokenKind.OR)
+            right = self._parse_side_conjunction()
+            left = BinaryExpr(left, OpType.OR, right)
+        return left
+
+    def _parse_side_conjunction(self) -> BinaryExpr | SideExpr:
+        left = self._parse_side()
+        while self._token.kind == TokenKind.AND:
+            self._match(TokenKind.AND)
+            right = self._parse_side()
+            left = BinaryExpr(left, OpType.AND, right)
+        return left
+
+    def _parse_side(self) -> SideExpr:
+        match self._token.kind:
+            case TokenKind.SIDE:
+                return SideExpr(self._read_token(TokenKind.SIDE))
+            case TokenKind.LEFT_BRACKET:
+                self._match(TokenKind.LEFT_BRACKET)
+                sides = self._parse_side_disjunction()
+                self._match(TokenKind.RIGHT_BRACKET)
+                return sides
+            case _:
+                raise ParseError(err.unexpected_token(self._token, "Сторона"))
+
     def _read_token(self, kind: TokenKind) -> Token:
         """Возвращает текущий токен, если его тип совпадает с указанным,
         и читает следующий токен.
 
-        :param kind: тип текущего токена
+        :param kind: Тип текущего токена
         :return: текущий токен
         """
         token = self._token
@@ -322,7 +352,7 @@ class Parser:
         """Возвращает значение текущего токена, если его тип совпадает с указанным,
         и читает следующий токен.
 
-        :param kind: тип текущего токена
+        :param kind: Тип текущего токена
         :return: значение текущего токена
         """
         if self._token.kind != kind:
@@ -334,7 +364,7 @@ class Parser:
     def _match(self, kind: TokenKind) -> None:
         """Читает следующий токен, если тип текущего токена совпадает с указанным.
 
-        :param kind: тип токена
+        :param kind: Тип токена
         """
         if self._token.kind != kind:
             raise ParseError(err.unexpected_token(self._token, "match"))

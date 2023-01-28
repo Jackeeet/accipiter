@@ -1,5 +1,5 @@
 from redpoll.expressions.visitor import ExpressionVisitor
-from redpoll.expressions.expr import Expr
+from redpoll.expressions.expression import Expr
 from redpoll.expressions.paramexpressions import *
 from redpoll.expressions.atomics import *
 from redpoll.expressions.binaryexpr import BinaryExpr
