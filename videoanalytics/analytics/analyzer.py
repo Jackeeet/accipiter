@@ -26,7 +26,7 @@ class Analyzer:
             # checking all declared conditions
             for condition in declared.conditions:
                 # executing declared actions if the condition holds
-                if condition.condition.check(tracked):
+                if condition.condition.evaluate(tracked=tracked):
                     for action in condition.actions:
                         action.params['tracked'] = tracked
                         action.execute()

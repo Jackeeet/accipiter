@@ -1,6 +1,5 @@
 from videoanalytics.analytics.declarable.events.event import Event
-from videoanalytics.analytics.declarable.events.eventchain import EventChain
-from videoanalytics.analytics.declarable.events.operators import op_and, op_or
+# from videoanalytics.analytics.declarable.events.eventchain import EventChain
 
 from videoanalytics.analytics.declarable.events.counter import *
 

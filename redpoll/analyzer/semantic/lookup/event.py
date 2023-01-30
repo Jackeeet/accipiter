@@ -29,7 +29,7 @@ required_params = {
 """
 
 extra_params = {
-    kw.CROSSING: [pn.SIDE],
+    kw.CROSSING: [pn.SIDES],
     kw.ENTERING: [],
     kw.LEAVING: [],
     kw.DIVERTS_FROM: [],

@@ -4,5 +4,3 @@ def op_and(left: bool, right: bool) -> bool:
 
 def op_or(left: bool, right: bool) -> bool:
     return left or right
-
-

@@ -71,20 +71,22 @@ class Translator(ExpressionVisitor):
 
     def visit_program(self, expr: ProgramExpr) -> None:
         self._file.writeln("__all__ = ['object_kinds', 'tools', 'conditions']")
-
-        self._file.writeln()
-        self._file.writeln("from videoanalytics.analytics.declarable.actions import *")
-        self._file.writeln("from videoanalytics.analytics.declarable.condition import *")
-        self._file.writeln("from videoanalytics.analytics.declarable.events import *")
-        self._file.writeln("from videoanalytics.analytics.declarable.tools import *")
-        self._file.writeln("from videoanalytics.models import Coords, Side")
-        self._file.writeln()
-
+        self._write_imports()
         self._file.writeln("print(\"'declared' loaded\")")
 
         expr.objects.accept(self)
         expr.tools.accept(self)
         expr.processing.accept(self)
+
+    def _write_imports(self) -> None:
+        self._file.writeln()
+        self._file.writeln("from videoanalytics.analytics.declarable.actions import *")
+        self._file.writeln("from videoanalytics.analytics.declarable.condition import *")
+        self._file.writeln("from videoanalytics.analytics.declarable.events import *")
+        self._file.writeln("from videoanalytics.analytics.declarable.tools import *")
+        self._file.writeln("from videoanalytics.models.operators import *")
+        self._file.writeln("from videoanalytics.models import Coords, Side, SideValue")
+        self._file.writeln()
 
     def visit_object_block(self, expr: ObjectBlockExpr) -> None:
         self._file.write("object_kinds = [")
@@ -257,11 +259,11 @@ class Translator(ExpressionVisitor):
         self._file.write(self._event_names[expr.value])
 
     def visit_binary(self, expr: BinaryExpr) -> None:
-        self._file.writeln("EventChain(")
+        self._file.writeln("EvalTree(")
         self._file.write("        left=")
         expr.left.accept(self)
         self._file.writeln(",")
-        self._file.write("        val=op_")
+        self._file.write("        op_or_val=op_")
         match expr.op:
             case OpType.AND:
                 self._file.writeln("and,")
@@ -275,4 +277,4 @@ class Translator(ExpressionVisitor):
         self._file.write("    )")
 
     def visit_side(self, expr: SideExpr) -> None:
-        self._file.write(f"Side({expr.value})")
+        self._file.write(f"Side(SideValue('{expr.value}'))")

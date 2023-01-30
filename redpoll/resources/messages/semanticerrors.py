@@ -56,3 +56,11 @@ def unexpected_parameter_name(param_name):
 
 def unsupported_tool_part_type():
     return "only Segment and Arc expressions can be used as tool parts"
+
+
+def missing_binary_operand():
+    return "missing a binary operand"
+
+
+def binary_types_mismatch():
+    return "binary operand types mismatch"

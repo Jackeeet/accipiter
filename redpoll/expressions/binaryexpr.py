@@ -1,8 +1,15 @@
+from typing import Self
+
 from redpoll.expressions import Expr, ExpressionVisitor
+from redpoll.expressions.declarable import EventExpr
+from redpoll.expressions.atomics import SideExpr
 from redpoll.types import OpType
 
 
 class BinaryExpr(Expr):
+    left: Self | EventExpr | SideExpr
+    right: Self | EventExpr | SideExpr
+
     def __init__(self, left=None, op: OpType = None, right=None) -> None:
         super().__init__()
         self.left = left
@@ -11,8 +18,8 @@ class BinaryExpr(Expr):
 
     def __eq__(self, other):
         return self.left == other.left and \
-               self.op == other.op and \
-               self.right == other.right
+            self.op == other.op and \
+            self.right == other.right
 
     def __ne__(self, other):
         return not self.__eq__(other)

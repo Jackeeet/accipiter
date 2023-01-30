@@ -1,31 +1,43 @@
 from videoanalytics.analytics.declarable.tools.interfaces import Intersectable
-from videoanalytics.models import Tracked, TrackedState, crossing_states, get_crossing_state
+from videoanalytics.models import Tracked, TrackedState, all_crossing_states, object_crossing_state, SideValue, Side, \
+    side_value_to_crossing_state
+from videoanalytics.models.evaltree import EvalTree
 
 
-def crosses(tracked: Tracked, tool: Intersectable) -> bool:
+def crosses(tracked: Tracked, tool: Intersectable, sides: EvalTree) -> bool:
     """ todo add description
 
     :param tracked: Отслеживаемый объект
     :param tool: элемент разметки
+    :param sides:
     :return: True, если объект пересекает элемент разметки, иначе False
     """
-    crossed_left = tool.intersects(tracked.obj.left)
-    crossed_right = tool.intersects(tracked.obj.right)
-    crossed_top = tool.intersects(tracked.obj.top)
-    crossed_bottom = tool.intersects(tracked.obj.bottom)
+    sides_crossing = {
+        SideValue.LEFT: tool.intersects(tracked.obj.right),
+        SideValue.RIGHT: tool.intersects(tracked.obj.left),
+        SideValue.TOP: tool.intersects(tracked.obj.bottom),
+        SideValue.BOTTOM: tool.intersects(tracked.obj.top)
+    }
+    new_crossing_state = object_crossing_state(sides_crossing)
 
-    new_state = get_crossing_state(crossed_bottom, crossed_left, crossed_right, crossed_top)
-    crossed = (new_state & crossing_states) != TrackedState.NONE
+    crossed = sides.evaluate(obj_crossing_state=sides_crossing)
+    declared_crossing_states = sides.flatten(
+        lambda side, initial: initial | side_value_to_crossing_state(side.value),
+        TrackedState.NONE
+    )
+
     first_crossing = False
 
-    if not crossed:
-        # reset all crossing flags for this tool
-        tracked.states[tool] = tracked.states[tool] & ~crossing_states
-    else:
-        if (tracked.states[tool] & crossing_states) == TrackedState.NONE:
-            # первое пересечение линии объектом
+    if crossed:
+        # ни один бит в текущем состоянии не соответствует одному из битов,
+        # соответствующих заданным сторонам => первое пересечение линии объектом
+        if (tracked.states[tool] & declared_crossing_states) == TrackedState.NONE:
             first_crossing = True
-        tracked.states[tool] |= new_state
+
+        tracked.states[tool] |= new_crossing_state
+    else:  # reset all crossing flags for this tool
+        # todo make sure this doesn't erase unnecessary states
+        tracked.states[tool] = tracked.states[tool] & ~all_crossing_states
 
     # если объект пересекал эту же линию на предыдущих фреймах, действия выполнять не нужно
     return crossed and first_crossing

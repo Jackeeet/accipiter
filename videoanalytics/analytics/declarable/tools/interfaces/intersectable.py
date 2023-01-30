@@ -1,5 +1,4 @@
 import abc
-from abc import abstractmethod
 
 
 class Intersectable(metaclass=abc.ABCMeta):
@@ -9,7 +8,7 @@ class Intersectable(metaclass=abc.ABCMeta):
             and callable(subclass.intersects) \
             or NotImplemented
 
-    @abstractmethod
+    @abc.abstractmethod
     def intersects(self, segment) -> bool:
         """ Определяет, пересекает ли отрезок данный объект.
 

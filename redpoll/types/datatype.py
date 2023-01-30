@@ -17,4 +17,5 @@ class DataType(Enum):
     AREA = "зона",
     LINE = "линия",
     COUNTER = "счетчик",
-    SIDE = "сторона"
+    SIDE = "сторона",
+    EVENT = "событие"

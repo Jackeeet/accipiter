@@ -233,6 +233,7 @@ class Analyzer(ExpressionVisitor):
         pass
 
     def visit_event(self, expr: EventExpr) -> None:
+        expr.attrs.datatype = DataType.EVENT
         expr.target.accept(self)
         event_name = expr.name.value
         required = event.required_params[event_name]
@@ -247,11 +248,16 @@ class Analyzer(ExpressionVisitor):
         pass
 
     def visit_binary(self, expr: BinaryExpr) -> None:
-        if expr.left:
-            expr.left.accept(self)
-        if expr.right:
-            expr.right.accept(self)
+        if expr.left is None or expr.right is None:
+            raise SemanticError(err.missing_binary_operand())
+
+        expr.left.accept(self)
+        expr.right.accept(self)
+        left_type = expr.left.attrs.datatype
+        right_type = expr.right.attrs.datatype
+        if left_type != right_type:
+            raise SemanticError(err.binary_types_mismatch())
+        expr.attrs.datatype = left_type
 
     def visit_side(self, expr: SideExpr) -> None:
-        # todo implement
-        pass
+        expr.attrs.datatype = expr.type
