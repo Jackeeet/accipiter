@@ -1,4 +1,4 @@
-__all__ = ['rule_config', 'update_block']
+__all__ = ['rule_config', 'update_block', 'detectors_config']
 
 import json
 import sys
@@ -18,6 +18,10 @@ async def update_block():
     return _update_block
 
 
+async def detectors_config():
+    return cfg["detectors"]
+
+
 def _update_block(name: str, contents: dict):
     with open(config_path, 'r+') as f:
         config = json.load(f)
@@ -30,12 +34,3 @@ def _update_block(name: str, contents: dict):
 #     with open(config_path, 'w') as f:
 #         f.write(json.dumps(contents))
 #         f.truncate()
-
-# class ConfigReader:
-#     def __init__(self):
-#         self._config_path = sys.path[0] + "/config.json"
-#         with open(self._config_path, 'r') as file:
-#             self._config = json.load(file)
-#             print("Config file read successfully")
-#
-#         self.rules = self._config["rules"]

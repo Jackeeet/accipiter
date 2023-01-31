@@ -54,7 +54,8 @@ async def file_exists(filename: str, cfg: dict = Depends(rule_config)):
 
 @router.get("")
 async def get_file_names(cfg: dict = Depends(rule_config)):
-    return await _access_db(cfg, action=None, check=None, filename=None)
+    db = await _access_db(cfg)
+    return [[filename, filename] for filename in db]
 
 
 @router.get("/{filename}")

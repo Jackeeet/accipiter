@@ -51,6 +51,7 @@ class Lexer:
             # event names
             kw.CROSSING: TokenKind.EVENT_NAME,
             kw.ENTERING: TokenKind.EVENT_NAME,
+            kw.IS_IN: TokenKind.EVENT_NAME,
             kw.LEAVING: TokenKind.EVENT_NAME,
             kw.DIVERTS_FROM: TokenKind.EVENT_NAME,
             kw.SPEEDING_UP: TokenKind.EVENT_NAME,

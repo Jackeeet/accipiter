@@ -14,24 +14,24 @@ def duplicated_tool_part():
     return "Duplicated tool part"
 
 
-def missing_required_tool_param():
-    return "missing required tool param"
+def missing_required_tool_arg():
+    return "missing required tool argument"
 
 
-def missing_required_action_param():
-    return "missing required action param"
+def missing_required_action_arg():
+    return "missing required action argument"
 
 
-def missing_required_event_param():
-    return "missing required event param"
+def missing_required_event_arg():
+    return "missing required event argument"
 
 
-def parameter_type_mismatch():
-    return "parameter type mismatch"
+def arg_type_mismatch():
+    return "argument type mismatch"
 
 
-def self_id_as_param_value():
-    return "tool id used as the tool's own param value"
+def self_id_as_arg():
+    return "tool id used as the tool's own argument value"
 
 
 def unconnected_area():

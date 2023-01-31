@@ -140,18 +140,18 @@ class Analyzer(ExpressionVisitor):
 
             if param_value.attrs.name:
                 if param_value.attrs.name == expr.attrs.name:
-                    raise SemanticError(err.self_id_as_param_value())
+                    raise SemanticError(err.self_id_as_arg())
                 elif param_value.attrs.name not in self._id_tools:
                     raise SemanticError(err.undeclared_tool_variable(param_value.attrs.name))
 
             if param_value.attrs.datatype not in tool.param_types[param_name]:
-                raise SemanticError(err.parameter_type_mismatch())
+                raise SemanticError(err.arg_type_mismatch())
 
             if param_value.attrs.datatype == DataType.COMPOSITE:
                 param_value: ToolPartsExpr
                 self._check_composite_shape(expr.attrs.datatype, param_value)
         if not expr.attrs.filled_params.issuperset(tool.required_params[expr.attrs.datatype]):
-            raise SemanticError(err.missing_required_tool_param())
+            raise SemanticError(err.missing_required_tool_arg())
 
     def _visit_tool(self, expr: ToolExpr, datatype: DataType) -> None:
         self._visit_optional_id(expr)
@@ -223,7 +223,7 @@ class Analyzer(ExpressionVisitor):
         action_name = expr.name.value
         required = action.required_params[action_name]
         if len(expr.args) < len(required):
-            raise SemanticError(err.missing_required_action_param())
+            raise SemanticError(err.missing_required_action_arg())
         extra = action.extra_params[action_name]
         params = [*required, *extra]
         self._visit_declarable_params(params, expr.args, expr.attrs)
@@ -238,7 +238,7 @@ class Analyzer(ExpressionVisitor):
         event_name = expr.name.value
         required = event.required_params[event_name]
         if len(expr.args) < len(required):
-            raise SemanticError(err.missing_required_event_param())
+            raise SemanticError(err.missing_required_event_arg())
         extra = event.extra_params[event_name]
         params = [*required, *extra]
         self._visit_declarable_params(params, expr.args, expr.attrs)
