@@ -1,4 +1,4 @@
-from redpoll.analyzer.semantic.lookup import action, event, tool
+from redpoll.resources.lookup import action, event, tool
 from redpoll.analyzer.semantic.semanticerror import SemanticError
 from redpoll.analyzer.syntactic import Parser
 from redpoll.expressions import *
@@ -217,7 +217,6 @@ class Analyzer(ExpressionVisitor):
         for (param_name, arg) in zip(param_names, arguments):
             arg.accept(self)
             # todo check types
-            attrs.param_names.append(param_name)
 
     def visit_action(self, expr: ActionExpr) -> None:
         action_name = expr.name.value

@@ -1,6 +1,9 @@
+from typing import Any, Dict
+
 from redpoll.expressions import *
 from redpoll.types import OpType, DataType
 from redpoll.resources import keywords as kw
+from redpoll.resources.lookup import action, event
 from redpoll.resources.messages import parseerrors as err
 from redpoll.analyzer.token import Token, TokenKind
 from redpoll.analyzer.lexical import Lexer
@@ -8,6 +11,8 @@ from redpoll.analyzer.syntactic.parseerror import ParseError
 
 
 class Parser:
+    _param_lists: dict[str, list[str]]
+
     def __init__(self, input_str: str) -> None:
         self._complex_tool_types = {
             TokenKind.SEGMENT: DataType.SEGMENT,
@@ -20,6 +25,7 @@ class Parser:
         self._value_firsts = {TokenKind.TOOL_ID_START, TokenKind.DOT,
                               TokenKind.LEFT_BRACKET, TokenKind.COLOUR, TokenKind.SIDE,
                               TokenKind.NUMBER, TokenKind.STRING, TokenKind.IDENTIFIER}
+        self._param_lists = {**action.param_lists, **event.param_lists}
 
         self._lexer = Lexer(input_str)
         self._next_token()
@@ -148,7 +154,9 @@ class Parser:
             self._match(TokenKind.DOT)
         self._match(TokenKind.LEFT_BRACKET)
         parts.append(self._parse_tool_part())
-        self._parse_next_parts(parts)
+        while self._token.kind == TokenKind.SEMICOLON:
+            self._match(TokenKind.SEMICOLON)
+            parts.append(self._parse_tool_part())
         self._match(TokenKind.RIGHT_BRACKET)
         return ToolPartsExpr(parts)
 
@@ -160,11 +168,6 @@ class Parser:
                 return self._parse_tool()
             case _:
                 raise ParseError(err.unexpected_token(self._token, "Часть составного инструмента"))
-
-    def _parse_next_parts(self, parts: list[ToolExpr | ToolIdExpr]) -> None:
-        while self._token.kind == TokenKind.SEMICOLON:
-            self._match(TokenKind.SEMICOLON)
-            parts.append(self._parse_tool_part())
 
     def _parse_processing_list(self, rules: list[ProcessingExpr]) -> None:
         while True:
@@ -200,7 +203,7 @@ class Parser:
         expr = ActionExpr()
         expr.name = ActionNameExpr(self._read_value(TokenKind.ACTION_NAME))
         self._match(TokenKind.LEFT_BRACKET)
-        self._parse_params(expr.args)
+        self._parse_args(expr.args, expr.name.value)
         self._match(TokenKind.RIGHT_BRACKET)
         return expr
 
@@ -246,19 +249,19 @@ class Parser:
         self._match(TokenKind.DOT)
         expr.name = EventNameExpr(self._read_value(TokenKind.EVENT_NAME))
         self._match(TokenKind.LEFT_BRACKET)
-        self._parse_params(expr.args)
+        self._parse_args(expr.args, expr.name.value)
         self._match(TokenKind.RIGHT_BRACKET)
         return expr
 
-    def _parse_params(self, param_list: list[ParamsExpr]) -> None:
+    def _parse_args(self, args: dict[str, ParamsExpr], decl_name: str) -> None:
         if self._token.kind in self._value_firsts:
-            param_list.append(self._parse_value())
-            self._parse_next_params(param_list)
-
-    def _parse_next_params(self, param_list: list[ParamsExpr]) -> None:
-        while self._token.kind == TokenKind.COMMA:
-            self._match(TokenKind.COMMA)
-            param_list.append(self._parse_value())
+            arg_index = 0
+            param_names = self._param_lists[decl_name]
+            args[param_names[arg_index]] = self._parse_value()
+            while self._token.kind == TokenKind.COMMA:
+                self._match(TokenKind.COMMA)
+                arg_index += 1
+                args[param_names[arg_index]] = self._parse_value()
 
     def _parse_condition(self) -> ConditionExpr:
         expr = ConditionExpr()

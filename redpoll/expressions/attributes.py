@@ -10,7 +10,7 @@ class Attributes:
     filled_params: set[str]
     datatype: DataType
     value_types: set[DataType]
-    param_names: list[str]
+    # param_names: list[str]
 
     def __init__(self):
         self.name = None
@@ -18,4 +18,4 @@ class Attributes:
         self.filled_params = set()
         self.datatype = None
         self.value_types = set()
-        self.param_names = []
+        # self.param_names = []

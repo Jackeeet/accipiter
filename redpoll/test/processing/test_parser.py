@@ -3,6 +3,7 @@ import pytest
 from redpoll.analyzer.syntactic import Parser
 from redpoll.expressions import *
 from redpoll.types import OpType, Side
+from redpoll.resources import paramnames as pn
 
 
 @pytest.fixture
@@ -35,10 +36,10 @@ def test_parse_event_declaration(prefix, suffix):
 
     assert event.target.value == "человек" and event.name.value == "пересекает"
 
-    params: list[ParamsExpr] = event.args
-    assert len(params) == 1
+    args: list[ParamsExpr] = event.args
+    assert len(args) == 1 and pn.TOOL in args
 
-    tool_id: AtomicExpr = params[0]
+    tool_id: AtomicExpr = args[pn.TOOL]
     assert type(tool_id) is ToolIdExpr and tool_id.value == "л1"
 
 
@@ -102,11 +103,11 @@ def test_parse_tool_event_declaration(prefix, suffix):
     expr: DeclarationExpr = program.processing.items[0]
 
     body: EventExpr = expr.body
-    assert type(body.target) is ToolIdExpr
-    assert body.target.value == "сч1"
+    assert type(body.target) is ToolIdExpr \
+           and body.target.value == "сч1"
     assert body.name.value == "равен"
-    assert len(body.args) == 1
-    assert body.args[0] == IntExpr(1000)
+    assert len(body.args) == 1 \
+           and body.args[pn.NUMBER] == IntExpr(1000)
 
 
 def test_parse_action_declaration(prefix, suffix):
@@ -123,7 +124,7 @@ def test_parse_action_declaration(prefix, suffix):
            and type(body.name) is ActionNameExpr \
            and body.name.value == "оповестить" \
            and len(body.args) == 1 \
-           and body.args[0] == StringExpr("сообщение 1")
+           and body.args[pn.MESSAGE] == StringExpr("сообщение 1")
 
 
 def test_parse_parameterless_action_declaration(prefix, suffix):
@@ -183,7 +184,7 @@ def test_parse_event_condition(prefix, suffix):
     assert type(actions[0]) is ProcessingIdExpr and actions[0].value == "действие1"
     assert type(actions[1]) is ActionExpr and actions[1].name.value == "оповестить"
 
-    msg: StringExpr = actions[1].args[0]
+    msg: StringExpr = actions[1].args[pn.MESSAGE]
     assert type(msg) is StringExpr \
            and msg.type == DataType.STRING \
            and msg.value == "'сообщение'"
@@ -259,9 +260,9 @@ def test_parse_single_crossing_side_param(prefix, suffix):
     event: EventExpr = program.processing.items[0].event
     assert type(event) is EventExpr and len(event.args) == 2
 
-    assert type(event.args[0]) is ToolIdExpr
+    assert type(event.args[pn.TOOL]) is ToolIdExpr
 
-    side: AtomicExpr = event.args[1]
+    side: AtomicExpr = event.args[pn.SIDES]
     assert type(side) is SideExpr and side.value == Side.LEFT
 
 
@@ -273,7 +274,7 @@ def test_parse_side_param_disjunction(prefix, suffix):
     event: EventExpr = program.processing.items[0].event
     assert type(event) is EventExpr and len(event.args) == 2
 
-    sides: BinaryExpr = event.args[1]
+    sides: BinaryExpr = event.args[pn.SIDES]
     assert type(sides) is BinaryExpr and sides.op == OpType.OR \
            and type(sides.left) is SideExpr and sides.left.value == Side.LEFT \
            and type(sides.right) is SideExpr and sides.right.value == Side.TOP
@@ -287,7 +288,7 @@ def test_parse_side_param_conjunction(prefix, suffix):
     event: EventExpr = program.processing.items[0].event
     assert type(event) is EventExpr and len(event.args) == 2
 
-    sides: BinaryExpr = event.args[1]
+    sides: BinaryExpr = event.args[pn.SIDES]
     assert type(sides) is BinaryExpr and sides.op == OpType.AND \
            and type(sides.left) is SideExpr and sides.left.value == Side.RIGHT \
            and type(sides.right) is SideExpr and sides.right.value == Side.BOTTOM
@@ -301,7 +302,7 @@ def test_parse_side_operator_precedence(prefix, suffix):
     event: EventExpr = program.processing.items[0].event
     assert type(event) is EventExpr and len(event.args) == 2
 
-    sides: BinaryExpr = event.args[1]
+    sides: BinaryExpr = event.args[pn.SIDES]
     assert type(sides) is BinaryExpr and sides.op == OpType.OR
 
     assert type(sides.left) is BinaryExpr and sides.left.op == OpType.AND \

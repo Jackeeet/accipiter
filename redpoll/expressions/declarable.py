@@ -10,12 +10,13 @@ from redpoll.expressions.visitor import ExpressionVisitor
 
 class DeclarableExpr(Expr):
     """ Expressions that can be used as declaration bodies in the processing block."""
-    args: list[ParamsExpr]
+    # args: list[ParamsExpr]
+    args: dict[str, ParamsExpr]
 
     @abstractmethod
     def __init__(self) -> None:
         super().__init__()
-        self.args = []
+        self.args = {}
 
     def __eq__(self, o: object) -> bool:
         if isinstance(o, DeclarableExpr):

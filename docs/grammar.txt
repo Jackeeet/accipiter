@@ -20,7 +20,7 @@ tool-decl     = tool-id, ":", tool, ";".
 
 tool-id       = "*", id.
 
-tool          = type, named-params.
+tool          = type, named-args.
 
 type          = coords
               | "прямая"
@@ -42,7 +42,7 @@ process-id    = "_", id.
 process-body  = action 
               | event-disj.
 
-action        = [action-name, "(", params, ")"].
+action        = [action-name, "(", args, ")"].
 
 action-name   = "оповестить"
               | "сохранить"
@@ -58,7 +58,7 @@ event-or-id   = event
               | "(", event-disj, ")"
               | process-id.
 
-event         = (object-id | tool-id), ".", event-name, "(", params, ")".
+event         = (object-id | tool-id), ".", event-name, "(", args, ")".
 
 event-name    = "пересекает"
               | "входитВ"
@@ -130,9 +130,9 @@ side          = "слева"
               | "снизу"
               | "(", side-disj, ")".
 
-params        = [value, {",", value}].
+args          = [value, {",", value}].
 
-named-params  = {",", param-name, "=", value}.
+named-args    = {",", param-name, "=", value}.
 
 param-name    = ""
               | ""

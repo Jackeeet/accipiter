@@ -1,4 +1,4 @@
-import redpoll.resources.translation.paramnames as pn
+import redpoll.resources.paramnames as pn
 from redpoll.types import DataType
 
 param_types = {

@@ -1,7 +1,6 @@
-from redpoll.resources import keywords as kw
-from redpoll.resources.translation import paramnames as pn
+from redpoll.resources import keywords as kw, paramnames as pn
 
-""" Обязательные параметры для действия
+""" Обязательные параметры действий
 
 При описании действия аргументы должны быть переданы в том же порядке, 
 что и параметры в соответствующем действию множестве.
@@ -28,4 +27,11 @@ extra_params = {
     kw.DECREMENT: [],
     kw.RESET: [],
     kw.FLASH: []
+}
+
+""" Общие списки параметров действий """
+param_lists = {
+    param_name: [*required, *extra]
+    for ((param_name, required), (_, extra))
+    in zip(required_params.items(), extra_params.items())
 }
