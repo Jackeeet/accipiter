@@ -29,3 +29,14 @@ class BinaryExpr(Expr):
 
     def accept(self, visitor: ExpressionVisitor):
         visitor.visit_binary(self)
+
+    @staticmethod
+    def from_list(items: list[Expr]) -> Expr:
+        if not items:
+            raise ValueError("empty list")
+
+        left = items[0]
+        for item in items[1:]:
+            right = item
+            left = BinaryExpr(left, OpType.OR, right)
+        return left

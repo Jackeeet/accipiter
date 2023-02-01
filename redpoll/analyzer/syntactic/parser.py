@@ -20,9 +20,9 @@ class Parser:
             TokenKind.COUNTER: DataType.COUNTER
         }
 
-        self._value_firsts = {TokenKind.TOOL_ID_START, TokenKind.DOT,
-                              TokenKind.LEFT_BRACKET, TokenKind.COLOUR, TokenKind.SIDE,
-                              TokenKind.NUMBER, TokenKind.STRING, TokenKind.IDENTIFIER}
+        self._simple_value_firsts = {TokenKind.TOOL_ID_START, TokenKind.DOT, TokenKind.TRIPLE_DOT,
+                                     TokenKind.LEFT_BRACKET, TokenKind.COLOUR, TokenKind.SIDE,
+                                     TokenKind.NUMBER, TokenKind.STRING, TokenKind.IDENTIFIER}
         self._param_lists = {**action.param_lists, **event.param_lists}
 
         self._lexer = Lexer(input_str)
@@ -97,7 +97,7 @@ class Parser:
         return ToolIdExpr(self._read_value(TokenKind.IDENTIFIER))
 
     def _parse_type(self) -> ToolExpr:
-        if self._token.kind == TokenKind.COORDS_START:
+        if self._token.kind == TokenKind.DOT:
             coords = self._parse_coordinates()
             expr = PointExpr()
             expr.params[kw.POINT] = CoordsExpr((coords.value[0], coords.value[1]))
@@ -133,25 +133,44 @@ class Parser:
                 return self._parse_object_id()
             case TokenKind.TOOL_ID_START:
                 return self._parse_tool_id()
-            case TokenKind.DOT:
+            case TokenKind.TRIPLE_DOT:
                 return self._parse_tool_parts()
-            case TokenKind.COORDS_START:
+            case TokenKind.DOT:
                 return self._parse_coordinates()
             case TokenKind.COLOUR:
                 return self._parse_colour()
             case TokenKind.NUMBER | TokenKind.STRING:
                 return self._parse_literal()
-            case TokenKind.LEFT_BRACKET | TokenKind.SIDE:
-                return self._parse_side_disjunction()
+            case TokenKind.SIDE:
+                return self._parse_side()
+            case TokenKind.LEFT_BRACKET:
+                self._match(TokenKind.LEFT_BRACKET)
+                value = self._parse_value_disjunction()
+                self._match(TokenKind.RIGHT_BRACKET)
+                return value
             case _:
                 raise ParseError(err.unexpected_token(self._token, "Значение параметра"))
 
+    def _parse_value_disjunction(self) -> BinaryExpr | ParamsExpr:
+        left = self._parse_value_conjunction()
+        while self._token.kind == TokenKind.OR:
+            self._match(TokenKind.OR)
+            right = self._parse_value_conjunction()
+            left = BinaryExpr(left, OpType.OR, right)
+        return left
+
+    def _parse_value_conjunction(self) -> BinaryExpr | ParamsExpr:
+        left = self._parse_value()
+        while self._token.kind == TokenKind.AND:
+            self._match(TokenKind.AND)
+            right = self._parse_value()
+            left = BinaryExpr(left, OpType.AND, right)
+        return left
+
     def _parse_tool_parts(self) -> ToolPartsExpr:
-        parts: list[ToolExpr | ToolIdExpr] = []
-        for i in range(3):
-            self._match(TokenKind.DOT)
+        self._match(TokenKind.TRIPLE_DOT)
         self._match(TokenKind.LEFT_BRACKET)
-        parts.append(self._parse_tool_part())
+        parts: list[ToolExpr | ToolIdExpr] = [self._parse_tool_part()]
         while self._token.kind == TokenKind.SEMICOLON:
             self._match(TokenKind.SEMICOLON)
             parts.append(self._parse_tool_part())
@@ -252,7 +271,7 @@ class Parser:
         return expr
 
     def _parse_args(self, args: dict[str, ParamsExpr], decl_name: str) -> None:
-        if self._token.kind in self._value_firsts:
+        if self._token.kind in self._simple_value_firsts:
             arg_index = 0
             param_names = self._param_lists[decl_name]
             args[param_names[arg_index]] = self._parse_value()
@@ -289,7 +308,6 @@ class Parser:
 
     def _parse_colour(self) -> AtomicExpr:
         self._match(TokenKind.COLOUR)
-        # noinspection DuplicatedCode
         self._match(TokenKind.LEFT_BRACKET)
         r = int(self._read_value(TokenKind.NUMBER))
         self._match(TokenKind.COMMA)
@@ -300,7 +318,7 @@ class Parser:
         return ColourExpr((r, g, b))
 
     def _parse_coordinates(self) -> AtomicExpr:
-        self._match(TokenKind.COORDS_START)
+        self._match(TokenKind.DOT)
         self._match(TokenKind.LEFT_BRACKET)
         x = int(self._read_value(TokenKind.NUMBER))
         self._match(TokenKind.COMMA)
@@ -308,33 +326,10 @@ class Parser:
         self._match(TokenKind.RIGHT_BRACKET)
         return CoordsExpr((x, y))
 
-    def _parse_side_disjunction(self) -> BinaryExpr | SideExpr:
-        left = self._parse_side_conjunction()
-        while self._token.kind == TokenKind.OR:
-            self._match(TokenKind.OR)
-            right = self._parse_side_conjunction()
-            left = BinaryExpr(left, OpType.OR, right)
-        return left
-
-    def _parse_side_conjunction(self) -> BinaryExpr | SideExpr:
-        left = self._parse_side()
-        while self._token.kind == TokenKind.AND:
-            self._match(TokenKind.AND)
-            right = self._parse_side()
-            left = BinaryExpr(left, OpType.AND, right)
-        return left
-
     def _parse_side(self) -> SideExpr:
-        match self._token.kind:
-            case TokenKind.SIDE:
-                return SideExpr(self._read_token(TokenKind.SIDE))
-            case TokenKind.LEFT_BRACKET:
-                self._match(TokenKind.LEFT_BRACKET)
-                sides = self._parse_side_disjunction()
-                self._match(TokenKind.RIGHT_BRACKET)
-                return sides
-            case _:
-                raise ParseError(err.unexpected_token(self._token, "Сторона"))
+        if self._token.kind == TokenKind.SIDE:
+            return SideExpr(self._read_token(TokenKind.SIDE))
+        raise ParseError(err.unexpected_token(self._token, "Сторона"))
 
     def _read_token(self, kind: TokenKind) -> Token:
         """Возвращает текущий токен, если его тип совпадает с указанным,

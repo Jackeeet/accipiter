@@ -84,8 +84,6 @@ class Lexer:
             Symbol.SEMICOLON: TokenKind.SEMICOLON,
             Symbol.EQUALS: TokenKind.EQUALS,
             Symbol.COMMA: TokenKind.COMMA,
-            Symbol.DOT: TokenKind.DOT,
-            Symbol.EXCLAMATION: TokenKind.COORDS_START,
             Symbol.STAR: TokenKind.TOOL_ID_START,
             Symbol.UNDERSCORE: TokenKind.PROC_ID_START
         }
@@ -119,6 +117,8 @@ class Lexer:
                     kind = self._read_id_or_keyword()
                 case Symbol.DOUBLE_QUOTE:
                     kind = self._read_string(Symbol.DOUBLE_QUOTE)
+                case Symbol.DOT:
+                    kind = self._read_dot_token()
                 case Symbol.EOT:
                     kind = TokenKind.EOT
                 case _:
@@ -137,6 +137,19 @@ class Lexer:
         if value in self._keywords.keys():
             return self._keywords[value]
         return TokenKind.IDENTIFIER
+
+    def _read_dot_token(self) -> TokenKind:
+        dot_count = 0
+        while self._tlr.symbol == Symbol.DOT:
+            dot_count += 1
+            self._tlr.read_next()
+        match dot_count:
+            case 1:
+                return TokenKind.DOT
+            case 3:
+                return TokenKind.TRIPLE_DOT
+            case _:
+                raise LexerError(f"Неверное количество точек: {dot_count}")
 
     def _read_string(self, quote: Symbol) -> TokenKind:
         stop_symbols = [quote, Symbol.EOT]

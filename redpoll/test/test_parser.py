@@ -1,8 +1,7 @@
 import pytest
 
 from redpoll.analyzer.syntactic import ParseError, Parser
-from redpoll.expressions import ObjectExpr, ObjectIdExpr
-from redpoll.expressions.programexpr import ProgramExpr
+from redpoll.expressions import ObjectExpr, ObjectIdExpr, ProgramExpr
 from redpoll.resources.messages import parseerrors as err
 
 

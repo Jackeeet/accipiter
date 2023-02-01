@@ -1,12 +1,7 @@
 import pytest
 
 from redpoll.analyzer.syntactic import ParseError, Parser
-from redpoll.expressions import ArcExpr, AreaExpr, LineExpr, PointExpr, SegmentExpr, ToolExpr, ToolIdExpr
-from redpoll.expressions.atomics.colourexpr import ColourExpr
-from redpoll.expressions.atomics.coordsexpr import CoordsExpr
-from redpoll.expressions.atomics.intexpr import IntExpr
-from redpoll.expressions.paramexpressions import ParamsExpr, ToolPartsExpr
-from redpoll.expressions.programexpr import ProgramExpr
+from redpoll.expressions import *
 from redpoll.resources import keywords as kw
 from redpoll.types import DataType
 
@@ -22,7 +17,7 @@ def suffix():
 
 
 def test_parse_named_point(prefix, suffix):
-    tool = "*точка_1: !(1, 2);"
+    tool = "*точка_1: .(1, 2);"
 
     program: ProgramExpr = Parser(prefix + tool + suffix).parse()
 
@@ -35,7 +30,7 @@ def test_parse_named_point(prefix, suffix):
 
 
 def test_parse_segment_named_params(prefix, suffix):
-    tool = "*о1: прямая, от=!(2, 2), до=!(4, 4);"
+    tool = "*о1: прямая, от=.(2, 2), до=.(4, 4);"
 
     program: ProgramExpr = Parser(prefix + tool + suffix).parse()
 
@@ -61,7 +56,7 @@ def test_parse_segment_named_params(prefix, suffix):
 
 
 def test_parse_colour_param(prefix, suffix):
-    tool = "*о1: прямая, от=!(2, 2), до=!(4, 4), цвет=rgb(255, 128, 0);"
+    tool = "*о1: прямая, от=.(2, 2), до=.(4, 4), цвет=rgb(255, 128, 0);"
 
     program: ProgramExpr = Parser(prefix + tool + suffix).parse()
 
@@ -86,7 +81,7 @@ def test_parse_identifier_param(prefix, suffix):
 def test_parse_composite(prefix, suffix):
     area_str = "*о1_1: зона, состав=...(\n" + \
                "  *о1 ;\n" + \
-               "  дуга, центр=!(3, 3), радиус=1, уголОт=0, уголДо=180\n" + \
+               "  дуга, центр=.(3, 3), радиус=1, уголОт=0, уголДо=180\n" + \
                ");"
     program: ProgramExpr = Parser(prefix + area_str + suffix).parse()
 
@@ -109,9 +104,9 @@ def test_parse_composite(prefix, suffix):
 
 
 def test_parse_multiple_tools_block(prefix, suffix):
-    tool = """ *т_1: !(2,3);
-               *line: прямая, от=*т_1, до=!(4,5);
-               *а: зона, состав=...( прямая, от=*т_1, до=!(5,4); *line; *т_1 );"""
+    tool = """ *т_1: .(2,3);
+               *line: прямая, от=*т_1, до=.(4,5);
+               *а: зона, состав=...( прямая, от=*т_1, до=.(5,4); *line; *т_1 );"""
 
     expr: ProgramExpr = Parser(prefix + tool + suffix).parse()
     assert type(expr) is ProgramExpr
@@ -138,7 +133,7 @@ def test_parse_single_part_composite(prefix, suffix):
 
 def test_raise_on_invalid_id(prefix, suffix):
     with pytest.raises(ParseError) as error:
-        _ = Parser(prefix + "о1: прямая, от=!(2, 2), до=!(4, 4);" + suffix).parse()
+        _ = Parser(prefix + "о1: прямая, от=.(2, 2), до=.(4, 4);" + suffix).parse()
     assert "[match]" in str(error.value)
 
 
@@ -156,7 +151,7 @@ def test_raise_on_empty_parts(prefix, suffix):
 
 def test_raise_on_named_tool_part(prefix, suffix):
     tool = " *о1_1: зона, состав=...(\n" + \
-           "  *x: дуга, центр=!(3, 3), радиус=1, уголОт=0, уголДо=180\n" + \
+           "  *x: дуга, центр=.(3, 3), радиус=1, уголОт=0, уголДо=180\n" + \
            ");"
     with pytest.raises(ParseError) as error:
         _ = Parser(prefix + tool + suffix).parse()
@@ -164,7 +159,7 @@ def test_raise_on_named_tool_part(prefix, suffix):
 
 def test_raise_on_random_name_tool_part(prefix, suffix):
     tool = " *о1_1: зона, состав=...(\n" + \
-           "  x: дуга, центр=!(3, 3), радиус=1, уголОт=0, уголДо=180\n" + \
+           "  x: дуга, центр=.(3, 3), радиус=1, уголОт=0, уголДо=180\n" + \
            ");"
     with pytest.raises(ParseError) as error:
         _ = Parser(prefix + tool + suffix).parse()
@@ -183,7 +178,7 @@ def test_raise_on_invalid_parameter(prefix, suffix):
 
 
 def test_raise_on_duplicate_tool_param(prefix, suffix):
-    tool = "    *л1: прямая, от=!(20, 30), от=!(12, 12), до=!(12, 12);"
+    tool = "    *л1: прямая, от=.(20, 30), от=.(12, 12), до=.(12, 12);"
     source = prefix + tool + suffix
     with pytest.raises(ParseError) as error:
         _ = Parser(source).parse()
@@ -192,23 +187,23 @@ def test_raise_on_duplicate_tool_param(prefix, suffix):
 
 def test_raise_on_invalid_value(prefix, suffix):
     with pytest.raises(ParseError) as error:
-        _ = Parser(prefix + "*о1: прямая, от=радиус, до=!(2,2);" + suffix).parse()
+        _ = Parser(prefix + "*о1: прямая, от=радиус, до=.(2,2);" + suffix).parse()
     assert "[Значение параметра]" in str(error.value)
 
 
 def test_raise_on_invalid_colour(prefix, suffix):
     with pytest.raises(ParseError) as error:
-        _ = Parser(prefix + "*т1: !(0, 0), цвет=rgb(0, 0, \"синий\");" + suffix).parse()
+        _ = Parser(prefix + "*т1: .(0, 0), цвет=rgb(0, 0, \"синий\");" + suffix).parse()
     assert "[read_value]" in str(error.value)
 
 
 def test_raise_on_unseparated_params(prefix, suffix):
     with pytest.raises(ParseError) as error:
-        _ = Parser(prefix + "*о1: прямая, от=!(2,2) до=!(2,2);" + suffix).parse()
+        _ = Parser(prefix + "*о1: прямая, от=.(2,2) до=.(2,2);" + suffix).parse()
     assert "[match]" in str(error.value)
 
 
 def test_raise_on_unnamed_params(prefix, suffix):
     with pytest.raises(ParseError) as error:
-        _ = Parser(prefix + "*о1: прямая, !(2, 2), !(4, 4);" + suffix).parse()
+        _ = Parser(prefix + "*о1: прямая, .(2, 2), .(4, 4);" + suffix).parse()
     assert "[Параметр инструмента]" in str(error.value)

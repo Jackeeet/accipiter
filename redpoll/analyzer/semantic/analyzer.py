@@ -1,14 +1,7 @@
-from redpoll.resources.lookup import action, event, tool, paramtypes as pt
 from redpoll.analyzer.semantic.semanticerror import SemanticError
 from redpoll.analyzer.syntactic import Parser
 from redpoll.expressions import *
-from redpoll.expressions.atomics.colourexpr import ColourExpr
-from redpoll.expressions.atomics.coordsexpr import CoordsExpr
-from redpoll.expressions.atomics.floatexpr import FloatExpr
-from redpoll.expressions.atomics.intexpr import IntExpr
-from redpoll.expressions.atomics.stringexpr import StringExpr
-from redpoll.expressions.binaryexpr import BinaryExpr
-from redpoll.expressions.programexpr import ProgramExpr
+from redpoll.resources.lookup import action, event, params, tool
 from redpoll.resources.messages import semanticerrors as err
 from redpoll.types import DataType
 
@@ -196,8 +189,12 @@ class Analyzer(ExpressionVisitor):
         expr.attrs.datatype = expr.type
 
     def visit_processing_block(self, expr: ProcessingBlockExpr) -> None:
-        for procExpr in expr.items:
-            procExpr.accept(self)
+        for proc_expr in expr.items:
+            proc_expr.accept(self)
+            proc_id = proc_expr.attrs.name
+            if proc_id in expr.attrs.names:
+                raise SemanticError(err.duplicated_processing_id())
+            expr.attrs.names.add(proc_id)
 
     def visit_processing_id(self, expr: ProcessingIdExpr) -> None:
         expr.attrs.name = expr.value
@@ -209,14 +206,15 @@ class Analyzer(ExpressionVisitor):
 
     def visit_declaration(self, expr: DeclarationExpr) -> None:
         expr.name.accept(self)
+        expr.attrs.name = expr.name.value
         expr.body.accept(self)
 
-    def _visit_declarable_args(self, args: dict[str, ParamsExpr], attrs):
+    def _visit_declarable_args(self, args: dict[str, ParamsExpr]):
         param_name: str
         arg: ParamsExpr
         for (param_name, arg) in args.items():
             arg.accept(self)
-            if arg.attrs.datatype not in pt.param_types[param_name]:
+            if arg.attrs.datatype not in params.types[param_name]:
                 raise SemanticError(err.arg_type_mismatch())
 
     def visit_action(self, expr: ActionExpr) -> None:
@@ -224,7 +222,7 @@ class Analyzer(ExpressionVisitor):
         required = action.required_params[action_name]
         if len(expr.args) < len(required):
             raise SemanticError(err.missing_required_action_arg())
-        self._visit_declarable_args(expr.args, expr.attrs)
+        self._visit_declarable_args(expr.args)
 
     def visit_action_name(self, expr: ActionNameExpr) -> None:
         # todo implement
@@ -237,7 +235,7 @@ class Analyzer(ExpressionVisitor):
         required = event.required_params[event_name]
         if len(expr.args) < len(required):
             raise SemanticError(err.missing_required_event_arg())
-        self._visit_declarable_args(expr.args, expr.attrs)
+        self._visit_declarable_args(expr.args)
 
     def visit_event_name(self, expr: EventNameExpr) -> None:
         # todo implement

@@ -1,4 +1,5 @@
-from redpoll.resources import keywords as kw, paramnames as pn
+from redpoll.resources import keywords as kw
+from redpoll.resources.lookup.params import ParamName as pn
 
 """ Обязательные параметры действий
 

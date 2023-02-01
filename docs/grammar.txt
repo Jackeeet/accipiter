@@ -107,28 +107,33 @@ string        = '"', {character}, '"'.
 
 (* множество значений нетерминала character представляет собой множество любых возможных символов, включая множества значений нетерминалов letter, latin и number. *)
 
-coords        = "!", (", int, ",", int, ")".
+coords        = ".", "(", int, ",", int, ")".
 
 colour        = "rgb", "(", int, ",", int, ",", int, ")".
+
+side          = "слева"
+              | "сверху"
+              | "справа"
+              | "снизу".
 
 value         = int
               | string
               | coords
               | colour
+              | side
               | object-id
               | tool-id
               | tool-parts
-              | side-disj.
+              | "(", value-disj, ")".
 
-side-disj     = [side-disj, "или", ] side-conj.              
+value-disj    = [value-disj, "или", ] value-conj.
 
-side-conj     = [side-conj, "и", ] side.
+value-conj    = [value-conj, "и", ] value.
 
-side          = "слева"
-              | "сверху"              
-              | "справа"              
-              | "снизу"
-              | (", side-disj, ")".
+tool-parts    = "...", "(", tool-part, {";", tool-part}, "}".
+
+tool-part     = tool
+              | tool-id
 
 args          = [value, {",", value}].
 

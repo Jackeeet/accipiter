@@ -3,7 +3,7 @@ import pytest
 from redpoll.analyzer.syntactic import Parser
 from redpoll.expressions import *
 from redpoll.types import OpType, Side
-from redpoll.resources import paramnames as pn
+from redpoll.resources.lookup.params import ParamName as pn
 
 
 @pytest.fixture
@@ -255,7 +255,7 @@ def test_parse_single_crossing_side_param(prefix, suffix):
 
 
 def test_parse_side_param_disjunction(prefix, suffix):
-    check = "если (автомобиль.пересекает(*л1, слева или сверху)): ;"
+    check = "если (автомобиль.пересекает(*л1, (слева или сверху))): ;"
 
     program: ProgramExpr = Parser(prefix + check + suffix).parse()
 
@@ -269,7 +269,7 @@ def test_parse_side_param_disjunction(prefix, suffix):
 
 
 def test_parse_side_param_conjunction(prefix, suffix):
-    check = "если (автомобиль.пересекает(*л1, справа и снизу)): ;"
+    check = "если (автомобиль.пересекает(*л1, (справа и снизу))): ;"
 
     program: ProgramExpr = Parser(prefix + check + suffix).parse()
 
@@ -283,7 +283,7 @@ def test_parse_side_param_conjunction(prefix, suffix):
 
 
 def test_parse_side_operator_precedence(prefix, suffix):
-    check = "если (автомобиль.пересекает(*л1, справа и (снизу или сверху) или слева)): ;"
+    check = "если (автомобиль.пересекает(*л1, (справа и (снизу или сверху) или слева))): ;"
 
     event: EventExpr = Parser(prefix + check + suffix).parse().processing.items[0].event
     assert type(event) is EventExpr and len(event.args) == 2
@@ -301,7 +301,7 @@ def test_parse_side_operator_precedence(prefix, suffix):
 
 
 def test_parse_side_group_last(prefix, suffix):
-    check = "если (человек.пересекает(*л1, справа и (сверху или снизу))):;"
+    check = "если (человек.пересекает(*л1, (справа и (сверху или снизу)))):;"
 
     event: EventExpr = Parser(prefix + check + suffix).parse().processing.items[0].event
     assert type(event) is EventExpr and len(event.args) == 2
@@ -314,7 +314,7 @@ def test_parse_side_group_last(prefix, suffix):
 
 
 def test_parse_side_group_first(prefix, suffix):
-    check = "если (человек.пересекает(*л1, (сверху или снизу) и справа)):;"
+    check = "если (человек.пересекает(*л1, ((сверху или снизу) и справа))):;"
 
     event: EventExpr = Parser(prefix + check + suffix).parse().processing.items[0].event
     assert type(event) is EventExpr and len(event.args) == 2

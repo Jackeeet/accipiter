@@ -33,6 +33,6 @@ class TokenKind(str, Enum):
     EQUALS = "="
     COMMA = ","
     DOT = "."
-    COORDS_START = "!"
+    TRIPLE_DOT = "начало массива"
     MINUS = "-"
     EOT = "EOT"

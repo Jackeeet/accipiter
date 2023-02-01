@@ -3,8 +3,8 @@ import pytest
 from redpoll.analyzer.lexical import Lexer, LexerError
 from redpoll.analyzer.token import TokenKind
 
-point_str = "(2, 2)"
-line_str = "*о_1: прямая, (2, 2), (4, 4), rgb(128, 128, 128)"
+point_str = ".(2, 2)"
+line_str = "*о_1: прямая, .(2, 2), .(4, 4), rgb(128, 128, 128)"
 area_str = "*з1: зона, состав=...( \n" + \
            "  *о_1 ;\n" + \
            "  дуга: (3, 3), радиус=1, от=0, до=180;\n" + \
@@ -18,7 +18,7 @@ def test_first_token():
 
     assert token.line == 1
     assert token.position == 1
-    assert token.kind == TokenKind.LEFT_BRACKET
+    assert token.kind == TokenKind.DOT
 
 
 def test_keyword_token():
@@ -37,24 +37,24 @@ def test_colour_token():
     lexer = Lexer(line_str)
 
     token = None
-    for i in range(18):
+    for i in range(20):
         token = lexer.read_next()
 
     assert token.kind == TokenKind.COLOUR
     assert token.line == 1
-    assert token.position == 31
+    assert token.position == 33
 
 
 def test_eot_token():
     lexer = Lexer(point_str)
 
     token = None
-    for i in range(6):
+    for i in range(7):
         token = lexer.read_next()
 
     assert token.kind == TokenKind.EOT
     assert token.line == 1
-    assert token.position == 7
+    assert token.position == 8
 
 
 def test_composite_token():

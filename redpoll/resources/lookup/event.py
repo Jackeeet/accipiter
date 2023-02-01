@@ -1,4 +1,5 @@
-from redpoll.resources import keywords as kw, paramnames as pn
+from redpoll.resources import keywords as kw
+from redpoll.resources.lookup.params import ParamName as pn
 
 """ Обязательные параметры событий
 
@@ -35,9 +36,9 @@ required_params = {
 extra_params = {
     kw.CROSSING: [pn.SIDES],
 
-    kw.ENTERING: [],  # this should take a binary chain of components
+    kw.ENTERING: [pn.TOOLS],
     kw.IS_IN: [pn.PERIOD],
-    kw.LEAVING: [],  # this should take a binary chain of components
+    kw.LEAVING: [pn.TOOLS],
 
     kw.DIVERTS_FROM: [],
     kw.SPEEDING_UP: [],
