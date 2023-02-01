@@ -1,4 +1,4 @@
-from redpoll.resources.lookup import action, event, tool
+from redpoll.resources.lookup import action, event, tool, paramtypes as pt
 from redpoll.analyzer.semantic.semanticerror import SemanticError
 from redpoll.analyzer.syntactic import Parser
 from redpoll.expressions import *
@@ -211,21 +211,20 @@ class Analyzer(ExpressionVisitor):
         expr.name.accept(self)
         expr.body.accept(self)
 
-    def _visit_declarable_params(self, param_names, arguments, attrs):
+    def _visit_declarable_args(self, args: dict[str, ParamsExpr], attrs):
         param_name: str
         arg: ParamsExpr
-        for (param_name, arg) in zip(param_names, arguments):
+        for (param_name, arg) in args.items():
             arg.accept(self)
-            # todo check types
+            if arg.attrs.datatype not in pt.param_types[param_name]:
+                raise SemanticError(err.arg_type_mismatch())
 
     def visit_action(self, expr: ActionExpr) -> None:
         action_name = expr.name.value
         required = action.required_params[action_name]
         if len(expr.args) < len(required):
             raise SemanticError(err.missing_required_action_arg())
-        extra = action.extra_params[action_name]
-        params = [*required, *extra]
-        self._visit_declarable_params(params, expr.args, expr.attrs)
+        self._visit_declarable_args(expr.args, expr.attrs)
 
     def visit_action_name(self, expr: ActionNameExpr) -> None:
         # todo implement
@@ -238,9 +237,7 @@ class Analyzer(ExpressionVisitor):
         required = event.required_params[event_name]
         if len(expr.args) < len(required):
             raise SemanticError(err.missing_required_event_arg())
-        extra = event.extra_params[event_name]
-        params = [*required, *extra]
-        self._visit_declarable_params(params, expr.args, expr.attrs)
+        self._visit_declarable_args(expr.args, expr.attrs)
 
     def visit_event_name(self, expr: EventNameExpr) -> None:
         # todo implement

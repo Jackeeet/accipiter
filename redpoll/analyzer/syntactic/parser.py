@@ -1,13 +1,11 @@
-from typing import Any, Dict
-
+from redpoll.analyzer.lexical import Lexer
+from redpoll.analyzer.syntactic.parseerror import ParseError
+from redpoll.analyzer.token import Token, TokenKind
 from redpoll.expressions import *
-from redpoll.types import OpType, DataType
 from redpoll.resources import keywords as kw
 from redpoll.resources.lookup import action, event
 from redpoll.resources.messages import parseerrors as err
-from redpoll.analyzer.token import Token, TokenKind
-from redpoll.analyzer.lexical import Lexer
-from redpoll.analyzer.syntactic.parseerror import ParseError
+from redpoll.types import DataType, OpType
 
 
 class Parser:
@@ -99,7 +97,7 @@ class Parser:
         return ToolIdExpr(self._read_value(TokenKind.IDENTIFIER))
 
     def _parse_type(self) -> ToolExpr:
-        if self._token.kind == TokenKind.LEFT_BRACKET:
+        if self._token.kind == TokenKind.COORDS_START:
             coords = self._parse_coordinates()
             expr = PointExpr()
             expr.params[kw.POINT] = CoordsExpr((coords.value[0], coords.value[1]))
@@ -137,13 +135,13 @@ class Parser:
                 return self._parse_tool_id()
             case TokenKind.DOT:
                 return self._parse_tool_parts()
-            case TokenKind.LEFT_BRACKET:
+            case TokenKind.COORDS_START:
                 return self._parse_coordinates()
             case TokenKind.COLOUR:
                 return self._parse_colour()
             case TokenKind.NUMBER | TokenKind.STRING:
                 return self._parse_literal()
-            case TokenKind.SIDE:
+            case TokenKind.LEFT_BRACKET | TokenKind.SIDE:
                 return self._parse_side_disjunction()
             case _:
                 raise ParseError(err.unexpected_token(self._token, "Значение параметра"))
@@ -302,7 +300,7 @@ class Parser:
         return ColourExpr((r, g, b))
 
     def _parse_coordinates(self) -> AtomicExpr:
-        # noinspection DuplicatedCode
+        self._match(TokenKind.COORDS_START)
         self._match(TokenKind.LEFT_BRACKET)
         x = int(self._read_value(TokenKind.NUMBER))
         self._match(TokenKind.COMMA)

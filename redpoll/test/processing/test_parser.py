@@ -18,9 +18,8 @@ def suffix():
 
 def test_parse_event_declaration(prefix, suffix):
     declaration = "_пр1: человек.пересекает(*л1);"
-    parser = Parser(prefix + declaration + suffix)
 
-    program: ProgramExpr = parser.parse()
+    program: ProgramExpr = Parser(prefix + declaration + suffix).parse()
 
     assert len(program.processing.items) == 1
     expr: DeclarationExpr = program.processing.items[0]
@@ -37,9 +36,9 @@ def test_parse_event_declaration(prefix, suffix):
     assert event.target.value == "человек" and event.name.value == "пересекает"
 
     args: list[ParamsExpr] = event.args
-    assert len(args) == 1 and pn.TOOL in args
+    assert len(args) == 1 and pn.TOOLS in args
 
-    tool_id: AtomicExpr = args[pn.TOOL]
+    tool_id: AtomicExpr = args[pn.TOOLS]
     assert type(tool_id) is ToolIdExpr and tool_id.value == "л1"
 
 
@@ -47,9 +46,8 @@ def test_parse_chain_event_decl(prefix, suffix):
     declaration = "_пр1: человек.пересекает(*л1) или человек.пересекает(*л2) и\n" + \
                   "_событие1 или (человек.пересекает(*л4)) и\n" + \
                   "человек.покидает(*зона1) и человек.пересекает(*л5);"
-    parser = Parser(prefix + declaration + suffix)
 
-    program: ProgramExpr = parser.parse()
+    program: ProgramExpr = Parser(prefix + declaration + suffix).parse()
 
     expr: DeclarationExpr = program.processing.items[0]
     assert type(expr) is DeclarationExpr
@@ -80,9 +78,8 @@ def test_parse_chain_event_decl(prefix, suffix):
 def test_parse_grouped_chain_decl(prefix, suffix):
     declaration = "_пр1: (человек.пересекает(*л1) или человек.пересекает(*л2)) и\n" + \
                   "(человек.пересекает(*л3) или человек.пересекает(*л4));"
-    parser = Parser(prefix + declaration + suffix)
 
-    program: ProgramExpr = parser.parse()
+    program: ProgramExpr = Parser(prefix + declaration + suffix).parse()
     expr: DeclarationExpr = program.processing.items[0]
 
     body: BinaryExpr = expr.body
@@ -97,9 +94,8 @@ def test_parse_grouped_chain_decl(prefix, suffix):
 
 def test_parse_tool_event_declaration(prefix, suffix):
     declaration = "_а: *сч1.равен(1000);"
-    parser = Parser(prefix + declaration + suffix)
 
-    program: ProgramExpr = parser.parse()
+    program: ProgramExpr = Parser(prefix + declaration + suffix).parse()
     expr: DeclarationExpr = program.processing.items[0]
 
     body: EventExpr = expr.body
@@ -112,9 +108,8 @@ def test_parse_tool_event_declaration(prefix, suffix):
 
 def test_parse_action_declaration(prefix, suffix):
     declaration = "_действие1: оповестить(\"сообщение 1\");"
-    parser = Parser(prefix + declaration + suffix)
 
-    program: ProgramExpr = parser.parse()
+    program: ProgramExpr = Parser(prefix + declaration + suffix).parse()
 
     expr: DeclarationExpr = program.processing.items[0]
     assert type(expr.name) is ProcessingIdExpr and expr.name.value == "действие1"
@@ -129,9 +124,8 @@ def test_parse_action_declaration(prefix, suffix):
 
 def test_parse_parameterless_action_declaration(prefix, suffix):
     declaration = "_действие1: сохранить();"
-    parser = Parser(prefix + declaration + suffix)
 
-    program: ProgramExpr = parser.parse()
+    program: ProgramExpr = Parser(prefix + declaration + suffix).parse()
     expr: DeclarationExpr = program.processing.items[0]
 
     assert type(expr.name) is ProcessingIdExpr and expr.name.value == "действие1"
@@ -145,9 +139,8 @@ def test_parse_parameterless_action_declaration(prefix, suffix):
 
 def test_parse_id_condition(prefix, suffix):
     check = "если _событие1: _действие1; ;"
-    parser = Parser(prefix + check + suffix)
 
-    program: ProgramExpr = parser.parse()
+    program: ProgramExpr = Parser(prefix + check + suffix).parse()
 
     expr: ConditionExpr = program.processing.items[0]
     assert type(expr) is ConditionExpr
@@ -166,9 +159,8 @@ def test_parse_event_condition(prefix, suffix):
             "    _действие1;\n" + \
             "    оповестить(\"сообщение\");\n" + \
             ";"
-    parser = Parser(prefix + check + suffix)
 
-    program: ProgramExpr = parser.parse()
+    program: ProgramExpr = Parser(prefix + check + suffix).parse()
 
     expr: ConditionExpr = program.processing.items[0]
     assert type(expr) is ConditionExpr
@@ -192,9 +184,8 @@ def test_parse_event_condition(prefix, suffix):
 
 def test_parse_double_id_condition(prefix, suffix):
     check = "если _событие1 или _событие2: ;"
-    parser = Parser(prefix + check + suffix)
 
-    program: ProgramExpr = parser.parse()
+    program: ProgramExpr = Parser(prefix + check + suffix).parse()
 
     expr: ConditionExpr = program.processing.items[0]
     assert type(expr) is ConditionExpr
@@ -208,9 +199,8 @@ def test_parse_double_id_condition(prefix, suffix):
 
 def test_parse_double_event_condition(prefix, suffix):
     check = "если (автомобиль.пересекает(*л1)) и (автомобиль.пересекает(*л2)): ;"
-    parser = Parser(prefix + check + suffix)
 
-    program: ProgramExpr = parser.parse()
+    program: ProgramExpr = Parser(prefix + check + suffix).parse()
 
     expr: ConditionExpr = program.processing.items[0]
     assert type(expr) is ConditionExpr
@@ -224,9 +214,8 @@ def test_parse_double_event_condition(prefix, suffix):
 
 def test_parse_id_event_condition(prefix, suffix):
     check = "если _событие1 и (автомобиль.пересекает(*л2)): ;"
-    parser = Parser(prefix + check + suffix)
 
-    program: ProgramExpr = parser.parse()
+    program: ProgramExpr = Parser(prefix + check + suffix).parse()
 
     expr: ConditionExpr = program.processing.items[0]
     assert type(expr) is ConditionExpr
@@ -239,9 +228,8 @@ def test_parse_id_event_condition(prefix, suffix):
 
 def test_parse_event_id_condition(prefix, suffix):
     check = "если (автомобиль.пересекает(*л1)) и _событие2: ;"
-    parser = Parser(prefix + check + suffix)
 
-    program: ProgramExpr = parser.parse()
+    program: ProgramExpr = Parser(prefix + check + suffix).parse()
 
     expr: ConditionExpr = program.processing.items[0]
     assert type(expr) is ConditionExpr
@@ -260,7 +248,7 @@ def test_parse_single_crossing_side_param(prefix, suffix):
     event: EventExpr = program.processing.items[0].event
     assert type(event) is EventExpr and len(event.args) == 2
 
-    assert type(event.args[pn.TOOL]) is ToolIdExpr
+    assert type(event.args[pn.TOOLS]) is ToolIdExpr
 
     side: AtomicExpr = event.args[pn.SIDES]
     assert type(side) is SideExpr and side.value == Side.LEFT
@@ -297,9 +285,7 @@ def test_parse_side_param_conjunction(prefix, suffix):
 def test_parse_side_operator_precedence(prefix, suffix):
     check = "если (автомобиль.пересекает(*л1, справа и (снизу или сверху) или слева)): ;"
 
-    program: ProgramExpr = Parser(prefix + check + suffix).parse()
-
-    event: EventExpr = program.processing.items[0].event
+    event: EventExpr = Parser(prefix + check + suffix).parse().processing.items[0].event
     assert type(event) is EventExpr and len(event.args) == 2
 
     sides: BinaryExpr = event.args[pn.SIDES]
@@ -312,3 +298,29 @@ def test_parse_side_operator_precedence(prefix, suffix):
            and type(sides.left.right.right) is SideExpr
 
     assert type(sides.right) is SideExpr
+
+
+def test_parse_side_group_last(prefix, suffix):
+    check = "если (человек.пересекает(*л1, справа и (сверху или снизу))):;"
+
+    event: EventExpr = Parser(prefix + check + suffix).parse().processing.items[0].event
+    assert type(event) is EventExpr and len(event.args) == 2
+
+    sides: BinaryExpr = event.args[pn.SIDES]
+    assert type(sides) is BinaryExpr and sides.op == OpType.AND \
+           and type(sides.left) is SideExpr \
+           and type(sides.right) is BinaryExpr and sides.right.op == OpType.OR \
+           and type(sides.right.left) is SideExpr and type(sides.right.right) is SideExpr
+
+
+def test_parse_side_group_first(prefix, suffix):
+    check = "если (человек.пересекает(*л1, (сверху или снизу) и справа)):;"
+
+    event: EventExpr = Parser(prefix + check + suffix).parse().processing.items[0].event
+    assert type(event) is EventExpr and len(event.args) == 2
+
+    sides: BinaryExpr = event.args[pn.SIDES]
+    assert type(sides) is BinaryExpr and sides.op == OpType.AND \
+           and type(sides.left) is BinaryExpr and sides.left.op == OpType.OR \
+           and type(sides.left.left) is SideExpr and type(sides.left.right) is SideExpr \
+           and type(sides.right) is SideExpr

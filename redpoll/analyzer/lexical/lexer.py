@@ -61,6 +61,7 @@ class Lexer:
             kw.DISAPPEARS: TokenKind.EVENT_NAME,
             kw.EQUALS: TokenKind.EVENT_NAME,
             kw.ABOVE: TokenKind.EVENT_NAME,
+            kw.BELOW: TokenKind.EVENT_NAME,
             # action names
             kw.ALERT: TokenKind.ACTION_NAME,
             kw.SAVE: TokenKind.ACTION_NAME,
@@ -84,6 +85,7 @@ class Lexer:
             Symbol.EQUALS: TokenKind.EQUALS,
             Symbol.COMMA: TokenKind.COMMA,
             Symbol.DOT: TokenKind.DOT,
+            Symbol.EXCLAMATION: TokenKind.COORDS_START,
             Symbol.STAR: TokenKind.TOOL_ID_START,
             Symbol.UNDERSCORE: TokenKind.PROC_ID_START
         }

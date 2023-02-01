@@ -9,6 +9,7 @@ class Symbol(Enum):
     STAR = "*"
     LEFT_BRACKET = "("
     RIGHT_BRACKET = ")"
+    EXCLAMATION = "!"
     COLON = ":"
     SEMICOLON = ";"
     EQUALS = "="
@@ -35,6 +36,7 @@ class Transliterator:
         ',': Symbol.COMMA,
         '.': Symbol.DOT,
         '-': Symbol.MINUS,
+        '!': Symbol.EXCLAMATION,
         '"': Symbol.DOUBLE_QUOTE,
         '\'': Symbol.SINGLE_QUOTE,
         '\n': Symbol.EOL

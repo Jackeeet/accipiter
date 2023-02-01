@@ -7,7 +7,7 @@ from redpoll.resources import keywords as kw, paramnames as pn
 """
 
 required_params = {
-    kw.CROSSING: [pn.TOOL],
+    kw.CROSSING: [pn.TOOLS],
 
     kw.ENTERING: [pn.AREA],
     kw.IS_IN: [pn.AREA],
@@ -35,10 +35,9 @@ required_params = {
 extra_params = {
     kw.CROSSING: [pn.SIDES],
 
-    # this should take a binary chain of components
-    kw.ENTERING: [],
-    kw.IS_IN: [],
-    kw.LEAVING: [],
+    kw.ENTERING: [],  # this should take a binary chain of components
+    kw.IS_IN: [pn.PERIOD],
+    kw.LEAVING: [],  # this should take a binary chain of components
 
     kw.DIVERTS_FROM: [],
     kw.SPEEDING_UP: [],

@@ -33,5 +33,6 @@ class TokenKind(str, Enum):
     EQUALS = "="
     COMMA = ","
     DOT = "."
+    COORDS_START = "!"
     MINUS = "-"
     EOT = "EOT"
