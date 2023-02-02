@@ -1,11 +1,8 @@
-__all__ = ["ParamName", "types", "default_values"]
+__all__ = ["ParamName", "types"]
 
 from enum import StrEnum, auto
 
-from redpoll.analyzer.token import Token, TokenKind
-from redpoll.expressions import BinaryExpr, SideExpr
-from redpoll.resources import keywords as kw
-from redpoll.types import DataType, OpType
+from redpoll.types import DataType
 
 
 class ParamName(StrEnum):
@@ -34,16 +31,4 @@ types = {
     ParamName.SIDES: {DataType.SIDE},
     ParamName.SEGMENT: {DataType.SEGMENT},
     ParamName.TOOLS: {DataType.SEGMENT, DataType.ARC, DataType.AREA, DataType.LINE, DataType.COUNTER},
-}
-
-side_tokens = [
-    (Token(TokenKind.SIDE, kw.SIDE_LEFT, -1, -1)),
-    (Token(TokenKind.SIDE, kw.SIDE_RIGHT, -1, -1)),
-    (Token(TokenKind.SIDE, kw.SIDE_TOP, -1, -1)),
-    (Token(TokenKind.SIDE, kw.SIDE_BOTTOM, -1, -1))
-]
-
-default_values = {
-    ParamName.SIDES: lambda _: BinaryExpr.from_list(side_tokens),
-    ParamName.TOOLS: lambda components: BinaryExpr.from_list(components),
 }

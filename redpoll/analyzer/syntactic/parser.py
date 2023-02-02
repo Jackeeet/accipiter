@@ -32,13 +32,13 @@ class Parser:
         if self._token.kind == TokenKind.EOT:
             return None
 
-        program = ProgramExpr()
+        program = ProgramExpr(*self._expr_position)
         program.objects = self._parse_block(TokenKind.OBJECTS)
         program.tools = self._parse_block(TokenKind.TOOLS)
         program.processing = self._parse_block(TokenKind.PROCESSING)
 
         if self._token.kind != TokenKind.EOT:
-            raise ParseError(err.extra_symbols())
+            raise ParseError(self._token, err.extra_symbols())
         return program
 
     # noinspection PyTypeChecker
@@ -47,16 +47,16 @@ class Parser:
         self._match(TokenKind.COLON)
         match block_kind:
             case TokenKind.OBJECTS:
-                block = ObjectBlockExpr()
+                block = ObjectBlockExpr(*self._expr_position)
                 self._parse_object_list(block.items)
             case TokenKind.TOOLS:
-                block = ToolBlockExpr()
+                block = ToolBlockExpr(*self._expr_position)
                 self._parse_tool_list(block.items)
             case TokenKind.PROCESSING:
-                block = ProcessingBlockExpr()
+                block = ProcessingBlockExpr(*self._expr_position)
                 self._parse_processing_list(block.items)
             case _:
-                raise ParseError(err.unsupported_block(block_kind))
+                raise ParseError(self._token, err.unsupported_block(block_kind))
         self._match(TokenKind.SEMICOLON)
         return block
 
@@ -65,12 +65,12 @@ class Parser:
             objects.append(self._parse_object_declaration())
 
     def _parse_object_declaration(self) -> ObjectExpr:
-        obj = ObjectExpr(self._parse_object_id())
+        obj = ObjectExpr(*self._expr_position, self._parse_object_id())
         self._match(TokenKind.SEMICOLON)
         return obj
 
     def _parse_object_id(self):
-        return ObjectIdExpr(self._read_value(TokenKind.IDENTIFIER))
+        return ObjectIdExpr(*self._expr_position, self._read_value(TokenKind.IDENTIFIER))
 
     def _parse_tool_list(self, tool_list: list[ToolExpr]) -> None:
         while self._token.kind == TokenKind.TOOL_ID_START:
@@ -94,23 +94,26 @@ class Parser:
 
     def _parse_tool_id(self) -> ToolIdExpr:
         self._match(TokenKind.TOOL_ID_START)
-        return ToolIdExpr(self._read_value(TokenKind.IDENTIFIER))
+        return ToolIdExpr(*self._expr_position, self._read_value(TokenKind.IDENTIFIER))
 
     def _parse_type(self) -> ToolExpr:
         if self._token.kind == TokenKind.DOT:
             coords = self._parse_coordinates()
-            expr = PointExpr()
-            expr.params[kw.POINT] = CoordsExpr((coords.value[0], coords.value[1]))
+            expr = PointExpr(*self._expr_position)
+            expr.params[kw.POINT] = CoordsExpr(*self._expr_position, (coords.value[0], coords.value[1]))
             return expr
 
         if self._token.kind in self._complex_tool_types:
-            expr = instantiate_tool_with_type(self._complex_tool_types[self._token.kind])
-            expr.params[kw.COLOUR] = ColourExpr((0, 0, 0))
-            expr.params[kw.THICKNESS] = IntExpr(1)
+            expr = instantiate_tool_with_type(
+                self._complex_tool_types[self._token.kind],
+                *self._expr_position
+            )
+            expr.params[kw.COLOUR] = ColourExpr(*self._expr_position, (0, 0, 0))
+            expr.params[kw.THICKNESS] = IntExpr(*self._expr_position, 1)
             self._next_token()
             return expr
 
-        raise ParseError(err.unexpected_token(self._token, "Тип инструмента"))
+        raise ParseError(self._token, err.unexpected_token(self._token, "Тип инструмента"))
 
     def _parse_named_params(self, params: dict[str, ParamsExpr]) -> None:
         while self._token.kind == TokenKind.COMMA:
@@ -122,10 +125,10 @@ class Parser:
             name = self._read_value(TokenKind.PARAM_NAME)
             self._match(TokenKind.EQUALS)
             if name in params:
-                raise ParseError(err.duplicated_param(name))
+                raise ParseError(self._token, err.duplicated_param(name))
             params[name] = self._parse_value()
         else:
-            raise ParseError(err.unexpected_token(self._token, "Параметр инструмента"))
+            raise ParseError(self._token, err.unexpected_token(self._token, "Параметр инструмента"))
 
     def _parse_value(self) -> ParamsExpr:
         match self._token.kind:
@@ -149,14 +152,14 @@ class Parser:
                 self._match(TokenKind.RIGHT_BRACKET)
                 return value
             case _:
-                raise ParseError(err.unexpected_token(self._token, "Значение параметра"))
+                raise ParseError(self._token, err.unexpected_token(self._token, "Значение параметра"))
 
     def _parse_value_disjunction(self) -> BinaryExpr | ParamsExpr:
         left = self._parse_value_conjunction()
         while self._token.kind == TokenKind.OR:
             self._match(TokenKind.OR)
             right = self._parse_value_conjunction()
-            left = BinaryExpr(left, OpType.OR, right)
+            left = BinaryExpr(*self._expr_position, left, OpType.OR, right)
         return left
 
     def _parse_value_conjunction(self) -> BinaryExpr | ParamsExpr:
@@ -164,7 +167,7 @@ class Parser:
         while self._token.kind == TokenKind.AND:
             self._match(TokenKind.AND)
             right = self._parse_value()
-            left = BinaryExpr(left, OpType.AND, right)
+            left = BinaryExpr(*self._expr_position, left, OpType.AND, right)
         return left
 
     def _parse_tool_parts(self) -> ToolPartsExpr:
@@ -175,7 +178,7 @@ class Parser:
             self._match(TokenKind.SEMICOLON)
             parts.append(self._parse_tool_part())
         self._match(TokenKind.RIGHT_BRACKET)
-        return ToolPartsExpr(parts)
+        return ToolPartsExpr(*self._expr_position, parts)
 
     def _parse_tool_part(self) -> ToolExpr | ToolIdExpr:
         match self._token.kind:
@@ -184,7 +187,7 @@ class Parser:
             case TokenKind.SEGMENT | TokenKind.ARC | TokenKind.AREA | TokenKind.LINE | TokenKind.COUNTER:
                 return self._parse_tool()
             case _:
-                raise ParseError(err.unexpected_token(self._token, "Часть составного инструмента"))
+                raise ParseError(self._token, err.unexpected_token(self._token, "Часть составного инструмента"))
 
     def _parse_processing_list(self, rules: list[ProcessingExpr]) -> None:
         while True:
@@ -197,10 +200,10 @@ class Parser:
 
     def _parse_processing_id(self) -> ProcessingIdExpr:
         self._match(TokenKind.PROC_ID_START)
-        return ProcessingIdExpr(self._read_value(TokenKind.IDENTIFIER))
+        return ProcessingIdExpr(*self._expr_position, self._read_value(TokenKind.IDENTIFIER))
 
     def _parse_processing_declaration(self) -> DeclarationExpr:
-        expr = DeclarationExpr()
+        expr = DeclarationExpr(*self._expr_position)
         expr.name = self._parse_processing_id()
         self._match(TokenKind.COLON)
         expr.body = self._parse_processing_decl_body()
@@ -214,11 +217,11 @@ class Parser:
             case TokenKind.LEFT_BRACKET | TokenKind.IDENTIFIER | TokenKind.TOOL_ID_START | TokenKind.PROC_ID_START:
                 return self._parse_event_disjunction()
             case _:
-                raise ParseError(err.unsupported_processing_type())
+                raise ParseError(self._token, err.unsupported_processing_type())
 
     def _parse_action(self) -> ActionExpr:
-        expr = ActionExpr()
-        expr.name = ActionNameExpr(self._read_value(TokenKind.ACTION_NAME))
+        expr = ActionExpr(*self._expr_position)
+        expr.name = ActionNameExpr(*self._expr_position, self._read_value(TokenKind.ACTION_NAME))
         self._match(TokenKind.LEFT_BRACKET)
         self._parse_args(expr.args, expr.name.value)
         self._match(TokenKind.RIGHT_BRACKET)
@@ -229,7 +232,7 @@ class Parser:
         while self._token.kind == TokenKind.OR:
             self._match(TokenKind.OR)
             right = self._parse_event_conjunction()
-            left = BinaryExpr(left, OpType.OR, right)
+            left = BinaryExpr(*self._expr_position, left, OpType.OR, right)
         return left
 
     def _parse_event_conjunction(self) -> BinaryExpr | EventExpr | ProcessingIdExpr:
@@ -237,7 +240,7 @@ class Parser:
         while self._token.kind == TokenKind.AND:
             self._match(TokenKind.AND)
             right = self._parse_event_or_event_id()
-            left = BinaryExpr(left, OpType.AND, right)
+            left = BinaryExpr(*self._expr_position, left, OpType.AND, right)
         return left
 
     def _parse_event_or_event_id(self) -> BinaryExpr | EventExpr | ProcessingIdExpr:
@@ -248,23 +251,23 @@ class Parser:
                 return self._parse_event()
             case TokenKind.LEFT_BRACKET:
                 self._match(TokenKind.LEFT_BRACKET)
-                event = self._parse_event_disjunction()
+                evt = self._parse_event_disjunction()
                 self._match(TokenKind.RIGHT_BRACKET)
-                return event
+                return evt
             case _:
-                raise ParseError(err.unexpected_token(self._token, "Событие"))
+                raise ParseError(self._token, err.unexpected_token(self._token, "Событие"))
 
     def _parse_event(self) -> EventExpr:
-        expr = EventExpr()
+        expr = EventExpr(*self._expr_position)
         if self._token.kind == TokenKind.IDENTIFIER:
-            expr.target = ObjectIdExpr(self._read_value(TokenKind.IDENTIFIER))
+            expr.target = ObjectIdExpr(*self._expr_position, self._read_value(TokenKind.IDENTIFIER))
         elif self._token.kind == TokenKind.TOOL_ID_START:
             expr.target = self._parse_tool_id()
         else:
-            raise ParseError(err.unexpected_token(self._token, "Источник события"))
+            raise ParseError(self._token, err.unexpected_token(self._token, "Источник события"))
 
         self._match(TokenKind.DOT)
-        expr.name = EventNameExpr(self._read_value(TokenKind.EVENT_NAME))
+        expr.name = EventNameExpr(*self._expr_position, self._read_value(TokenKind.EVENT_NAME))
         self._match(TokenKind.LEFT_BRACKET)
         self._parse_args(expr.args, expr.name.value)
         self._match(TokenKind.RIGHT_BRACKET)
@@ -281,7 +284,7 @@ class Parser:
                 args[param_names[arg_index]] = self._parse_value()
 
     def _parse_condition(self) -> ConditionExpr:
-        expr = ConditionExpr()
+        expr = ConditionExpr(*self._expr_position)
         self._match(TokenKind.IF)
         expr.event = self._parse_event_disjunction()
         self._match(TokenKind.COLON)
@@ -300,11 +303,11 @@ class Parser:
     def _parse_literal(self) -> AtomicExpr:
         match self._token.kind:
             case TokenKind.NUMBER:
-                return IntExpr(int(self._read_value(TokenKind.NUMBER)))
+                return IntExpr(*self._expr_position, int(self._read_value(TokenKind.NUMBER)))
             case TokenKind.STRING:
-                return StringExpr(self._read_value(TokenKind.STRING))
+                return StringExpr(*self._expr_position, self._read_value(TokenKind.STRING))
             case _:
-                raise ParseError(err.unexpected_token(self._token, "Литерал"))
+                raise ParseError(self._token, err.unexpected_token(self._token, "Литерал"))
 
     def _parse_colour(self) -> AtomicExpr:
         self._match(TokenKind.COLOUR)
@@ -315,7 +318,7 @@ class Parser:
         self._match(TokenKind.COMMA)
         b = int(self._read_value(TokenKind.NUMBER))
         self._match(TokenKind.RIGHT_BRACKET)
-        return ColourExpr((r, g, b))
+        return ColourExpr(*self._expr_position, (r, g, b))
 
     def _parse_coordinates(self) -> AtomicExpr:
         self._match(TokenKind.DOT)
@@ -324,12 +327,12 @@ class Parser:
         self._match(TokenKind.COMMA)
         y = int(self._read_value(TokenKind.NUMBER))
         self._match(TokenKind.RIGHT_BRACKET)
-        return CoordsExpr((x, y))
+        return CoordsExpr(*self._expr_position, (x, y))
 
     def _parse_side(self) -> SideExpr:
         if self._token.kind == TokenKind.SIDE:
-            return SideExpr(self._read_token(TokenKind.SIDE))
-        raise ParseError(err.unexpected_token(self._token, "Сторона"))
+            return SideExpr(*self._expr_position, self._read_token(TokenKind.SIDE))
+        raise ParseError(self._token, err.unexpected_token(self._token, "Сторона"))
 
     def _read_token(self, kind: TokenKind) -> Token:
         """Возвращает текущий токен, если его тип совпадает с указанным,
@@ -340,7 +343,7 @@ class Parser:
         """
         token = self._token
         if token.kind != kind:
-            raise ParseError(err.unexpected_token(token, "read_token"))
+            raise ParseError(self._token, err.unexpected_token(token, "read_token"))
         self._next_token()
         return token
 
@@ -352,7 +355,7 @@ class Parser:
         :return: значение текущего токена
         """
         if self._token.kind != kind:
-            raise ParseError(err.unexpected_token(self._token, "read_value"))
+            raise ParseError(self._token, err.unexpected_token(self._token, "read_value"))
         value = self._token.value
         self._next_token()
         return value
@@ -363,8 +366,12 @@ class Parser:
         :param kind: Тип токена
         """
         if self._token.kind != kind:
-            raise ParseError(err.unexpected_token(self._token, "match"))
+            raise ParseError(self._token, err.unexpected_token(self._token, "match"))
         self._next_token()
 
     def _next_token(self) -> None:
         self._token = self._lexer.read_next()
+
+    @property
+    def _expr_position(self) -> tuple[int, int]:
+        return self._token.line, self._token.position

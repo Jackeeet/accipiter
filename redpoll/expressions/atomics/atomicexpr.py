@@ -5,8 +5,11 @@ from redpoll.types import DataType
 
 
 class AtomicExpr(ParamsExpr, ABC):
-    def __init__(self, value: tuple[int, int, int] | tuple[int, int] | float | int | str):
-        super().__init__()
+    def __init__(
+            self, line: int, pos: int,
+            value: tuple[int, int, int] | tuple[int, int] | float | int | str
+    ) -> None:
+        super().__init__(line, pos)
         self.value = value
 
     @property

@@ -3,7 +3,6 @@ import pytest
 from redpoll.analyzer.semantic import Analyzer, SemanticError
 from redpoll.expressions import *
 from redpoll.resources.lookup import event
-from redpoll.resources.lookup.params import ParamName as pn, default_values
 from redpoll.resources.messages import semanticerrors as err
 
 
@@ -65,15 +64,6 @@ valid_event_sources = [
     """ _сч: *сч.ниже(200);; """,
 ]
 
-zone_components = [ToolIdExpr("а"), ToolIdExpr("b"), ToolIdExpr("в")]
-
-default_arg_values = [
-    default_values[pn.SIDES](None),
-    default_values[pn.TOOLS](zone_components),
-    default_values[pn.TOOLS](zone_components),
-    default_values[pn.TOOLS](zone_components),
-]
-
 invalid_event_sources = [
     ("""_п: человек.пересекает();;""", err.missing_required_event_arg()),
     ("""_в: человек.входитВ();; """, err.missing_required_event_arg()),
@@ -99,15 +89,17 @@ def test_valid_event_args(source, event_source_prefix):
     assert True
 
 
-@pytest.mark.parametrize("source, values", zip(valid_event_sources[:4], default_arg_values))
-def test_fills_optional_args_with_default_values(source, values, event_source_prefix):
+@pytest.mark.parametrize("source", valid_event_sources[:4])
+def test_fills_optional_args_with_none(source, event_source_prefix):
     ast: ProgramExpr = Analyzer(event_source_prefix + source).analyze()
-    expr: EventExpr = ast.processing.items[0]
-    assert len(expr.args) == len(event.param_lists[expr.name.value])
+    expr: EventExpr = ast.processing.items[0].body
+    assert len(expr.args.keys()) == len(event.param_lists[expr.name.value])
 
-    extra_values = expr.args.values()[len(event.required_params):]
-    for (arg, expected) in zip(extra_values, values):
-        assert arg == expected
+    args = list(expr.args.values())
+    required_arg_count = len(event.required_params[expr.name.value])
+    placeholders = args[required_arg_count:]
+    for arg in placeholders:
+        assert arg is None
 
 
 @pytest.mark.parametrize("source, err_msg", invalid_event_sources)

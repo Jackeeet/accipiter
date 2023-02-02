@@ -26,7 +26,7 @@ def test_parse_named_point(prefix, suffix):
     assert type(expr.id) is ToolIdExpr and expr.id.value == "точка_1"
 
     assert len(expr.params.items()) == 1
-    assert kw.POINT in expr.params and expr.params[kw.POINT] == CoordsExpr((1, 2))
+    assert kw.POINT in expr.params and expr.params[kw.POINT].value == (1, 2)
 
 
 def test_parse_segment_named_params(prefix, suffix):
@@ -52,7 +52,7 @@ def test_parse_segment_named_params(prefix, suffix):
     assert type(colour) is ColourExpr and colour.type == DataType.COLOUR
     assert colour.value == (0, 0, 0)
     # default line thickness is 1
-    assert expr.params[kw.THICKNESS] == IntExpr(1)
+    assert expr.params[kw.THICKNESS].value == 1
 
 
 def test_parse_colour_param(prefix, suffix):
@@ -100,7 +100,7 @@ def test_parse_composite(prefix, suffix):
     inner_tool: ArcExpr = content.parts[1]
     assert type(inner_tool) is ArcExpr \
            and kw.RADIUS in inner_tool.params \
-           and inner_tool.params[kw.RADIUS] == IntExpr(1)
+           and inner_tool.params[kw.RADIUS].value == 1
 
 
 def test_parse_multiple_tools_block(prefix, suffix):

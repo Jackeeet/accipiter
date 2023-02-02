@@ -2,19 +2,19 @@ from redpoll.expressions.tools import ToolExpr, PointExpr, SegmentExpr, ArcExpr,
 from redpoll.types import DataType
 
 
-def instantiate_tool_with_type(tool_type: DataType) -> ToolExpr:
+def instantiate_tool_with_type(tool_type: DataType, line: int, pos: int) -> ToolExpr:
     match tool_type:
         case DataType.POINT:
-            return PointExpr()
+            return PointExpr(line, pos)
         case DataType.SEGMENT:
-            return SegmentExpr()
+            return SegmentExpr(line, pos)
         case DataType.ARC:
-            return ArcExpr()
+            return ArcExpr(line, pos)
         case DataType.AREA:
-            return AreaExpr()
+            return AreaExpr(line, pos)
         case DataType.LINE:
-            return LineExpr()
+            return LineExpr(line, pos)
         case DataType.COUNTER:
-            return CounterExpr()
+            return CounterExpr(line, pos)
         case _:
             raise ValueError("Unsupported tool type")

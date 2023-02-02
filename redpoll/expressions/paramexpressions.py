@@ -13,8 +13,8 @@ class ParamsExpr(Expr, ABC):
 class ToolPartsExpr(ParamsExpr):
     # array: list[ToolExpr | ToolIdExpr]
 
-    def __init__(self, arr) -> None:
-        super().__init__()
+    def __init__(self, line: int, pos: int, arr) -> None:
+        super().__init__(line, pos)
         self.parts = arr
 
     def __eq__(self, other):

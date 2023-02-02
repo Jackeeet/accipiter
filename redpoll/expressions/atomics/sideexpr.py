@@ -6,7 +6,7 @@ from redpoll.resources import keywords as kw
 
 
 class SideExpr(AtomicExpr):
-    def __init__(self, side: Token) -> None:
+    def __init__(self, line: int, pos: int, side: Token) -> None:
         assert side.kind == TokenKind.SIDE
         match side.value:
             case kw.SIDE_BOTTOM:
@@ -20,7 +20,7 @@ class SideExpr(AtomicExpr):
             case _:
                 raise ValueError("invalid side value")
 
-        super().__init__(side)
+        super().__init__(line, pos, side)
 
     @property
     def type(self) -> DataType:

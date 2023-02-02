@@ -4,6 +4,7 @@ from redpoll.analyzer.semantic import Analyzer, SemanticError
 from redpoll.analyzer.syntactic import ParseError
 from redpoll.expressions import *
 from redpoll.resources import keywords as kw
+from redpoll.resources.lookup import action, event
 from redpoll.translator.filewriter import FileWriter
 from redpoll.translator.objectmap import names
 from redpoll.translator.translationerror import TranslationError
@@ -85,7 +86,7 @@ class Translator(ExpressionVisitor):
         self._file.writeln("from videoanalytics.analytics.declarable.events import *")
         self._file.writeln("from videoanalytics.analytics.declarable.tools import *")
         self._file.writeln("from videoanalytics.models.operators import *")
-        self._file.writeln("from videoanalytics.models import Coords, Side, SideValue")
+        self._file.writeln("from videoanalytics.models import Coords, EvalTree, Side, SideValue")
         self._file.writeln()
 
     def visit_object_block(self, expr: ObjectBlockExpr) -> None:
@@ -229,11 +230,14 @@ class Translator(ExpressionVisitor):
         self._file.write("Action(")
         expr.name.accept(self)
         self._file.write(",{")
-        assert (len(expr.attrs.param_names) == len(expr.args))
-        for name, value in zip(expr.attrs.param_names, expr.args):
+        assert len(expr.args) == len(action.param_lists[expr.name.value])
+        for name, value in expr.args.items():
             self._file.write(f"'{name}'")
             self._file.write(": ")
-            value.accept(self)
+            if value is None:
+                self._file.write("None")
+            else:
+                value.accept(self)
             self._file.write(",")
         self._file.write("})")
 
@@ -247,11 +251,14 @@ class Translator(ExpressionVisitor):
         expr.target.accept(self)
         self._file.write(",{")
 
-        assert (len(expr.attrs.param_names) == len(expr.args))
-        for name, value in zip(expr.attrs.param_names, expr.args):
+        assert len(expr.args) == len(event.param_lists[expr.name.value])
+        for name, value in expr.args.items():
             self._file.write(f"'{name}'")
             self._file.write(": ")
-            value.accept(self)
+            if value is None:
+                self._file.write("None")
+            else:
+                value.accept(self)
             self._file.write(",")
         self._file.write("})")
 

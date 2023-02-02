@@ -14,13 +14,13 @@ class BlockItemExpr(Expr):
     """ Expressions that can be used in one of the three blocks. """
 
     @abstractmethod
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, line: int, pos: int) -> None:
+        super().__init__(line, pos)
 
 
 class ObjectExpr(BlockItemExpr):
-    def __init__(self, obj_id: ObjectIdExpr = None) -> None:
-        super().__init__()
+    def __init__(self, line: int, pos: int, obj_id: ObjectIdExpr = None) -> None:
+        super().__init__(line, pos)
         self.id = obj_id
 
     def __eq__(self, o: object) -> bool:
@@ -42,16 +42,16 @@ class ProcessingExpr(BlockItemExpr):
     """ Expressions that can be used in the 'processing' block. """
 
     @abstractmethod
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, line: int, pos: int) -> None:
+        super().__init__(line, pos)
 
 
 class ConditionExpr(ProcessingExpr):
     event: EventExpr | ProcessingIdExpr | BinaryExpr | None
     actions: list[ActionExpr | ProcessingIdExpr]
 
-    def __init__(self, event: EventExpr | ProcessingIdExpr = None) -> None:
-        super().__init__()
+    def __init__(self, line: int, pos: int, event: EventExpr | ProcessingIdExpr = None) -> None:
+        super().__init__(line, pos)
         self.event = event
         self.actions = []
 
@@ -71,8 +71,10 @@ class ConditionExpr(ProcessingExpr):
 
 
 class DeclarationExpr(ProcessingExpr):
-    def __init__(self, name: ProcessingIdExpr = None, body: DeclarableExpr = None):
-        super().__init__()
+    def __init__(
+            self, line: int, pos: int, name: ProcessingIdExpr = None, body: DeclarableExpr = None
+    ) -> None:
+        super().__init__(line, pos)
         self.name = name
         self.body = body
 

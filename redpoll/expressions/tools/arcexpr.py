@@ -28,7 +28,7 @@ class ArcExpr(ToolExpr):
 
     def coords_from_degrees(self, deg_angle: int) -> CoordsExpr:
         rad_angle = math.radians(deg_angle)
-        return CoordsExpr((
+        return CoordsExpr(-1, -1, (
             self.center.x + round(self.radius * math.cos(rad_angle)),
             self.center.y + round(self.radius * -math.sin(rad_angle))
         ))
@@ -39,7 +39,7 @@ class ArcExpr(ToolExpr):
             # but I don't know basic geometry,
             # so I'm going to leave this as it is
             return self.start == o.start and self.end == o.end \
-                   and self.center == o.center and self.radius == o.radius
+                and self.center == o.center and self.radius == o.radius
 
     def __ne__(self, o: object) -> bool:
         return not self.__eq__(o)

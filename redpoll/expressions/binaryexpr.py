@@ -10,8 +10,8 @@ class BinaryExpr(Expr):
     left: Self | EventExpr | SideExpr
     right: Self | EventExpr | SideExpr
 
-    def __init__(self, left=None, op: OpType = None, right=None) -> None:
-        super().__init__()
+    def __init__(self, line: int, pos: int, left=None, op: OpType = None, right=None) -> None:
+        super().__init__(line, pos)
         self.left = left
         self.op = op
         self.right = right

@@ -103,7 +103,7 @@ def test_parse_tool_event_declaration(prefix, suffix):
            and body.target.value == "сч1"
     assert body.name.value == "равен"
     assert len(body.args) == 1 \
-           and body.args[pn.NUMBER] == IntExpr(1000)
+           and body.args[pn.NUMBER] == IntExpr(-1, -1, 1000)
 
 
 def test_parse_action_declaration(prefix, suffix):
@@ -119,7 +119,7 @@ def test_parse_action_declaration(prefix, suffix):
            and type(body.name) is ActionNameExpr \
            and body.name.value == "оповестить" \
            and len(body.args) == 1 \
-           and body.args[pn.MESSAGE] == StringExpr("сообщение 1")
+           and body.args[pn.MESSAGE] == StringExpr(-1, -1, "сообщение 1")
 
 
 def test_parse_parameterless_action_declaration(prefix, suffix):

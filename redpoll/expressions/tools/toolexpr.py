@@ -7,8 +7,8 @@ class ToolExpr(BlockItemExpr, ABC):
     id: ToolIdExpr | None
     params: dict[str, ParamsExpr]
 
-    def __init__(self, name: ToolIdExpr = None) -> None:
-        super().__init__()
+    def __init__(self, line: int, pos: int, name: ToolIdExpr = None) -> None:
+        super().__init__(line, pos)
         self.id = name
         self.params = dict()
 

@@ -11,30 +11,30 @@ class BlockExpr(Expr):
     items: list[BlockItemExpr]
 
     @abstractmethod
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, line: int, pos: int) -> None:
+        super().__init__(line, pos)
         self.items = []
 
 
 class ObjectBlockExpr(BlockExpr):
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, line: int, pos: int) -> None:
+        super().__init__(line, pos)
 
     def accept(self, visitor: ExpressionVisitor):
         visitor.visit_object_block(self)
 
 
 class ToolBlockExpr(BlockExpr):
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, line: int, pos: int) -> None:
+        super().__init__(line, pos)
 
     def accept(self, visitor: ExpressionVisitor):
         visitor.visit_tool_block(self)
 
 
 class ProcessingBlockExpr(BlockExpr):
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, line: int, pos: int) -> None:
+        super().__init__(line, pos)
 
     def accept(self, visitor: ExpressionVisitor):
         visitor.visit_processing_block(self)

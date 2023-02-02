@@ -4,9 +4,9 @@ from redpoll.types import DataType
 
 
 class StringExpr(AtomicExpr):
-    def __init__(self, value: str) -> None:
+    def __init__(self, line: int, pos: int, value: str) -> None:
         assert isinstance(value, str)
-        super().__init__(f"'{value}'")
+        super().__init__(line, pos, f"'{value}'")
 
     @property
     def type(self) -> DataType:

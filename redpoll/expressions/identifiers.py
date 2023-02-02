@@ -9,8 +9,8 @@ from redpoll.expressions.visitor import ExpressionVisitor
 
 class IdentifierExpr(ParamsExpr):
     @abstractmethod
-    def __init__(self, value: str) -> None:
-        super().__init__()
+    def __init__(self, line: int, pos: int, value: str) -> None:
+        super().__init__(line, pos)
         if not isinstance(value, str):
             raise ValueError("Expected a value of type 'str'")
         self.value = value
@@ -25,8 +25,8 @@ class IdentifierExpr(ParamsExpr):
 
 
 class ObjectIdExpr(IdentifierExpr):
-    def __init__(self, value: str) -> None:
-        super().__init__(value)
+    def __init__(self, line: int, pos: int, value: str) -> None:
+        super().__init__(line, pos, value)
 
     def __repr__(self) -> str:
         return f"ObjectIdExpr({self.value})"
@@ -36,8 +36,8 @@ class ObjectIdExpr(IdentifierExpr):
 
 
 class ToolIdExpr(IdentifierExpr):
-    def __init__(self, value: str) -> None:
-        super().__init__(value)
+    def __init__(self, line: int, pos: int, value: str) -> None:
+        super().__init__(line, pos, value)
 
     def __repr__(self) -> str:
         return f"ToolIdExpr({self.value})"
@@ -50,8 +50,8 @@ class ToolIdExpr(IdentifierExpr):
 
 
 class ProcessingIdExpr(IdentifierExpr):
-    def __init__(self, value: str) -> None:
-        super().__init__(value)
+    def __init__(self, line: int, pos: int, value: str) -> None:
+        super().__init__(line, pos, value)
 
     def __repr__(self) -> str:
         return f"ProcessIdExpr({self.value})"
@@ -61,22 +61,22 @@ class ProcessingIdExpr(IdentifierExpr):
 
 
 class ActionNameExpr(IdentifierExpr):
-    def __init__(self, value: str) -> None:
-        super().__init__(value)
+    def __init__(self, line: int, pos: int, value: str) -> None:
+        super().__init__(line, pos, value)
 
     def __repr__(self) -> str:
-        return f"ActionIdExpr({self.value})"
+        return f"ActionNameExpr({self.value})"
 
     def accept(self, visitor: ExpressionVisitor):
         visitor.visit_action_name(self)
 
 
 class EventNameExpr(IdentifierExpr):
-    def __init__(self, value: str) -> None:
-        super().__init__(value)
+    def __init__(self, line: int, pos: int, value: str) -> None:
+        super().__init__(line, pos, value)
 
     def __repr__(self) -> str:
-        return f"EventIdExpr({self.value})"
+        return f"EventNameExpr({self.value})"
 
     def accept(self, visitor: ExpressionVisitor):
         visitor.visit_event_name(self)

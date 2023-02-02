@@ -14,8 +14,8 @@ class DeclarableExpr(Expr):
     args: dict[str, ParamsExpr]
 
     @abstractmethod
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, line: int, pos: int) -> None:
+        super().__init__(line, pos)
         self.args = {}
 
     def __eq__(self, o: object) -> bool:
@@ -30,9 +30,9 @@ class DeclarableExpr(Expr):
 class ActionExpr(DeclarableExpr):
     name: ActionNameExpr | None
 
-    def __init__(self, name: ActionNameExpr = None) -> None:
+    def __init__(self, line: int, pos: int, name: ActionNameExpr = None) -> None:
         self.name = name
-        super().__init__()
+        super().__init__(line, pos)
 
     def __eq__(self, o: object) -> bool:
         if isinstance(o, ActionExpr):
@@ -53,10 +53,13 @@ class EventExpr(DeclarableExpr):
     target: ObjectIdExpr | ToolIdExpr | None
     name: EventNameExpr | None
 
-    def __init__(self, target: ObjectIdExpr | ToolIdExpr = None, event: EventNameExpr = None) -> None:
+    def __init__(
+            self, line: int, pos: int,
+            target: ObjectIdExpr | ToolIdExpr = None, event: EventNameExpr = None
+    ) -> None:
         self.target = target
         self.name = event
-        super().__init__()
+        super().__init__(line, pos)
 
     def __eq__(self, o: object) -> bool:
         if isinstance(o, EventExpr):

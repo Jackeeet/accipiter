@@ -4,10 +4,10 @@ from redpoll.types import DataType
 
 
 class CoordsExpr(AtomicExpr):
-    def __init__(self, value: tuple[int, int]) -> None:
+    def __init__(self, line: int, pos: int, value: tuple[int, int]) -> None:
         assert isinstance(value, tuple)
         assert len(value) == 2
-        super().__init__(value)
+        super().__init__(line, pos, value)
 
     @property
     def x(self):
