@@ -194,6 +194,8 @@ class Analyzer(ExpressionVisitor):
         for proc_expr in expr.items:
             proc_expr.accept(self)
             proc_id = proc_expr.attrs.name
+            if proc_id is None:
+                continue
             if proc_id in expr.attrs.names:
                 raise SemanticError(expr, err.duplicated_processing_id())
             expr.attrs.names.add(proc_id)
