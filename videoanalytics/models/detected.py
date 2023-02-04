@@ -44,11 +44,12 @@ class Detected:
         return Segment(self.top_left, self.bottom_left)
 
     def __repr__(self) -> str:
-        return f'DetectedObject("{self.name}", {self.confidence}, {self.box.start.x}, {self.box.start.y}, {self.box.width}, {self.box.height})'
+        return f'DetectedObject("{self.name}", {round(self.confidence, 2)}, ' \
+               f'{self.box.start.x}, {self.box.start.y}, {self.box.width}, {self.box.height})'
 
     def draw(self, frame) -> None:
         top_left = (self.top_left.x, self.top_left.y)
         bottom_right = (self.bottom_right.x, self.bottom_right.y)
         rectangle(frame, top_left, bottom_right, self.colour, 2)
-        putText(frame, self.name, (self.box.start.x, self.box.start.y - 10),
+        putText(frame, f"{self.name} {self.confidence}", (self.box.start.x, self.box.start.y - 10),
                 FONT_HERSHEY_SIMPLEX, 0.5, self.colour, 2)

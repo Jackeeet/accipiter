@@ -13,7 +13,7 @@ from videoanalytics.models import Detected
 class ObjectDetector:
     def __init__(self, config=None, weights=None, labels=None):
         self.nms = 0.4
-        self.confidence = 0.7
+        self.confidence = 0.05
         self.backend = DNN_BACKEND_CUDA
         self.target = DNN_TARGET_CUDA
 

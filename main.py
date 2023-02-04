@@ -17,10 +17,12 @@ from videoanalytics.video.videoTransformTrack import VideoTransformTrack
 
 pcs = set()
 relay = MediaRelay()
-# analyze = True
-analyze = False
-# analyzer = Analyzer()
+analyze = True
+# analyze = False
+analyzer = Analyzer()
 ROOT = os.path.dirname(__file__)
+# source = 'resources/videoplayback.mp4'
+source = 'resources/birds.mp4'
 
 app = FastAPI()
 app.include_router(rules.router)
@@ -62,7 +64,7 @@ async def offer(params: Offer):
     await pc.setRemoteDescription(offer_data)
 
     options = {"framerate": "30", "video_size": "640x360"}
-    player = MediaPlayer(ROOT + '/resources/videoplayback.mp4', options=options, loop=True)
+    player = MediaPlayer(ROOT + source, options=options, loop=True)
     track = VideoTransformTrack(relay.subscribe(player.video), analyzer) if analyze else relay.subscribe(player.video)
     pc.addTrack(track)
 
@@ -86,10 +88,11 @@ async def on_shutdown():
 
 
 if __name__ == "__main__":
+
     if len(sys.argv) < 2:
         import uvicorn
 
         uvicorn.run(app, host="0.0.0.0", port=8001, log_level="debug")
     else:
-        videoHandler = VideoHandler()
+        videoHandler = VideoHandler(source)
         videoHandler.run()

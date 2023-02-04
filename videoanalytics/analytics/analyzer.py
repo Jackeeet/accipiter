@@ -12,8 +12,10 @@ class Analyzer:
         self.DEBUG_tracked_count = 0
 
     def process_frame(self, frame):
+        # todo maybe return early if no objects are detected
         detected = [o for o in self.detector.return_objects(frame)
                     if o.name in declared.object_kinds]
+        # ]
 
         self.DEBUG_detected_count += len(detected)
 

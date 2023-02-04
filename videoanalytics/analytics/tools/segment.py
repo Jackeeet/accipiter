@@ -7,9 +7,11 @@ from videoanalytics.models import Coords
 
 
 class Segment(Component, Intersectable):
-    def __init__(self, start: Coords, end: Coords, colour: tuple[int, int, int] = None, thickness: int = 2) -> None:
-        self.start = start
-        self.end = end
+    def __init__(
+            self, start: Coords, end: Coords, colour: tuple[int, int, int] = None, thickness: int = 2
+    ) -> None:
+        self._start = start
+        self._end = end
         super().__init__(colour, thickness)
 
     def draw_on(self, image) -> None:
@@ -17,6 +19,14 @@ class Segment(Component, Intersectable):
 
     def intersects(self, segment) -> bool:
         return Segment.segments_intersect(segment, self)
+
+    @property
+    def start(self):
+        return self._start
+
+    @property
+    def end(self):
+        return self._end
 
     def __eq__(self, o: object) -> bool:
         if isinstance(o, Segment):
