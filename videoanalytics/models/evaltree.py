@@ -1,6 +1,6 @@
 from typing import Callable
 
-from videoanalytics.analytics.declarable.interfaces import Evaluable
+from videoanalytics.analytics.interfaces import Evaluable
 
 
 class EvalTree(Evaluable):

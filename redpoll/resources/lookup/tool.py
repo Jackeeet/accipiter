@@ -37,3 +37,18 @@ param_types = {
 
 """ Допустимые типы данных для частей составного инструмента. """
 part_types = {DataType.SEGMENT, DataType.ARC}
+
+param_names = {
+    kw.COMPONENTS: "components",
+    kw.FROM: "start",
+    kw.TO: "end",
+    kw.ANGLE_FROM: "start_angle",
+    kw.ANGLE_TO: "end_angle",
+    kw.COLOUR: "colour",
+    kw.THICKNESS: "thickness",
+    kw.CENTER: "center",
+    kw.RADIUS: "radius",
+    kw.START: "start",
+    kw.STEP: "step",
+    kw.POINT: "at",
+}

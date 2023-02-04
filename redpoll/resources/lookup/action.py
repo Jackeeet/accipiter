@@ -1,6 +1,15 @@
 from redpoll.resources import keywords as kw
 from redpoll.resources.lookup.params import ParamName as pn
 
+names = {
+    kw.INCREMENT: "increment",
+    kw.DECREMENT: "decrement",
+    kw.RESET: "reset",
+    kw.ALERT: "alert",
+    kw.SAVE: "save",
+    kw.FLASH: "flash"
+}
+
 """ Обязательные параметры действий
 
 При описании действия аргументы должны быть переданы в том же порядке, 

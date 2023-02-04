@@ -1,0 +1,1 @@
+from videoanalytics.analytics.tools.interfaces.intersectable import Intersectable

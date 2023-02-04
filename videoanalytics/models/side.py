@@ -1,6 +1,6 @@
 from enum import StrEnum, auto
 
-from videoanalytics.analytics.declarable.interfaces import Evaluable
+from videoanalytics.analytics.interfaces import Evaluable
 
 
 class SideValue(StrEnum):

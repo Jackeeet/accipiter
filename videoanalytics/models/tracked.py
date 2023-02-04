@@ -1,4 +1,4 @@
-from videoanalytics.analytics.declarable.tools.abstract import Markup
+from videoanalytics.analytics.tools.abstract import Markup
 from videoanalytics.models.detected import Detected
 from videoanalytics.models.tracked_state import TrackedState
 

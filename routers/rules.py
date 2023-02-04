@@ -21,7 +21,7 @@ async def active_file(cfg: dict = Depends(rdl_config)):
 
 
 @router.delete("/active")
-async def reset_active_file(cfg: dict = Depends(rdl_config()),
+async def reset_active_file(cfg: dict = Depends(rdl_config),
                             update_config: Callable = Depends(update_block)):
     cfg["active_file"] = ""
     update_config("rules", cfg)

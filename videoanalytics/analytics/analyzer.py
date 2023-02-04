@@ -1,7 +1,7 @@
 from . import declared
 from videoanalytics.detection import ObjectDetector
 from videoanalytics.models import Tracked, Detected, Coords
-from videoanalytics.analytics.declarable.tools.abstract import Markup
+from videoanalytics.analytics.tools.abstract import Markup
 
 
 class Analyzer:

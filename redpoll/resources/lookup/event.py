@@ -1,6 +1,16 @@
 from redpoll.resources import keywords as kw
 from redpoll.resources.lookup.params import ParamName as pn
 
+names = {
+    kw.CROSSING: "crosses",
+    kw.ENTERING: "enters",
+    kw.IS_IN: "is_inside",
+    kw.LEAVING: "leaves",
+    kw.EQUALS: "equals",
+    kw.ABOVE: "above",
+    kw.BELOW: "below"
+}
+
 """ Обязательные параметры событий
 
 При описании события аргументы должны быть переданы в том же порядке, 

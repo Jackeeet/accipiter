@@ -4,43 +4,14 @@ from redpoll.analyzer.semantic import Analyzer, SemanticError
 from redpoll.analyzer.syntactic import ParseError
 from redpoll.expressions import *
 from redpoll.resources import keywords as kw
-from redpoll.resources.lookup import action, event
+from redpoll.resources.lookup import action, event, tool
 from redpoll.translator.filewriter import FileWriter
-from redpoll.translator.objectmap import names
 from redpoll.translator.translationerror import TranslationError
 from redpoll.types import OpType
 
 
 class Translator(ExpressionVisitor):
     _file: FileWriter
-    _param_names: dict[str, str] = {
-        kw.COMPONENTS: "components",
-        kw.FROM: "start",
-        kw.TO: "end",
-        kw.ANGLE_FROM: "start_angle",
-        kw.ANGLE_TO: "end_angle",
-        kw.COLOUR: "colour",
-        kw.THICKNESS: "thickness",
-        kw.CENTER: "center",
-        kw.RADIUS: "radius",
-        kw.START: "start",
-        kw.STEP: "step",
-        kw.POINT: "at",
-    }
-
-    _action_names: dict[str, str] = {
-        kw.INCREMENT: "increment",
-        kw.DECREMENT: "decrement",
-        kw.RESET: "reset",
-        kw.ALERT: "alert",
-        kw.SAVE: "save",
-        kw.FLASH: "flash",
-    }
-
-    _event_names: dict[str, str] = {
-        kw.CROSSING: "crosses",
-        kw.EQUALS: "equals"
-    }
 
     def __init__(self, source: str, output: str) -> None:
         self._source_path = source
@@ -81,10 +52,10 @@ class Translator(ExpressionVisitor):
 
     def _write_imports(self) -> None:
         self._file.writeln()
-        self._file.writeln("from videoanalytics.analytics.declarable.actions import *")
-        self._file.writeln("from videoanalytics.analytics.declarable.condition import *")
-        self._file.writeln("from videoanalytics.analytics.declarable.events import *")
-        self._file.writeln("from videoanalytics.analytics.declarable.tools import *")
+        self._file.writeln("from videoanalytics.analytics.actions import *")
+        self._file.writeln("from videoanalytics.analytics.condition import *")
+        self._file.writeln("from videoanalytics.analytics.events import *")
+        self._file.writeln("from videoanalytics.analytics.tools import *")
         self._file.writeln("from videoanalytics.models.operators import *")
         self._file.writeln("from videoanalytics.models import Coords, EvalTree, Side, SideValue")
         self._file.writeln()
@@ -96,9 +67,8 @@ class Translator(ExpressionVisitor):
         self._file.writeln("]")
 
     def visit_object(self, expr: ObjectExpr) -> None:
-        self._file.write("'")
         expr.id.accept(self)
-        self._file.write("', ")
+        self._file.write(", ")
 
     def visit_object_id(self, expr: ObjectIdExpr) -> None:
         if expr.value in self._object_kinds.inverse:
@@ -107,13 +77,13 @@ class Translator(ExpressionVisitor):
         else:
             index = self._next_obj_index()
             self._object_kinds[index] = expr.value
-            self._file.write(names[expr.value])
+            self._file.write(f"'{expr.value}'")
 
     def visit_tool_block(self, expr: ToolBlockExpr) -> None:
         self._file.writeln("tools: dict[int, Tool | tuple[int, int]] = dict()")
         self._file.writeln()
-        for tool in expr.items:
-            tool.accept(self)
+        for t in expr.items:
+            t.accept(self)
             self._file.writeln()
         self._file.writeln()
         self._file.writeln("tools = {k:v for k,v in tools.items() if not isinstance(v, tuple)}")
@@ -151,7 +121,7 @@ class Translator(ExpressionVisitor):
         self._file.write(tool_name)
         self._file.write("(")
         for name, value in expr.params.items():
-            self._file.write(self._param_names[name])
+            self._file.write(tool.param_names[name])
             self._file.write("=")
             value.accept(self)
             self._file.write(",")
@@ -214,8 +184,8 @@ class Translator(ExpressionVisitor):
         expr.event.accept(self)
         self._file.writeln(",")
         self._file.write("    [")
-        for action in expr.actions:
-            action.accept(self)
+        for act in expr.actions:
+            act.accept(self)
             self._file.write(",")
         self._file.writeln("]")
         self._file.writeln("))")
@@ -226,11 +196,9 @@ class Translator(ExpressionVisitor):
         expr.body.accept(self)
         self._file.writeln()
 
-    def visit_action(self, expr: ActionExpr) -> None:
-        self._file.write("Action(")
-        expr.name.accept(self)
+    def _visit_declarable_args(self, expr: DeclarableExpr, param_list) -> None:
         self._file.write(",{")
-        assert len(expr.args) == len(action.param_lists[expr.name.value])
+        assert len(expr.args) == len(param_list)
         for name, value in expr.args.items():
             self._file.write(f"'{name}'")
             self._file.write(": ")
@@ -241,29 +209,23 @@ class Translator(ExpressionVisitor):
             self._file.write(",")
         self._file.write("})")
 
+    def visit_action(self, expr: ActionExpr) -> None:
+        self._file.write("Action(")
+        expr.name.accept(self)
+        self._visit_declarable_args(expr, action.param_lists[expr.name.value])
+
     def visit_action_name(self, expr: ActionNameExpr) -> None:
-        self._file.write(self._action_names[expr.value])
+        self._file.write(action.names[expr.value])
 
     def visit_event(self, expr: EventExpr) -> None:
         self._file.write("Event(")
         expr.name.accept(self)
         self._file.write(",")
         expr.target.accept(self)
-        self._file.write(",{")
-
-        assert len(expr.args) == len(event.param_lists[expr.name.value])
-        for name, value in expr.args.items():
-            self._file.write(f"'{name}'")
-            self._file.write(": ")
-            if value is None:
-                self._file.write("None")
-            else:
-                value.accept(self)
-            self._file.write(",")
-        self._file.write("})")
+        self._visit_declarable_args(expr, event.param_lists[expr.name.value])
 
     def visit_event_name(self, expr: EventNameExpr) -> None:
-        self._file.write(self._event_names[expr.value])
+        self._file.write(event.names[expr.value])
 
     def visit_binary(self, expr: BinaryExpr) -> None:
         self._file.writeln("EvalTree(")

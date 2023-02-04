@@ -1,6 +1,6 @@
 from cv2 import rectangle, putText, FONT_HERSHEY_SIMPLEX
 
-from videoanalytics.analytics.declarable.tools import Segment
+from videoanalytics.analytics.tools import Segment
 from videoanalytics.models import Box, Coords
 
 

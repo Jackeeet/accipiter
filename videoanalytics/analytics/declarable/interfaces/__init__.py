@@ -1,1 +1,0 @@
-from videoanalytics.analytics.declarable.interfaces.evaluable import Evaluable
