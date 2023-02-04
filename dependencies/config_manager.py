@@ -1,4 +1,4 @@
-__all__ = ['rule_config', 'update_block', 'detectors_config']
+__all__ = ['rdl_config', 'update_block', 'detectors_config']
 
 import json
 import sys
@@ -10,7 +10,7 @@ with open(config_path, 'r') as file:
     print("Config file read successfully")
 
 
-async def rule_config():
+async def rdl_config():
     return cfg["rules"]
 
 

@@ -8,7 +8,7 @@ from typing import Callable
 from fastapi import APIRouter, Depends, HTTPException, Response, status, UploadFile
 from fastapi.responses import FileResponse
 
-from dependencies import rule_config, update_block
+from dependencies import rdl_config, update_block
 
 from redpoll.translator import TranslationError, Translator
 
@@ -16,15 +16,24 @@ router = APIRouter(prefix="/rules")
 
 
 @router.get("/active")
-async def active_file(cfg: dict = Depends(rule_config)):
+async def active_file(cfg: dict = Depends(rdl_config)):
     return cfg["active_file"]
+
+
+@router.delete("/active")
+async def reset_active_file(cfg: dict = Depends(rdl_config()),
+                            update_config: Callable = Depends(update_block)):
+    cfg["active_file"] = ""
+    update_config("rules", cfg)
+    # erase declared.py contents
+    open(sys.path[0] + cfg["translated_rules_path"], 'w').close()
 
 
 @router.post("/active/{filename}", status_code=200)
 async def set_active_file(filename: str,
                           response: Response,
-                          cfg: dict = Depends(rule_config),
-                          cfg_updater: Callable = Depends(update_block)):
+                          cfg: dict = Depends(rdl_config),
+                          update_config: Callable = Depends(update_block)):
     await _access_db(cfg, action=None, check=_filename_exists, filename=filename)
 
     input_file = sys.path[0] + cfg["files_dir"] + filename
@@ -42,38 +51,38 @@ async def set_active_file(filename: str,
         importlib.reload(videoanalytics.analytics.declared)
 
     cfg["active_file"] = filename
-    cfg_updater("rules", cfg)
+    update_config("rules", cfg)
     return {'message': 'Successfully set active file'}
 
 
 @router.get("/check/{filename}")
-async def file_exists(filename: str, cfg: dict = Depends(rule_config)):
+async def file_exists(filename: str, cfg: dict = Depends(rdl_config)):
     exists = await _file_in_db(cfg, filename)
     return {"exists": exists}
 
 
 @router.get("")
-async def get_file_names(cfg: dict = Depends(rule_config)):
+async def get_file_names(cfg: dict = Depends(rdl_config)):
     db = await _access_db(cfg)
     return [[filename, filename] for filename in db]
 
 
 @router.get("/{filename}")
-async def get_file(filename: str, cfg: dict = Depends(rule_config)):
+async def get_file(filename: str, cfg: dict = Depends(rdl_config)):
     await _access_db(cfg, action=None, check=_filename_exists, filename=filename)
     stored_file = sys.path[0] + cfg["files_dir"] + filename
     return FileResponse(stored_file)
 
 
 @router.post("")
-async def upload(file: UploadFile, cfg: dict = Depends(rule_config)):
+async def upload(file: UploadFile, cfg: dict = Depends(rdl_config)):
     await _upload_file(file, file.filename, cfg)
     await _access_db(cfg, action=_add_filename, check=None, filename=file.filename)
     return {"message": f"Successfully uploaded {file.filename}"}
 
 
 @router.delete("/{filename}")
-async def delete_file(filename: str, cfg: dict = Depends(rule_config)):
+async def delete_file(filename: str, cfg: dict = Depends(rdl_config)):
     filenames = await _access_db(cfg, action=_delete_filename, check=_filename_exists, filename=filename)
     try:
         os.remove(sys.path[0] + cfg["files_dir"] + filename)

@@ -21,10 +21,13 @@ def crosses(tracked: Tracked, tool: Intersectable, sides: EvalTree) -> bool:
     new_crossing_state = object_crossing_state(sides_crossing)
 
     crossed = sides.evaluate(obj_crossing_state=sides_crossing)
-    declared_crossing_states = sides.flatten(
-        lambda side, initial: initial | side_value_to_crossing_state(side.value),
-        TrackedState.NONE
-    )
+    if sides is None:
+        declared_crossing_states = all_crossing_states
+    else:
+        declared_crossing_states = sides.flatten(
+            lambda side, initial: initial | side_value_to_crossing_state(side.value),
+            TrackedState.NONE
+        )
 
     first_crossing = False
 
