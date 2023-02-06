@@ -1,3 +1,5 @@
+import numpy as np
+
 from videoanalytics.analytics.tools.abstract import Component, Markup
 from videoanalytics.models import Box, Shape
 
@@ -17,13 +19,27 @@ class Area(Markup, Shape):
             if component.end not in self.vertices:
                 self.vertices.append(component.end)
 
-        self.convex = None
+        # only works for simple polygons (no self-intersections / holes)
+        def check_convex() -> bool:
+            vertex_count = len(self.vertices)
+            sign = False
+            for i in range(vertex_count):
+                d1 = self.vertices[(i + 2) % vertex_count] - self.vertices[(i + 1) % vertex_count]
+                d2 = self.vertices[i] - self.vertices[(i + 1) % vertex_count]
+                clockwise = np.cross(np.asarray(d1), np.asarray(d2)) > 0
+                if i == 0:
+                    sign = clockwise
+                elif sign != clockwise:
+                    return False
+            return True
+
+        self.convex = check_convex()
 
     def draw_on(self, image) -> None:
         for tool in self._components:
             tool.draw_on(image)
 
-    # this actually tests for collison, not for a full containment
+    # this actually tests for collision, not for full containment
     # we'll probably need to find a way to differentiate these cases
     def contains(self, box: Box) -> bool:
         if not self.convex:
