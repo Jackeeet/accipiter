@@ -4,4 +4,7 @@ class Projection:
         self.max = proj_max
 
     def overlaps(self, other: 'Projection') -> bool:
-        return self.max >= other.min or other.max >= self.min
+        return not (self.max < other.min or other.max < self.min)
+
+    def __repr__(self) -> str:
+        return f"Projection({self.min}, {self.max})"

@@ -7,13 +7,16 @@ class Area(Markup, Shape):
             self, components: list[Component], colour: tuple[int, int, int] = None, thickness: int = 2
     ) -> None:
         super().__init__(colour=colour, thickness=thickness)
-        self.vertices = set()
+        self.vertices = []
         self._components = components
         for component in self._components:
             component.colour = self.colour
             component.thickness = self.thickness
-            self.vertices.add(component.start)
-            self.vertices.add(component.end)
+            if component.start not in self.vertices:
+                self.vertices.append(component.start)
+            if component.end not in self.vertices:
+                self.vertices.append(component.end)
+
         self.convex = None
 
     def draw_on(self, image) -> None:

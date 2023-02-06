@@ -6,12 +6,12 @@ from videoanalytics.models.projection import Projection
 
 
 class Shape(ABC):
-    def __init__(self, vertices: set[tuple[int, int]], **kwargs):
+    def __init__(self, vertices: list[tuple[int, int]], **kwargs):
         self.vertices = vertices
 
     def axes(self) -> list[np.ndarray]:
         max_vertex_index = len(self.vertices) - 1
-        vertices = list(self.vertices)
+        vertices = self.vertices
         axes = []
         for i, vertex in enumerate(vertices):
             p1 = vertex
