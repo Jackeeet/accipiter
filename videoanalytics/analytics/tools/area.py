@@ -43,7 +43,7 @@ class Area(Markup, Shape):
     # we'll probably need to find a way to differentiate these cases
     def contains(self, box: Box) -> bool:
         if not self.convex:
-            pass
+            raise NotImplementedError
         overlap_on_self_axes = self._find_projections_axis_overlap(box, self.axes())
         if not overlap_on_self_axes:
             return False

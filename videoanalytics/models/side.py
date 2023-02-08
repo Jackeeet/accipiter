@@ -1,6 +1,8 @@
 from enum import StrEnum, auto
 
-from videoanalytics.analytics.interfaces import Evaluable
+from videoanalytics.interfaces.evaluable import Evaluable
+from videoanalytics.models.tracked_state import TrackedState
+from videoanalytics.models.operators import op_bitwise_or
 
 
 class SideValue(StrEnum):
@@ -14,8 +16,28 @@ class Side(Evaluable):
     def __init__(self, value: SideValue) -> None:
         self.value = value
 
-    def evaluate(self, **values) -> bool:
-        if 'obj_crossing_state' not in values:
-            raise ValueError()  # todo add message
-        obj_sides_crossing: dict[SideValue, bool] = values['obj_crossing_state']
-        return obj_sides_crossing[self.value]
+    def evaluate(self, **values) -> TrackedState:
+        return self.to_crossing_state()
+
+    def __repr__(self):
+        return f"Side({self.value})"
+
+    @staticmethod
+    def op_and(left: TrackedState, right: TrackedState) -> TrackedState:
+        return op_bitwise_or(left, right)
+
+    @staticmethod
+    def op_or(left: TrackedState, right: TrackedState) -> TrackedState:
+        # the return value is INTENTIONALLY the same as the return value of op_and
+        return op_bitwise_or(left, right)
+
+    def to_crossing_state(self) -> TrackedState:
+        match self.value:
+            case SideValue.LEFT:
+                return TrackedState.CROSSING_LEFT
+            case SideValue.RIGHT:
+                return TrackedState.CROSSING_RIGHT
+            case SideValue.TOP:
+                return TrackedState.CROSSING_TOP
+            case SideValue.BOTTOM:
+                return TrackedState.CROSSING_BOTTOM
