@@ -1,36 +1,37 @@
-from typing import Callable
+from typing import Any, Callable
 
-from videoanalytics.analytics.interfaces import Evaluable
+from videoanalytics.interfaces.evaluable import Evaluable
 
 
-class EvalTree(Evaluable):
+class EvalTree:
     def __init__(
             self, left: Evaluable = None,
-            op_or_val: Evaluable | Callable[[bool, bool], bool] = None,
+            op_or_val: Evaluable | str = None,
             right: Evaluable = None
     ) -> None:
         self.left = left
         self.operator_or_value = op_or_val
         self.right = right
 
-    def evaluate(self, **values) -> bool:
+    def evaluate(self, **values) -> Any:
+        return self.fold(lambda ev: ev.evaluate(**values))
+
+    def fold(self, func: Callable[[Any], Any]) -> Any:
         if self.left is None and self.right is None:
-            # the node is a leaf -> evaluate the value
-            return self.operator_or_value.evaluate(**values)
-
-        # the node is not a leaf -> evaluate both leaves and apply the operator
+            return func(self.operator_or_value)
         if self.left is not None and self.right is not None:
-            return self.operator_or_value(
-                self.left.evaluate(**values), self.right.evaluate(**values)
-            )
-
+            op = getattr(self.left.__class__, self.operator_or_value)
+            return op(func(self.left), func(self.right))
         raise ValueError("missing an operand")
 
-    def flatten(self, func, result):
+    def fmap(self, func: Callable[[Any], Any]) -> 'EvalTree':
         if self.left is None and self.right is None:
-            return func(self.operator_or_value, result)
-        elif self.left is not None and self.right is not None:
-            result = func(self.left, result)
-            return func(self.right, result)
-        else:
-            raise ValueError("missing an operand")
+            return EvalTree(op_or_val=func(self.operator_or_value))
+        if self.left is not None and self.right is not None:
+            left = func(self.left)
+            right = func(self.right)
+            return EvalTree(left, self.operator_or_value, right)
+        raise ValueError("missing an operand")
+
+    def __repr__(self):
+        return f"EvalTree({self.left}, {self.operator_or_value}, {self.right}"
