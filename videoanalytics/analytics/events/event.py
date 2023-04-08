@@ -1,11 +1,11 @@
 from typing import Callable, Any
 
-from videoanalytics.interfaces.evaluable import Evaluable
+from videoanalytics.interfaces.logical import Logical
 from videoanalytics.models import Tracked
 from videoanalytics.models.operators import op_and, op_or
 
 
-class Event(Evaluable):
+class Event(Logical):
     def __init__(self, event: Callable, object_kind: str, params: dict[str, Any]) -> None:
         self._check_event = event
         self._object_kind = object_kind

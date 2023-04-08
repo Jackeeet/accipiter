@@ -6,8 +6,6 @@ class Evaluable(metaclass=abc.ABCMeta):
     @classmethod
     def __subclasshook(cls, subclass):
         return hasattr(subclass, 'evaluate') and callable(subclass.evaluate) \
-            and hasattr(subclass, 'op_and') and callable(subclass.op_and) \
-            and hasattr(subclass, 'op_or') and callable(subclass.op_or) \
             or NotImplemented
 
     @abc.abstractmethod
@@ -15,26 +13,6 @@ class Evaluable(metaclass=abc.ABCMeta):
         """ Вычисляет значение объекта.
 
         :param values: Значения, которые могут потребоваться для вычисления итогового значения объекта.
-        """
-        pass
-
-    @staticmethod
-    @abc.abstractmethod
-    def op_and(left: Any, right: Any) -> Any:
-        """ Эквивалент конъюнкции для результатов работы метода evaluate().
-
-        :param left: Первое значение типа, возвращаемого методом evaluate()
-        :param right: второе значение этого же типа.
-        """
-        pass
-
-    @staticmethod
-    @abc.abstractmethod
-    def op_or(left: Any, right: Any) -> Any:
-        """ Эквивалент дизъюнкции для результатов работы метода evaluate().
-
-        :param left: Первое значение типа, возвращаемого методом evaluate()
-        :param right:  второе значение этого же типа.
         """
         pass
 

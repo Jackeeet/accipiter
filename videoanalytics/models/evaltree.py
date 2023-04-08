@@ -3,7 +3,7 @@ from typing import Any, Callable
 from videoanalytics.interfaces.evaluable import Evaluable
 
 
-class EvalTree:
+class EvalTree(Evaluable):
     def __init__(
             self, left: Evaluable = None,
             op_or_val: Evaluable | str = None,
