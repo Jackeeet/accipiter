@@ -10,6 +10,7 @@ class Analyzer:
         self.object_pool = dict()
         self.DEBUG_detected_count = 0
         self.DEBUG_tracked_count = 0
+        self._timers = []
 
     def process_frame(self, frame):
         # todo maybe return early if no objects are detected

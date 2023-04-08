@@ -1,10 +1,13 @@
 from videoanalytics.analytics.tools.interfaces import Intersectable
-from videoanalytics.models import Tracked, TrackedState, all_crossing_states, object_crossing_state, SideValue, \
-    side_value_to_crossing_state
+from videoanalytics.models import ParametrizedBool, SideValue, Tracked, TrackedState, all_crossing_states
+from videoanalytics.models.boolean import Boolean
 from videoanalytics.models.evaltree import EvalTree
+from videoanalytics.models.tracked_state_helpers import object_crossing_state
 
 
-def crosses(tracked: Tracked, tool: Intersectable, sides: EvalTree) -> bool:
+def crosses(
+        tracked: Tracked, tool: Intersectable, sides: EvalTree
+) -> ParametrizedBool:
     """ todo add description
 
     :param tracked: Отслеживаемый объект
@@ -12,23 +15,18 @@ def crosses(tracked: Tracked, tool: Intersectable, sides: EvalTree) -> bool:
     :param sides:
     :return: True, если объект пересекает элемент разметки, иначе False
     """
+    declared_crossing_states: TrackedState
+    declared_crossing_states = all_crossing_states if sides is None else sides.evaluate()
+
     sides_crossing = {
-        SideValue.LEFT: tool.intersects(tracked.obj.right),
-        SideValue.RIGHT: tool.intersects(tracked.obj.left),
-        SideValue.TOP: tool.intersects(tracked.obj.bottom),
-        SideValue.BOTTOM: tool.intersects(tracked.obj.top)
+        SideValue.LEFT: Boolean(tool.intersects(tracked.obj.right)),
+        SideValue.RIGHT: Boolean(tool.intersects(tracked.obj.left)),
+        SideValue.TOP: Boolean(tool.intersects(tracked.obj.bottom)),
+        SideValue.BOTTOM: Boolean(tool.intersects(tracked.obj.top))
     }
     new_crossing_state = object_crossing_state(sides_crossing)
 
-    crossed = sides.evaluate(obj_crossing_state=sides_crossing)
-    if sides is None:
-        declared_crossing_states = all_crossing_states
-    else:
-        declared_crossing_states = sides.flatten(
-            lambda side, initial: initial | side_value_to_crossing_state(side.value),
-            TrackedState.NONE
-        )
-
+    crossed: bool = sides.fmap(lambda side: sides_crossing[side.value]).evaluate().value
     first_crossing = False
 
     if crossed:

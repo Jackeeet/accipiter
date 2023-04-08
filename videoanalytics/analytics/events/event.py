@@ -1,7 +1,8 @@
 from typing import Callable, Any
 
-from videoanalytics.analytics.interfaces import Evaluable
+from videoanalytics.interfaces.evaluable import Evaluable
 from videoanalytics.models import Tracked
+from videoanalytics.models.operators import op_and, op_or
 
 
 class Event(Evaluable):
@@ -17,3 +18,11 @@ class Event(Evaluable):
         if tracked.obj.name != self._object_kind:
             return False
         return self._check_event(tracked, **self._params)
+
+    @staticmethod
+    def op_and(left: bool, right: bool) -> bool:
+        return op_and(left, right)
+
+    @staticmethod
+    def op_or(left: bool, right: bool) -> bool:
+        return op_or(left, right)
