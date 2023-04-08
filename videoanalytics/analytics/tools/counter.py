@@ -20,6 +20,7 @@ class Counter(Tool):
 
     def increment(self) -> None:
         self.value += self._step
+        print(self.value)
 
     def decrement(self) -> None:
         self.value -= self._step

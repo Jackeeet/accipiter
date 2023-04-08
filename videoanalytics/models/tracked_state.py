@@ -10,6 +10,7 @@ class TrackedState(Flag):
     CROSSING_RIGHT = auto()
     CROSSING_TOP = auto()
     CROSSING_BOTTOM = auto()
+    IN_AREA = auto()
 
 
 all_crossing_states = TrackedState.CROSSING_TOP | TrackedState.CROSSING_RIGHT | \
