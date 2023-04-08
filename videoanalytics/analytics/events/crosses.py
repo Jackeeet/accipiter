@@ -1,5 +1,5 @@
 from videoanalytics.analytics.tools.interfaces import Intersectable
-from videoanalytics.models import ParametrizedBool, SideValue, Tracked, TrackedState, all_crossing_states
+from videoanalytics.models import SideValue, Tracked, TrackedState, all_crossing_states, Side
 from videoanalytics.models.boolean import Boolean
 from videoanalytics.models.evaltree import EvalTree
 from videoanalytics.models.tracked_state_helpers import object_crossing_state
@@ -7,7 +7,7 @@ from videoanalytics.models.tracked_state_helpers import object_crossing_state
 
 def crosses(
         tracked: Tracked, tool: Intersectable, sides: EvalTree
-) -> ParametrizedBool:
+) -> bool:
     """ todo add description
 
     :param tracked: Отслеживаемый объект
@@ -15,8 +15,14 @@ def crosses(
     :param sides:
     :return: True, если объект пересекает элемент разметки, иначе False
     """
-    declared_crossing_states: TrackedState
-    declared_crossing_states = all_crossing_states if sides is None else sides.evaluate()
+    if sides is None:
+        sides = EvalTree(
+            Side(SideValue.LEFT), 'op_or', EvalTree(
+                Side(SideValue.RIGHT), 'op_or', EvalTree(
+                    Side(SideValue.TOP), 'op_or', Side(SideValue.BOTTOM)
+                )
+            )
+        )
 
     sides_crossing = {
         SideValue.LEFT: Boolean(tool.intersects(tracked.obj.right)),
@@ -26,13 +32,18 @@ def crosses(
     }
     new_crossing_state = object_crossing_state(sides_crossing)
 
-    crossed: bool = sides.fmap(lambda side: sides_crossing[side.value]).evaluate().value
+    def to_tracked_state_tree(side):
+        if isinstance(side, Side):
+            return sides_crossing[side.value]
+        return side.fmap(lambda s: to_tracked_state_tree(s))
+
+    crossed: bool = sides.fmap(lambda side: to_tracked_state_tree(side)).evaluate()
     first_crossing = False
 
     if crossed:
         # ни один бит в текущем состоянии не соответствует одному из битов,
         # соответствующих заданным сторонам => первое пересечение линии объектом
-        if (tracked.states[tool] & declared_crossing_states) == TrackedState.NONE:
+        if (tracked.states[tool] & sides.evaluate()) == TrackedState.NONE:
             first_crossing = True
 
         tracked.states[tool] |= new_crossing_state
