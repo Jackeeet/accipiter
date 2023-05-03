@@ -6,7 +6,14 @@ def leaves(tracked: Tracked, area: Area) -> bool:
     inside = area.contains(tracked.obj.box)
     if inside:
         return False
+
+    print('leaves')
+
     last_area_state = tracked.states[area]
     result = last_area_state & TrackedState.IN_AREA != TrackedState.NONE
-    last_area_state &= ~TrackedState.IN_AREA
+    tracked.states[area] &= ~TrackedState.IN_AREA
+
+    if result:
+        tracked.timers.pop(area, None)
+
     return result

@@ -57,3 +57,10 @@ class Area(Markup, Shape):
             if not self_projection.overlaps(box_projection):
                 return False
         return True
+
+    def __hash__(self) -> int:
+        return hash((str(self.vertices), str(self._components)))
+
+    def __eq__(self, o: object) -> bool:
+        return self.vertices == o.vertices and self._components == o._components
+

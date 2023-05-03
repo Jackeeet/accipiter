@@ -13,6 +13,7 @@ class Analyzer:
         self._timers = []
 
     def process_frame(self, frame):
+
         # todo maybe return early if no objects are detected
         detected = [o for o in self.detector.return_objects(frame)
                     if o.name in declared.object_kinds]
@@ -22,9 +23,16 @@ class Analyzer:
 
         markup = [tool for tool in declared.tools.values() if isinstance(tool, Markup)]
         self.object_pool = self.update_pool(self.object_pool, detected, markup)
+
+        print('------------------------')
+        for item in self.object_pool.values():
+            print(item)
+            print(f"States: {item.states}")
+            print(f"Timers: {item.timers}")
+
         for tracked in self.object_pool.values():
-            if tracked.FTL != tracked.max_FTL:
-                continue  # don't process boxes from previous frames
+            # if tracked.FTL != tracked.max_FTL:
+            #     continue  # don't process boxes from previous frames
 
             # checking all declared conditions
             for condition in declared.conditions:
@@ -64,13 +72,11 @@ class Analyzer:
             corner = det_obj.box.start
             if corner not in pool.keys():
                 prev_corner = Analyzer.previous_position(corner, pool, margin)
-                # this seems a bit too complicated, there's probably a better way to do the same thing
                 if prev_corner:
-                    tracked = pool[prev_corner]
+                    tracked = pool.pop(prev_corner)
                     tracked.FTL = tracked.max_FTL
-                    tracked.id = corner
                     tracked.obj = det_obj
-                    pool.pop(prev_corner)
+                    # tracked.timers = {k: v for k, v in tracked.timers}
                     pool[corner] = tracked
                 else:
                     self.DEBUG_tracked_count += 1

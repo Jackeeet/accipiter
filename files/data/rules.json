@@ -1,7 +1,1 @@
-[
-  "arc.rdl",
-  "area.rdl",
-  "input.rdl",
-  "line.rdl",
-  "segment.rdl"
-]
+["arc.rdl", "area.rdl", "input.rdl", "line.rdl", "segment.rdl"]

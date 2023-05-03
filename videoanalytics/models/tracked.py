@@ -1,3 +1,6 @@
+from datetime import datetime
+
+from videoanalytics.analytics.tools import Area
 from videoanalytics.analytics.tools.abstract import Markup
 from videoanalytics.models.detected import Detected
 from videoanalytics.models.tracked_state import TrackedState
@@ -5,13 +8,19 @@ from videoanalytics.models.tracked_state import TrackedState
 
 class Tracked:
     states: dict[Markup, TrackedState]
-    max_FTL = 1
+    timers: dict[Area, datetime]
+
+    max_FTL = 10
+
+    id = 0
 
     def __init__(self, obj: Detected, markup: list[Markup]) -> None:
-        self.id = obj.box.start
+        self._act_id = Tracked.id
+        Tracked.id += 1
         self.obj = obj
         self.FTL = self.max_FTL
         self.states = {m: TrackedState.NONE for m in markup}
+        self.timers = dict()
 
     def __repr__(self) -> str:
-        return f"id: {self.id} FTL: {self.FTL}"
+        return f"id: {self._act_id} FTL: {self.FTL}"

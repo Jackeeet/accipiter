@@ -1,11 +1,25 @@
+from datetime import datetime
+
 from videoanalytics.analytics.tools import Area
 from videoanalytics.models import Tracked, TrackedState
 
 
-def is_inside(tracked: Tracked, area: Area) -> bool:
-    inside = area.contains(tracked.obj.box)
+def is_inside(tracked: Tracked, area: Area, period: int) -> bool:
+    in_area = area.contains(tracked.obj.box)
+
+    if period is None:
+        inside = in_area
+    elif in_area:
+        assert area in tracked.timers
+        in_area_time = datetime.now() - tracked.timers[area]
+        period_passed = in_area_time.total_seconds() >= period
+        inside = period_passed
+    else:
+        inside = False
+
     if inside:
         tracked.states[area] |= TrackedState.IN_AREA
-    else:
-        tracked.states[area] &= ~TrackedState.IN_AREA
+        # tracked.timers.pop(area, None)
+        print("inside")
+
     return inside
