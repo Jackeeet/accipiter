@@ -24,10 +24,10 @@ required_params = {
     kw.IS_IN: [pn.AREA],
     kw.LEAVING: [pn.AREA],
 
-    kw.DIVERTS_FROM: [pn.LINE],
-    kw.SPEEDING_UP: [],
-    kw.SLOWING_DOWN: [],
-    kw.STILL: [],
+    # kw.DIVERTS_FROM: [pn.LINE],
+    # kw.SPEEDING_UP: [],
+    # kw.SLOWING_DOWN: [],
+    # kw.STILL: [],
 
     kw.APPEARS: [],
     kw.DISAPPEARS: [],
@@ -50,10 +50,10 @@ extra_params = {
     kw.IS_IN: [pn.PERIOD],
     kw.LEAVING: [pn.TOOLS],
 
-    kw.DIVERTS_FROM: [],
-    kw.SPEEDING_UP: [],
-    kw.SLOWING_DOWN: [],
-    kw.STILL: [pn.PERIOD],
+    # kw.DIVERTS_FROM: [],
+    # kw.SPEEDING_UP: [],
+    # kw.SLOWING_DOWN: [],
+    # kw.STILL: [pn.PERIOD],
 
     kw.APPEARS: [],
     kw.DISAPPEARS: [],

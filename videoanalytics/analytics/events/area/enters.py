@@ -16,10 +16,5 @@ def enters(tracked: Tracked, area: Area) -> bool:
     if result:
         tracked.timers[area] = datetime.now()
         print('enters')
-        # print('+++++++++++++++++')
-        # print(f'set time: {tracked.timers[area]}')
-        # print(f'last area state: {last_area_state}')
-        # print(f'new area state: {tracked.states[area]}')
-        # print('+++++++++++++++++')
 
     return result

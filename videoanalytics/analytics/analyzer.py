@@ -1,6 +1,6 @@
 from . import declared
 from videoanalytics.detection import ObjectDetector
-from videoanalytics.models import Tracked, Detected, Coords
+from videoanalytics.models import Tracked, Detected, Coords, TrackedState
 from videoanalytics.analytics.tools.abstract import Markup
 
 
@@ -31,9 +31,6 @@ class Analyzer:
             print(f"Timers: {item.timers}")
 
         for tracked in self.object_pool.values():
-            # if tracked.FTL != tracked.max_FTL:
-            #     continue  # don't process boxes from previous frames
-
             # checking all declared conditions
             for condition in declared.conditions:
                 # executing declared actions if the condition holds
@@ -43,7 +40,8 @@ class Analyzer:
                         action.execute()
 
             # drawing the box
-            tracked.obj.draw(frame)
+            if tracked.FTL == tracked.max_FTL:
+                tracked.obj.draw(frame)
 
         # drawing all declared tools
         for name, tool in declared.tools.items():
@@ -65,24 +63,28 @@ class Analyzer:
             self, pool: dict[Coords, Tracked], objects: list[Detected], markup: list[Markup]
     ) -> dict[Coords, Tracked]:
         margin = 50
-        for point in pool.values():
-            point.FTL -= 1
+        for tracked_object in pool.values():
+            tracked_object.FTL -= 1
+            tracked_object.states[markup[0]] &= ~TrackedState.NEW
 
-        for det_obj in objects:
-            corner = det_obj.box.start
+        for detected_object in objects:
+            corner = detected_object.box.start
+
             if corner not in pool.keys():
                 prev_corner = Analyzer.previous_position(corner, pool, margin)
                 if prev_corner:
+                    # the object is already tracked, and it moved
                     tracked = pool.pop(prev_corner)
-                    tracked.FTL = tracked.max_FTL
-                    tracked.obj = det_obj
-                    # tracked.timers = {k: v for k, v in tracked.timers}
+                    tracked.FTL = Tracked.max_FTL
+                    tracked.obj = detected_object
                     pool[corner] = tracked
                 else:
+                    # the object is not tracked yet
                     self.DEBUG_tracked_count += 1
-                    pool[corner] = Tracked(det_obj, markup)
+                    pool[corner] = Tracked(detected_object, markup)
             else:
-                pool[corner].FTL = pool[corner].max_FTL
+                # the object is tracked, and it hadn't moved
+                pool[corner].FTL = Tracked.max_FTL
 
         return {pt: obj for pt, obj in pool.items() if obj.FTL > 0}
 

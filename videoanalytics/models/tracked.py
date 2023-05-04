@@ -20,6 +20,7 @@ class Tracked:
         self.obj = obj
         self.FTL = self.max_FTL
         self.states = {m: TrackedState.NONE for m in markup}
+        self.states[markup[0]] |= TrackedState.NEW
         self.timers = dict()
 
     def __repr__(self) -> str:
