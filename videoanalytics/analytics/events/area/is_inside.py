@@ -2,9 +2,13 @@ from datetime import datetime
 
 from videoanalytics.analytics.tools import Area
 from videoanalytics.models import Tracked, TrackedState
+from videoanalytics.models.tracked_state_helpers import disappeared
 
 
 def is_inside(tracked: Tracked, area: Area, period: int) -> bool:
+    if disappeared(tracked):
+        return False
+
     in_area = area.contains(tracked.obj.box)
 
     if period is None:

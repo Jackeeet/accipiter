@@ -1,8 +1,12 @@
 from videoanalytics.analytics.tools import Area
 from videoanalytics.models import Tracked, TrackedState
+from videoanalytics.models.tracked_state_helpers import disappeared
 
 
 def leaves(tracked: Tracked, area: Area) -> bool:
+    if disappeared(tracked):
+        return True
+
     inside = area.contains(tracked.obj.box)
     if inside:
         return False

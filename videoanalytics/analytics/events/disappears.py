@@ -1,8 +1,6 @@
 from videoanalytics.models import Tracked
+from videoanalytics.models.tracked_state_helpers import disappeared
 
 
 def disappears(tracked: Tracked) -> bool:
-    # первым ключом в словаре состояний всегда является обьект сцены, его нужно достать
-    # scene = next(iter(tracked.states))
-    pass
-
+    return disappeared(tracked)

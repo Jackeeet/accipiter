@@ -2,6 +2,7 @@ from . import declared
 from videoanalytics.detection import ObjectDetector
 from videoanalytics.models import Tracked, Detected, Coords, TrackedState
 from videoanalytics.analytics.tools.abstract import Markup
+from ..models.tracked_state_helpers import disappeared
 
 
 class Analyzer:
@@ -63,13 +64,17 @@ class Analyzer:
             self, pool: dict[Coords, Tracked], objects: list[Detected], markup: list[Markup]
     ) -> dict[Coords, Tracked]:
         margin = 50
+
+        pool = {coords: tracked for coords, tracked in pool.items() if not disappeared(tracked)}
         for tracked_object in pool.values():
             tracked_object.FTL -= 1
-            tracked_object.states[markup[0]] &= ~TrackedState.NEW
+            if tracked_object.FTL > 0:
+                tracked_object.states[markup[0]] &= ~TrackedState.NEW
+            else:
+                tracked_object.states[markup[0]] |= TrackedState.DISAPPEARED
 
         for detected_object in objects:
             corner = detected_object.box.start
-
             if corner not in pool.keys():
                 prev_corner = Analyzer.previous_position(corner, pool, margin)
                 if prev_corner:
@@ -77,16 +82,20 @@ class Analyzer:
                     tracked = pool.pop(prev_corner)
                     tracked.FTL = Tracked.max_FTL
                     tracked.obj = detected_object
-                    pool[corner] = tracked
+                    # pool[corner] = tracked
                 else:
                     # the object is not tracked yet
                     self.DEBUG_tracked_count += 1
-                    pool[corner] = Tracked(detected_object, markup)
+                    # pool[corner] = Tracked(detected_object, markup)
+                    tracked = Tracked(detected_object, markup)
             else:
                 # the object is tracked, and it hadn't moved
-                pool[corner].FTL = Tracked.max_FTL
+                tracked = pool[corner]
+                tracked.FTL = Tracked.max_FTL
 
-        return {pt: obj for pt, obj in pool.items() if obj.FTL > 0}
+            pool[corner] = tracked
+
+        return {pt: obj for pt, obj in pool.items() if obj.FTL >= 0}
 
     def __del__(self):
         print(f"DETECTED: {self.DEBUG_detected_count}")

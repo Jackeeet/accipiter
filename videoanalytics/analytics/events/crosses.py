@@ -2,7 +2,7 @@ from videoanalytics.analytics.tools.interfaces import Intersectable
 from videoanalytics.models import SideValue, Tracked, TrackedState, all_crossing_states, Side
 from videoanalytics.models.boolean import Boolean
 from videoanalytics.models.evaltree import EvalTree
-from videoanalytics.models.tracked_state_helpers import object_crossing_state
+from videoanalytics.models.tracked_state_helpers import object_crossing_state, disappeared
 
 
 def crosses(
@@ -15,6 +15,9 @@ def crosses(
     :param sides:
     :return: True, если объект пересекает элемент разметки, иначе False
     """
+    if disappeared(tracked):
+        return False
+
     if sides is None:
         sides = EvalTree(
             Side(SideValue.LEFT), 'op_or', EvalTree(
