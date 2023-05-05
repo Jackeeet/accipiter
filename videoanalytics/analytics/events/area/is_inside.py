@@ -24,6 +24,4 @@ def is_inside(tracked: Tracked, area: Area, period: int) -> bool:
     if inside:
         tracked.states[area] |= TrackedState.IN_AREA
         # tracked.timers.pop(area, None)
-        print("inside")
-
     return inside

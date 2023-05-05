@@ -1,4 +1,4 @@
-from cv2 import rectangle, putText, FONT_HERSHEY_SIMPLEX
+from cv2 import rectangle, putText, FONT_HERSHEY_COMPLEX
 
 from videoanalytics.analytics.tools import Segment
 from videoanalytics.models import Box, Coords
@@ -51,5 +51,5 @@ class Detected:
         top_left = (self.top_left.x, self.top_left.y)
         bottom_right = (self.bottom_right.x, self.bottom_right.y)
         rectangle(frame, top_left, bottom_right, self.colour, 2)
-        putText(frame, f"{self.name} {self.confidence}", (self.box.start.x, self.box.start.y - 10),
-                FONT_HERSHEY_SIMPLEX, 0.5, self.colour, 2)
+        putText(frame, f"{self.name}", (self.box.start.x, self.box.start.y - 10),
+                FONT_HERSHEY_COMPLEX, 0.5, self.colour, 2)

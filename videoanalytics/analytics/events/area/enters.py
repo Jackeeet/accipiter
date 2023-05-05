@@ -19,6 +19,4 @@ def enters(tracked: Tracked, area: Area) -> bool:
 
     if result:
         tracked.timers[area] = datetime.now()
-        print('enters')
-
     return result

@@ -36,36 +36,36 @@ tools = {k: v for k, v in tools.items() if not (isinstance(v, tuple) or isinstan
 declarations: dict[int, Action | Event] = dict()
 conditions: list[Condition] = []
 
+# conditions.append(Condition(
+#     Event(appears, object_kinds[0], {}),
+#     [Action(increment, {'counter': tools[11], }), Action(flash, {'drawable': 'птица', 'colour': (255, 255, 255), }), ]
+# ))
 conditions.append(Condition(
-    Event(appears, object_kinds[0], {}),
-    [Action(increment, {'counter': tools[11], }), Action(flash, {'drawable': 'птица', 'colour': (255, 255, 255), }), ]
+    Event(enters, object_kinds[0], {'area': tools[9],
+                                    # 'tools': EvalTree(
+                                    # left=EvalTree(
+                                    # left=EvalTree(
+                                    # left=tools[4],
+                                    # op_or_val=op_or,
+                                    # right=tools[5]
+                                    # ),
+                                    #     op_or_val=op_or,
+                                    #     right=tools[6]
+                                    # ),
+                                    #     op_or_val=op_or,
+                                    #     right=tools[7]
+                                    # ),
+                                    }),
+    [Action(increment, {'counter': tools[10], }),
+     Action(flash, {'drawable': object_kinds[0], 'colour': (0, 255, 0), }), ]
 ))
-# conditions.append(Condition(
-#     Event(enters, object_kinds[0], {'area': tools[9],
-#                                     # 'tools': EvalTree(
-#                                     # left=EvalTree(
-#                                     # left=EvalTree(
-#                                     # left=tools[4],
-#                                     # op_or_val=op_or,
-#                                     # right=tools[5]
-#                                     # ),
-#                                     #     op_or_val=op_or,
-#                                     #     right=tools[6]
-#                                     # ),
-#                                     #     op_or_val=op_or,
-#                                     #     right=tools[7]
-#                                     # ),
-#                                     }),
-#     [Action(increment, {'counter': tools[10], }),
-#      Action(flash, {'drawable': object_kinds[0], 'colour': (0, 255, 0), }), ]
-# ))
-# conditions.append(Condition(
-#     Event(is_inside, object_kinds[0], {'area': tools[9], 'period': 3, }),
-#     [Action(increment, {'counter': tools[11], }), Action(flash, {'drawable': 'человек', 'colour': (255, 255, 255), }), ]
-# ))
-# conditions.append(Condition(
-#     Event(leaves, object_kinds[0], {'area': tools[9],
-#                                     'tools': EvalTree(
+conditions.append(Condition(
+    Event(is_inside, object_kinds[0], {'area': tools[9], 'period': 3, }),
+    [Action(increment, {'counter': tools[11], }), Action(flash, {'drawable': 'человек', 'colour': (255, 255, 255), }), ]
+))
+conditions.append(Condition(
+    Event(leaves, object_kinds[0], {'area': tools[9],
+                                    # 'tools': EvalTree(
                                     # left=EvalTree(
                                     #     left=EvalTree(
                                     #         left=tools[4],
@@ -78,7 +78,7 @@ conditions.append(Condition(
                                     # op_or_val=op_or,
                                     # right=tools[7]
                                     # ),
-                                    # }),
-    # [Action(increment, {'counter': tools[12], }),
-    #  Action(flash, {'drawable': object_kinds[0], 'colour': (255, 0, 0), }), ]
-# ))
+                                    }),
+    [Action(increment, {'counter': tools[12], }),
+     Action(flash, {'drawable': object_kinds[0], 'colour': (0, 0, 0), }), ]
+))

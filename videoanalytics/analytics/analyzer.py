@@ -41,8 +41,8 @@ class Analyzer:
                         action.execute()
 
             # drawing the box
-            if tracked.FTL == tracked.max_FTL:
-                tracked.obj.draw(frame)
+            # if tracked.FTL == tracked.max_FTL:
+            tracked.obj.draw(frame)
 
         # drawing all declared tools
         for name, tool in declared.tools.items():
