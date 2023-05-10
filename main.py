@@ -22,7 +22,10 @@ analyze = True
 analyzer = Analyzer()
 ROOT = os.path.dirname(__file__)
 # source = 'resources/videoplayback.mp4'
-source = 'resources/birds.mp4'
+# source = 'resources/birds.mp4'
+source = 'resources/people.mp4'
+# source = 'resources/tram.mp4'
+# source = 'resources/jumpers.mp4'
 
 app = FastAPI()
 app.include_router(rules.router)
