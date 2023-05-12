@@ -59,7 +59,7 @@ areas_containing_boxes = [
 
 @pytest.mark.parametrize("area, box", areas_containing_boxes)
 def test_contains(area, box):
-    assert area.contains(box)
+    assert area.overlaps(box)
 
 
 areas_not_containing_boxes = [
@@ -69,4 +69,4 @@ areas_not_containing_boxes = [
 
 @pytest.mark.parametrize("area, box", areas_not_containing_boxes)
 def test_does_not_contain(area, box):
-    assert not area.contains(box)
+    assert not area.overlaps(box)

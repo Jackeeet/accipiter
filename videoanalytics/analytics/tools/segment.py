@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from numpy import sqrt
 
 from videoanalytics.analytics.tools.abstract import Component
 from videoanalytics.analytics.tools.interfaces import Intersectable
@@ -27,6 +28,24 @@ class Segment(Component, Intersectable):
     @property
     def end(self):
         return self._end
+
+    @property
+    def length(self):
+        return sqrt((self._start.x - self._end.x) ** 2 + (self._start.y - self.end.y) ** 2)
+
+    @property
+    def director(self):
+        x = (self._start.x - self._end.x) / self.length
+        y = (self._start.y - self._end.y) / self.length
+        return Coords(x, y)
+
+    @property
+    def bounding_box(self):
+        min_x = min(self._start.x, self._end.x)
+        min_y = min(self._start.y, self._end.y)
+        max_x = max(self._start.x, self._end.x)
+        max_y = max(self._start.y, self._end.y)
+        return Segment(Coords(min_x, min_y), Coords(max_x, max_y))
 
     def __eq__(self, o: object) -> bool:
         if isinstance(o, Segment):
@@ -85,3 +104,6 @@ class Segment(Component, Intersectable):
         """
         return min(seg1.x, seg2.x) <= point.x <= max(seg1.x, seg2.x) \
             and min(seg1.y, seg2.y) <= point.y <= max(seg1.y, seg2.y)
+
+    def distance_vector(self, pt: Coords):
+        return (self._start - pt) - np.cross(self._start - pt, self.director) * self.director

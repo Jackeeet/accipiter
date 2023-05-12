@@ -3,7 +3,7 @@ from typing import Any, Callable
 from videoanalytics.interfaces.evaluable import Evaluable
 
 
-class EvalTree(Evaluable):
+class EvalTree:
     def __init__(
             self, left: Evaluable = None,
             op_or_val: Evaluable | str = None,
@@ -20,7 +20,7 @@ class EvalTree(Evaluable):
         if self.left is None and self.right is None:
             return func(self.operator_or_value)
         if self.left is not None and self.right is not None:
-            op = getattr(self.left.__class__, self.operator_or_value)
+            op = getattr(self.right.__class__, self.operator_or_value)
             return op(func(self.left), func(self.right))
         raise ValueError("missing an operand")
 

@@ -1,10 +1,10 @@
 from typing import Any
 
-from videoanalytics.interfaces.logical import Logical
+from videoanalytics.interfaces.evaluable import Evaluable
 from videoanalytics.models.operators import op_and, op_or
 
 
-class MockEvent(Logical):
+class MockEvent(Evaluable):
     def __init__(self, value: Any) -> None:
         self.value = value
 

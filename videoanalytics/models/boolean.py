@@ -1,7 +1,7 @@
-from videoanalytics.interfaces.logical import Logical
+from videoanalytics.interfaces.evaluable import Evaluable
 
 
-class Boolean(Logical):
+class Boolean(Evaluable):
     def __init__(self, value: bool) -> None:
         self.value = value
 

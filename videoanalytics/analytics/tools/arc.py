@@ -41,6 +41,15 @@ class Arc(Component, Intersectable):
         )
 
     @property
+    def bounding_box(self):
+        min_x = min(self.start.x, self.end.x)
+        min_y = min(self.start.y, self.end.y)
+        max_x = max(self.start.x, self.end.x)
+        max_y = max(self.start.y, self.end.y)
+        # todo implement checks for edge cases (180 deg arc)
+        return Segment(Coords(min_x, min_y), Coords(max_x, max_y))
+
+    @property
     def normalized(self) -> 'Arc':
         """  Нормализованная дуга с теми же параметрами, что и исходная.
 

@@ -1,6 +1,6 @@
 from enum import StrEnum, auto
 
-from videoanalytics.interfaces.logical import Logical
+from videoanalytics.interfaces.evaluable import Evaluable
 from videoanalytics.models.operators import op_bitwise_or
 from videoanalytics.models.tracked_state import TrackedState
 
@@ -12,7 +12,7 @@ class SideValue(StrEnum):
     BOTTOM = auto()
 
 
-class Side(Logical):
+class Side(Evaluable):
     def __init__(self, value: SideValue) -> None:
         self.value = value
 

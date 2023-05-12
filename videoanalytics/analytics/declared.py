@@ -13,10 +13,10 @@ tools: dict[int, Tool | tuple[int, int]] = dict()
 
 tools[0] = Area(colour=(255, 0, 0),thickness=2,components=[
     Segment(colour=(0, 0, 0),thickness=1,start=Coords(323, 164),end=Coords(363, 164),),
-    Segment(colour=(0, 0, 0),thickness=1,start=Coords(0, 333),end=Coords(323, 164),),
+    Segment(colour=(0, 0, 0),thickness=1,start=Coords(142, 464),end=Coords(363, 164),),
+    Segment(colour=(0, 0, 0),thickness=1,start=Coords(0, 464),end=Coords(142, 464),),
     Segment(colour=(0, 0, 0),thickness=1,start=Coords(0, 333),end=Coords(0, 464),),
-    Segment(colour=(0, 0, 0),thickness=1,start=Coords(0, 464),end=Coords(162, 464),),
-    Segment(colour=(0, 0, 0),thickness=1,start=Coords(162, 464),end=Coords(363, 164),),
+    Segment(colour=(0, 0, 0),thickness=1,start=Coords(0, 333),end=Coords(323, 164),),
 ],)
 tools[1] = Area(colour=(255, 0, 0),thickness=2,components=[
     Segment(colour=(0, 0, 0),thickness=1,start=Coords(393, 164),end=Coords(423, 164),),
@@ -40,12 +40,12 @@ conditions: list[Condition] = []
 conditions.append(Condition(
     EvalTree(
         left=EvalTree(
-        left=Event(enters,object_kinds[0],{'area': tools[0],'tools': None,}),
+        left=Event(enters,object_kinds[0],{'area': tools[0]}),
         op_or_val="op_or",
-        right=Event(enters,object_kinds[0],{'area': tools[2],'tools': None,})
+        right=Event(enters,object_kinds[0],{'area': tools[2]})
     ),
         op_or_val="op_or",
-        right=Event(enters,object_kinds[0],{'area': tools[1],'tools': None,})
+        right=Event(enters,object_kinds[0],{'area': tools[1]})
     ),
     [Action(flash,{'drawable': object_kinds[0],'colour': (255, 255, 255),}),]
 ))

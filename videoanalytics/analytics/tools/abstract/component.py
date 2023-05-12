@@ -14,3 +14,7 @@ class Component(Markup, ABC):
     @property
     @abstractmethod
     def end(self): pass
+
+    @property
+    @abstractmethod
+    def bounding_box(self): pass
