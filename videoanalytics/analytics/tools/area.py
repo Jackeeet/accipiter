@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 
 from videoanalytics.analytics.tools.abstract import Component, Markup
@@ -49,20 +51,33 @@ class Area(Markup, Shape):
         return overlap_on_all_axes
 
     def contains(self, box: Box) -> bool:
-        all_points_inside = True
         for point in box.points:
-            left_segments = 0
-            # point = Coords.from_tuple(point)
+            ray_collision_count = 0
             for comp in self._components:
-                if comp.bounding_box.start.y <= point.y <= comp.bounding_box.end.y:
-                    if point.x <= comp.bounding_box.start.x:
-                        left_segments += 1
-                    elif comp.bounding_box.start.x < point.x < comp.bounding_box.end.x:
-                        dist_vec_x = Coords.from_array(comp.distance_vector(point)).x
-                        if dist_vec_x >= 0:
-                            left_segments += 1
-            all_points_inside = left_segments % 2 != 0
-        return all_points_inside
+                if self._ray_intersects_segment(point, comp):
+                    ray_collision_count += 1
+            if ray_collision_count % 2 == 0:
+                return False
+        return True
+
+    @staticmethod
+    def _ray_intersects_segment(point: Coords, line: Component) -> bool:
+        if not (line.bounding_box.start.y <= point.y <= line.bounding_box.end.y):
+            return False
+        if point.x > line.bounding_box.end.x:
+            return False
+        if point.x < line.bounding_box.start.x:
+            return True
+
+        lower = line.start if line.start.y > line.end.y else line.end
+        higher = line.end if line.start.y > line.end.y else line.start
+        line_slope = math.inf \
+            if lower.x == higher.x \
+            else -1 * (higher.y - lower.y) / (higher.x - lower.x)
+        point_slope = math.inf \
+            if lower.x == point.x \
+            else -1 * (point.y - lower.y) / (point.x - lower.x)
+        return point_slope >= line_slope
 
     def _find_projections_axis_overlap(self, box, axes):
         for axis in axes:

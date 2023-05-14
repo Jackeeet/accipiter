@@ -49,7 +49,7 @@ def test_convex(area, expected):
     assert area.convex == expected
 
 
-areas_containing_boxes = [
+areas_overlapping_boxes = [
     (Area(component_lists["triangle"]), Box(Coords(40, 35), 10, 5)),
     (Area(component_lists["triangle"]), Box(Coords(30, 45), 20, 15)),
     (Area(component_lists["triangle"]), Box(Coords(40, 10), 10, 20)),
@@ -57,16 +57,39 @@ areas_containing_boxes = [
 ]
 
 
+@pytest.mark.parametrize("area, box", areas_overlapping_boxes)
+def test_overlaps(area, box):
+    assert area.overlaps(box)
+
+
+areas_not_overlapping_boxes = [
+    (Area(component_lists["triangle"]), Box(Coords(0, 0), 10, 5)),
+]
+
+
+@pytest.mark.parametrize("area, box", areas_not_overlapping_boxes)
+def test_does_not_overlap(area, box):
+    assert not area.overlaps(box)
+
+
+areas_containing_boxes = [
+    (Area(component_lists["triangle"]), Box(Coords(40, 35), 10, 5)),
+]
+
+
 @pytest.mark.parametrize("area, box", areas_containing_boxes)
 def test_contains(area, box):
-    assert area.overlaps(box)
+    assert area.contains(box)
 
 
 areas_not_containing_boxes = [
     (Area(component_lists["triangle"]), Box(Coords(0, 0), 10, 5)),
+    (Area(component_lists["triangle"]), Box(Coords(30, 45), 20, 15)),
+    (Area(component_lists["triangle"]), Box(Coords(40, 10), 10, 20)),
+    (Area(component_lists["triangle"]), Box(Coords(60, 30), 10, 5)),
 ]
 
 
 @pytest.mark.parametrize("area, box", areas_not_containing_boxes)
 def test_does_not_contain(area, box):
-    assert not area.overlaps(box)
+    assert not area.contains(box)
