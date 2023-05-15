@@ -68,7 +68,7 @@ async def offer(params: Offer):
     await pc.setRemoteDescription(offer_data)
 
     options = {"framerate": "30", "video_size": "640x360"}
-    player = MediaPlayer(ROOT + source, options=options, loop=True)
+    player = MediaPlayer(ROOT + "/" + source, options=options, loop=True)
     track = VideoTransformTrack(relay.subscribe(player.video), analyzer) if analyze else relay.subscribe(player.video)
     pc.addTrack(track)
 
@@ -92,10 +92,8 @@ async def on_shutdown():
 
 
 if __name__ == "__main__":
-
     if len(sys.argv) < 2:
         import uvicorn
-
         uvicorn.run(app, host="0.0.0.0", port=8001, log_level="debug")
     else:
         videoHandler = VideoHandler(source)
