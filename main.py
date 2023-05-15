@@ -17,14 +17,13 @@ from videoanalytics.video.videoTransformTrack import VideoTransformTrack
 
 pcs = set()
 relay = MediaRelay()
-analyze = True
-# analyze = False
 analyzer = Analyzer()
 ROOT = os.path.dirname(__file__)
 # source = 'resources/videoplayback.mp4'
 # source = 'resources/birds.mp4'
+source = 'resources/birds-full.mp4'
 # source = 'resources/people.mp4'
-source = 'resources/people_short.mp4'
+# source = 'resources/people_short.mp4'
 # source = 'resources/tram.mp4'
 # source = 'resources/jumpers.mp4'
 
@@ -59,6 +58,11 @@ app.add_middleware(
 )
 
 
+@app.get("/analyzer")
+async def switch_analyzer(active: bool):
+    analyzer.active = active
+
+
 @app.post("/offer")
 async def offer(params: Offer):
     offer_data = RTCSessionDescription(sdp=params.sdp, type=params.type)
@@ -69,7 +73,7 @@ async def offer(params: Offer):
 
     options = {"framerate": "30", "video_size": "640x360"}
     player = MediaPlayer(ROOT + "/" + source, options=options, loop=True)
-    track = VideoTransformTrack(relay.subscribe(player.video), analyzer) if analyze else relay.subscribe(player.video)
+    track = VideoTransformTrack(relay.subscribe(player.video), analyzer)
     pc.addTrack(track)
 
     @pc.on("connectionstatechange")
@@ -94,6 +98,7 @@ async def on_shutdown():
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         import uvicorn
+
         uvicorn.run(app, host="0.0.0.0", port=8001, log_level="debug")
     else:
         videoHandler = VideoHandler(source)

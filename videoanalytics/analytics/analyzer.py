@@ -9,44 +9,40 @@ class Analyzer:
     def __init__(self):
         self.detector = ObjectDetector()
         self.object_pool = dict()
-        self.DEBUG_detected_count = 0
-        self.DEBUG_tracked_count = 0
+        self.active = False
         self._timers = []
 
     def process_frame(self, frame):
+        if not self.active:
+            return frame
 
-        # todo maybe return early if no objects are detected
         detected = [o for o in self.detector.return_objects(frame)
                     if o.name in declared.object_kinds]
-        # ]
+        if len(detected) == 0:
+            markup = [tool for tool in declared.tools.values() if isinstance(tool, Markup)]
+            self.object_pool = self.update_pool(self.object_pool, detected, markup)
 
-        self.DEBUG_detected_count += len(detected)
+            print('------------------------')
+            for item in self.object_pool.values():
+                print(item)
+                print(f"States: {item.states}")
+                print(f"Timers: {item.timers}")
 
-        markup = [tool for tool in declared.tools.values() if isinstance(tool, Markup)]
-        self.object_pool = self.update_pool(self.object_pool, detected, markup)
+            for tracked in self.object_pool.values():
+                # checking all declared conditions
+                for condition in declared.conditions:
+                    # executing declared actions if the condition holds
+                    if condition.condition.evaluate(tracked=tracked):
+                        for action in condition.actions:
+                            action.params['tracked'] = tracked
+                            action.execute()
 
-        print('------------------------')
-        for item in self.object_pool.values():
-            print(item)
-            print(f"States: {item.states}")
-            print(f"Timers: {item.timers}")
+                # drawing the box
+                tracked.obj.draw(frame)
 
-        for tracked in self.object_pool.values():
-            # checking all declared conditions
-            for condition in declared.conditions:
-                # executing declared actions if the condition holds
-                if condition.condition.evaluate(tracked=tracked):
-                    for action in condition.actions:
-                        action.params['tracked'] = tracked
-                        action.execute()
-
-            # drawing the box
-            # if tracked.FTL == tracked.max_FTL:
-            tracked.obj.draw(frame)
-
-        # drawing all declared tools
-        for name, tool in declared.tools.items():
-            tool.draw_on(frame)
+            # drawing all declared tools
+            for name, tool in declared.tools.items():
+                tool.draw_on(frame)
 
         return frame
 
@@ -60,8 +56,9 @@ class Analyzer:
 
         return None
 
+    @staticmethod
     def update_pool(
-            self, pool: dict[Coords, Tracked], objects: list[Detected], markup: list[Markup]
+            pool: dict[Coords, Tracked], objects: list[Detected], markup: list[Markup]
     ) -> dict[Coords, Tracked]:
         margin = 50
 
@@ -82,11 +79,8 @@ class Analyzer:
                     tracked = pool.pop(prev_corner)
                     tracked.FTL = Tracked.max_FTL
                     tracked.obj = detected_object
-                    # pool[corner] = tracked
                 else:
                     # the object is not tracked yet
-                    self.DEBUG_tracked_count += 1
-                    # pool[corner] = Tracked(detected_object, markup)
                     tracked = Tracked(detected_object, markup)
             else:
                 # the object is tracked, and it hadn't moved
@@ -96,7 +90,3 @@ class Analyzer:
             pool[corner] = tracked
 
         return {pt: obj for pt, obj in pool.items() if obj.FTL >= 0}
-
-    def __del__(self):
-        print(f"DETECTED: {self.DEBUG_detected_count}")
-        print(f"TRACKED: {self.DEBUG_tracked_count}")
