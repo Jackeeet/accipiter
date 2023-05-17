@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from routers import detectors, rules
+from routers import detectors, rules, editor
 from videoanalytics import VideoHandler
 from videoanalytics.analytics import Analyzer
 from videoanalytics.video.models.offer import Offer
@@ -30,6 +30,7 @@ source = 'resources/birds-full.mp4'
 app = FastAPI()
 app.include_router(rules.router)
 app.include_router(detectors.router)
+app.include_router(editor.router)
 
 
 async def catch_exceptions_middleware(request: Request, call_next):

@@ -1,4 +1,4 @@
-__all__ = ['rdl_config', 'update_block', 'detectors_config']
+__all__ = ['rdl_config', 'update_block', 'detectors_config', 'editor_config']
 
 import json
 import sys
@@ -20,6 +20,10 @@ async def update_block():
 
 async def detectors_config():
     return cfg["detectors"]
+
+
+async def editor_config():
+    return cfg["editor"]
 
 
 def _update_block(name: str, contents: dict):
