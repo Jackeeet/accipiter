@@ -1,16 +1,1 @@
-{
-  "rules": {
-    "db_file": "/files/data/rules.json",
-    "files_dir": "/files/rules/",
-    "active_file": "people_entering.rdl",
-    "translated_rules_path": "/videoanalytics/analytics/declared.py"
-  },
-  "detectors": {
-    "db_file": "/files/data/detectors.json",
-    "files_dir": "/videoanalytics/analytics/events/",
-    "backup_dir": "/files/detectors/"
-  },
-  "editor": {
-    "object_list_path": "/videoanalytics/detection/darknet/coco.names"
-  }
-}
+{"video_source": "resources/people_short.mp4", "rules": {"db_file": "/files/data/rules.json", "files_dir": "/files/rules/", "active_file": "line.rdl", "translated_rules_path": "/videoanalytics/analytics/declared.py"}, "detectors": {"db_file": "/files/data/detectors.json", "files_dir": "/videoanalytics/analytics/events/", "backup_dir": "/files/detectors/"}, "editor": {"object_list_path": "/videoanalytics/detection/darknet/coco.names", "event_list_path": "/videoanalytics/analytics/resources/events.txt", "reaction_list_path": "/videoanalytics/analytics/resources/reactions.txt"}, "debug": ["resources/videoplayback.mp4", "resources/birds.mp4", "resources/birds-full.mp4", "resources/people.mp4", "resources/people_short.mp4", "resources/tram.mp4", "resources/jumpers.mp4"]}

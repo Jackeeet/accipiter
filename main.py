@@ -4,12 +4,13 @@ import sys
 
 from aiortc import RTCPeerConnection, RTCSessionDescription
 from aiortc.contrib.media import MediaPlayer, MediaRelay
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from routers import detectors, rules, editor
+from dependencies import video_source
+from routers import detectors, rules, editor, video
 from videoanalytics import VideoHandler
 from videoanalytics.analytics import Analyzer
 from videoanalytics.video.models.offer import Offer
@@ -19,18 +20,12 @@ pcs = set()
 relay = MediaRelay()
 analyzer = Analyzer()
 ROOT = os.path.dirname(__file__)
-# source = 'resources/videoplayback.mp4'
-# source = 'resources/birds.mp4'
-source = 'resources/birds-full.mp4'
-# source = 'resources/people.mp4'
-# source = 'resources/people_short.mp4'
-# source = 'resources/tram.mp4'
-# source = 'resources/jumpers.mp4'
 
 app = FastAPI()
-app.include_router(rules.router)
 app.include_router(detectors.router)
 app.include_router(editor.router)
+app.include_router(rules.router)
+app.include_router(video.router)
 
 
 async def catch_exceptions_middleware(request: Request, call_next):
@@ -65,7 +60,7 @@ async def switch_analyzer(active: bool):
 
 
 @app.post("/offer")
-async def offer(params: Offer):
+async def offer(params: Offer, source: str = Depends(video_source)):
     offer_data = RTCSessionDescription(sdp=params.sdp, type=params.type)
 
     pc = RTCPeerConnection()
@@ -101,6 +96,6 @@ if __name__ == "__main__":
         import uvicorn
 
         uvicorn.run(app, host="0.0.0.0", port=8001, log_level="debug")
-    else:
-        videoHandler = VideoHandler(source)
-        videoHandler.run()
+    # else:
+    #     videoHandler = VideoHandler(source)
+    #     videoHandler.run()
