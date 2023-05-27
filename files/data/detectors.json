@@ -1,14 +1,24 @@
 {
   "filenames": {
-    "пересекает (линию/отрезок)": "crosses.py",
-    "превышает (значение счетчика)": "counter-above.py",
-    "ниже (значения счетчика)": "counter-below.py",
-    "равен (значению счетчика)": "counter-equals.py"
+    "появляется": "appears.py",
+    "входит в зону": "area-enters.py",
+    "находится в зоне": "area-is_inside.py",
+    "покидает зону": "area-leaves.py",
+    "пересекает линию/отрезок": "crosses.py",
+    "превышает значение счетчика": "counter-above.py",
+    "ниже значения счетчика": "counter-below.py",
+    "равен значению счетчика": "counter-equals.py",
+    "исчезает": "disappears.py"
   },
   "names": {
-    "crosses.py": "пересекает (линию/отрезок)",
-    "counter-above.py": "превышает (значение счетчика)",
-    "counter-below.py": "ниже (значения счетчика)",
-    "counter-equals.py": "равен (значению счетчика)"
+    "appears.py": "появляется",
+    "area-enters.py": "входит в зону",
+    "area-is_inside.py": "находится в зоне",
+    "area-leaves.py": "покидает зону",
+    "crosses.py": "пересекает линию/отрезок",
+    "counter-above.py": "превышает значение счетчика",
+    "counter-below.py": "ниже значения счетчика",
+    "counter-equals.py": "равен значению счетчика",
+    "disappears.py": "исчезает"
   }
 }

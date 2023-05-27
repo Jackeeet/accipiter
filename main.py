@@ -72,6 +72,19 @@ async def offer(params: Offer, source: str = Depends(video_source)):
     track = VideoTransformTrack(relay.subscribe(player.video), analyzer)
     pc.addTrack(track)
 
+    @pc.on("datachannel")
+    def on_datachannel(channel):
+        def received_alerts_request(message):
+            return isinstance(message, str) and message == "alerts"
+
+        def alert_available():
+            return analyzer.active and not analyzer.alerts_queue.empty()
+
+        @channel.on("message")
+        def on_message(message):
+            if received_alerts_request(message) and alert_available():
+                channel.send(analyzer.alerts_queue.get())
+
     @pc.on("connectionstatechange")
     async def on_connectionstatechange():
         print("Connection state is %s" % pc.connectionState)
@@ -96,6 +109,7 @@ if __name__ == "__main__":
         import uvicorn
 
         uvicorn.run(app, host="0.0.0.0", port=8001, log_level="debug")
-    # else:
-    #     videoHandler = VideoHandler(source)
-    #     videoHandler.run()
+    else:
+        videoHandler = VideoHandler("resources/people.mp4")
+        videoHandler._analyzer.active = True
+        videoHandler.run()

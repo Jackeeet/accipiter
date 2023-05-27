@@ -1,3 +1,5 @@
+import queue
+
 from . import declared
 from videoanalytics.detection import ObjectDetector
 from videoanalytics.models import Tracked, Detected, Coords, TrackedState
@@ -10,6 +12,7 @@ class Analyzer:
         self.detector = ObjectDetector()
         self.object_pool = dict()
         self.active = False
+        self.alerts_queue = queue.Queue()
         self._timers = []
 
     def process_frame(self, frame):
@@ -18,15 +21,16 @@ class Analyzer:
 
         detected = [o for o in self.detector.return_objects(frame)
                     if o.name in declared.object_kinds]
-        if len(detected) == 0:
+
+        if len(detected) > 0:
             markup = [tool for tool in declared.tools.values() if isinstance(tool, Markup)]
             self.object_pool = self.update_pool(self.object_pool, detected, markup)
 
-            print('------------------------')
-            for item in self.object_pool.values():
-                print(item)
-                print(f"States: {item.states}")
-                print(f"Timers: {item.timers}")
+            # print('------------------------')
+            # for item in self.object_pool.values():
+            #     print(item)
+            #     print(f"States: {item.states}")
+            #     print(f"Timers: {item.timers}")
 
             for tracked in self.object_pool.values():
                 # checking all declared conditions
@@ -35,7 +39,8 @@ class Analyzer:
                     if condition.condition.evaluate(tracked=tracked):
                         for action in condition.actions:
                             action.params['tracked'] = tracked
-                            action.execute()
+                            # action.execute()
+                            action.execute(self.alerts_queue)
 
                 # drawing the box
                 tracked.obj.draw(frame)

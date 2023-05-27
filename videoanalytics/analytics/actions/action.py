@@ -1,3 +1,4 @@
+import queue
 from typing import Callable, Any
 
 
@@ -6,5 +7,7 @@ class Action:
         self.func = func
         self.params = params
 
-    def execute(self) -> None:
+    def execute(self, output_queue: queue.Queue = None) -> None:
+        if output_queue:
+            self.params["output_queue"] = output_queue
         self.func(**self.params)

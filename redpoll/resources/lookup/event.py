@@ -7,6 +7,8 @@ names = {
     kw.IS_IN: "is_inside",
     kw.LEAVING: "leaves",
     kw.EQUALS: "equals",
+    kw.APPEARS: "appears",
+    kw.DISAPPEARS: "disappears",
     kw.ABOVE: "above",
     kw.BELOW: "below"
 }
@@ -23,11 +25,6 @@ required_params = {
     kw.ENTERING: [pn.AREA],
     kw.IS_IN: [pn.AREA],
     kw.LEAVING: [pn.AREA],
-
-    # kw.DIVERTS_FROM: [pn.LINE],
-    # kw.SPEEDING_UP: [],
-    # kw.SLOWING_DOWN: [],
-    # kw.STILL: [],
 
     kw.APPEARS: [],
     kw.DISAPPEARS: [],

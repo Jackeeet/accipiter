@@ -1,5 +1,16 @@
+import json
+import queue
+from datetime import datetime
+
 from videoanalytics.models import Tracked
 
 
-def alert(message: str, tracked: Tracked = None) -> None:
-    print(f"alert: {message}")
+def alert(message: str, output_queue: queue.Queue, tracked: Tracked = None) -> None:
+    output_queue.put(json.dumps(
+        {
+            "timestamp": datetime.now(),
+            "object": tracked.obj.name,
+            "message": message
+        },
+        default=str
+    ))

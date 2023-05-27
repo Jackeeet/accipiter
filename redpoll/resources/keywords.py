@@ -32,11 +32,6 @@ ENTERING = "входитВ"
 IS_IN = "находитсяВ"
 LEAVING = "покидает"
 
-# DIVERTS_FROM = "отклоняетсяОт"
-# SPEEDING_UP = "ускоряется"
-# SLOWING_DOWN = "замедляется"
-# STILL = "неподвижен"
-
 APPEARS = "появляется"
 DISAPPEARS = "исчезает"
 
