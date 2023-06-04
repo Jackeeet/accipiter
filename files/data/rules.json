@@ -5,6 +5,7 @@
   "cars_line.rdl",
   "input.rdl",
   "line.rdl",
+  "loitering.rdl",
   "people_entering.rdl",
   "segment.rdl",
   "visitor_count.rdl"

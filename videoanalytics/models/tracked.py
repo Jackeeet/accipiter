@@ -22,6 +22,8 @@ class Tracked:
         self.states = {m: TrackedState.NONE for m in markup}
         self.states[markup[0]] |= TrackedState.NEW
         self.timers = dict()
+        self.event_colour = None
+        self.event_colour_FTL = 0
 
     def __repr__(self) -> str:
         return f"id: {self._act_id} FTL: {self.FTL}"

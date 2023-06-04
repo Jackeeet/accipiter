@@ -19,8 +19,8 @@ class ObjectDetector:
 
         self._base_path = os.path.dirname(os.path.abspath(__file__))
 
-        self._config_path = config or self._base_path + '/darknet/yolov3.cfg'
-        self._weights_path = weights or self._base_path + '/darknet/yolov3.weights'
+        self._config_path = config or self._base_path + '/darknet/yolov7-tiny.cfg'
+        self._weights_path = weights or self._base_path + '/darknet/yolov7-tiny.weights'
         self._labels_path = labels or self._base_path + '/darknet/coco.names'
 
         with open(self._labels_path, "rt", encoding="utf-8") as labels_file:
@@ -36,7 +36,7 @@ class ObjectDetector:
 
     def _setup_model(self):
         model_config = configparser.ConfigParser(strict=False)
-        model_config.read(self._base_path + '/darknet/yolov3.cfg')
+        model_config.read(self._base_path + '/darknet/yolov7-tiny.cfg')
         self._model_width = int(model_config.get("net", "width"))
         self._model_height = int(model_config.get("net", "height"))
 

@@ -10,9 +10,10 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from dependencies import video_source
-from routers import detectors, rules, editor, video
+from routers import detectors, rules, editor, logs, video
 from videoanalytics import VideoHandler
 from videoanalytics.analytics import Analyzer
+from videoanalytics.detection.predetector import ObjectPredetector
 from videoanalytics.video.models.offer import Offer
 from videoanalytics.video.videoTransformTrack import VideoTransformTrack
 
@@ -26,6 +27,7 @@ app.include_router(detectors.router)
 app.include_router(editor.router)
 app.include_router(rules.router)
 app.include_router(video.router)
+app.include_router(logs.router)
 
 
 async def catch_exceptions_middleware(request: Request, call_next):
@@ -112,4 +114,16 @@ if __name__ == "__main__":
     else:
         videoHandler = VideoHandler("resources/people.mp4")
         videoHandler._analyzer.active = True
+        videoHandler._analyzer.detector = ObjectPredetector("people")
         videoHandler.run()
+
+        # import cv2
+        # analyzer = Analyzer()
+        # analyzer.detector = ObjectPredetector("people")
+        # analyzer.active = True
+        # for frame in range(analyzer.detector.frame_count):
+        #     analyzer.process_frame(frame)
+        #     cv2.imshow('output', frame)
+        #     if cv2.waitKey(25) & 0xFF == ord('q'):
+        #         print('interrupted')
+        #         break

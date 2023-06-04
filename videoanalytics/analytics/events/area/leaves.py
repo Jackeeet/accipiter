@@ -4,7 +4,7 @@ from videoanalytics.models.tracked_state_helpers import disappeared
 
 
 def leaves(tracked: Tracked, area: Area) -> bool:
-    inside = area.overlaps(tracked.obj.box)
+    inside = area.contains(tracked.obj.box)
     if inside:
         return disappeared(tracked)
 

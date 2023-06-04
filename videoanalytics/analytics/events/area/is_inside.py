@@ -9,7 +9,7 @@ def is_inside(tracked: Tracked, area: Area, period: int) -> bool:
     if disappeared(tracked):
         return False
 
-    in_area = area.overlaps(tracked.obj.box)
+    in_area = area.contains(tracked.obj.box)
 
     if period is None:
         inside = in_area

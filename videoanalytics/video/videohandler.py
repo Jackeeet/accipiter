@@ -17,11 +17,13 @@ class VideoHandler:
             print('error opening video')
             return
 
+        frame_idx = 0
         while self._capture.isOpened():
             success, frame = self._capture.read()
             if success:
-                self._analyzer.process_frame(frame)
+                self._analyzer.process_frame(frame, frame_idx)
                 cv2.imshow('output', frame)
+                frame_idx += 1
                 if cv2.waitKey(25) & 0xFF == ord('q'):
                     print('interrupted')
                     break
