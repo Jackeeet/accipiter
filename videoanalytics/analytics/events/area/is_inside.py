@@ -14,14 +14,17 @@ def is_inside(tracked: Tracked, area: Area, period: int) -> bool:
     if period is None:
         inside = in_area
     elif in_area:
-        assert area in tracked.timers
-        in_area_time = datetime.now() - tracked.timers[area]
-        period_passed = in_area_time.total_seconds() >= period
-        inside = period_passed
+        if area in tracked.timers:
+            in_area_time = datetime.now() - tracked.timers[area]
+            period_passed = in_area_time.total_seconds() >= period
+            inside = period_passed
+        else:
+            tracked.timers[area] = datetime.now()
+            inside = False    
     else:
         inside = False
 
     if inside:
         tracked.states[area] |= TrackedState.IN_AREA
-        # tracked.timers.pop(area, None)
+        tracked.timers.pop(area, None)
     return inside
