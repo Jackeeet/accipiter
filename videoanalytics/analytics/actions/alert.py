@@ -14,3 +14,11 @@ def alert(message: str, output_queue: queue.Queue, tracked: Tracked = None) -> N
         },
         default=str
     ))
+    print(json.dumps(
+        {
+            "timestamp": datetime.now(),
+            "object": tracked.obj.name,
+            "message": message
+        },
+        default=str
+    ))

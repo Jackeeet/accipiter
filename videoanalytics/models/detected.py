@@ -1,3 +1,5 @@
+import random
+
 from cv2 import rectangle, putText, FONT_HERSHEY_COMPLEX
 
 from videoanalytics.analytics.tools import Segment
@@ -47,9 +49,10 @@ class Detected:
         return f'DetectedObject("{self.name}", {round(self.confidence, 2)}, ' \
                f'{self.box.start.x}, {self.box.start.y}, {self.box.width}, {self.box.height})'
 
-    def draw(self, frame) -> None:
+    def draw(self, frame, colour=None) -> None:
         top_left = (self.top_left.x, self.top_left.y)
         bottom_right = (self.bottom_right.x, self.bottom_right.y)
-        rectangle(frame, top_left, bottom_right, self.colour, 2)
+        actual_colour = self.colour if colour is None else colour
+        rectangle(frame, top_left, bottom_right, actual_colour, 2)
         putText(frame, f"{self.name}", (self.box.start.x, self.box.start.y - 10),
-                FONT_HERSHEY_COMPLEX, 0.5, self.colour, 2)
+                FONT_HERSHEY_COMPLEX, 0.5, actual_colour, 2)

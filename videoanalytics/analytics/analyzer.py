@@ -1,4 +1,5 @@
 import queue
+import random
 
 from . import declared
 from videoanalytics.detection import ObjectDetector
@@ -14,13 +15,16 @@ class Analyzer:
         self.active = False
         self.alerts_queue = queue.Queue()
         self._timers = []
+        self.count = 0
 
-    def process_frame(self, frame):
+    def process_frame(self, frame, frame_index = None):
         if not self.active:
             return frame
 
-        detected = [o for o in self.detector.return_objects(frame)
-                    if o.name in declared.object_kinds]
+        fr = frame if frame_index is None else frame_index
+        detected = [
+            o for o in self.detector.return_objects(fr) if o.name in declared.object_kinds
+        ]
 
         if len(detected) > 0:
             markup = [tool for tool in declared.tools.values() if isinstance(tool, Markup)]
@@ -39,15 +43,16 @@ class Analyzer:
                     if condition.condition.evaluate(tracked=tracked):
                         for action in condition.actions:
                             action.params['tracked'] = tracked
-                            # action.execute()
+                            # self.count += 1
+                            # print(self.count)
                             action.execute(self.alerts_queue)
 
                 # drawing the box
-                tracked.obj.draw(frame)
+                tracked.obj.draw(frame, tracked.event_colour)
 
-            # drawing all declared tools
-            for name, tool in declared.tools.items():
-                tool.draw_on(frame)
+        # drawing all declared tools
+        for name, tool in declared.tools.items():
+            tool.draw_on(frame)
 
         return frame
 
@@ -65,11 +70,18 @@ class Analyzer:
     def update_pool(
             pool: dict[Coords, Tracked], objects: list[Detected], markup: list[Markup]
     ) -> dict[Coords, Tracked]:
-        margin = 50
+        margin = 20
 
         pool = {coords: tracked for coords, tracked in pool.items() if not disappeared(tracked)}
         for tracked_object in pool.values():
             tracked_object.FTL -= 1
+            if tracked_object.event_colour is not None and tracked_object.event_colour_FTL > 0:
+                tracked_object.event_colour_FTL -= 1
+            else:
+                tracked_object.event_colour_FTL = 0
+                tracked_object.event_colour = None
+                # tracked_object.event_colour = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+
             if tracked_object.FTL > 0:
                 tracked_object.states[markup[0]] &= ~TrackedState.NEW
             else:

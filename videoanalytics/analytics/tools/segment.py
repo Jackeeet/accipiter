@@ -47,6 +47,35 @@ class Segment(Component, Intersectable):
         max_y = max(self._start.y, self._end.y)
         return Segment(Coords(min_x, min_y), Coords(max_x, max_y))
 
+    def translated(self, translation, vertical):
+        if vertical:
+            return Segment(
+                Coords(self.start.x, self.start.y + translation),
+                Coords(self.end.x, self.end.y + translation)
+            )
+        return Segment(
+            Coords(self.start.x + translation, self.start.y),
+            Coords(self.end.x + translation, self.end.y)
+        )
+
+    def start_to_point(self, point):
+        return Segment(self.start, point)
+
+    def end_to_point(self, point):
+        return Segment(self.end, point)
+
+    def extend_x(self, value):
+        return Segment(
+            Coords(self.start.x - value, self.start.y),
+            Coords(self.end.x + value, self.end.y)
+        )
+
+    def extend_y(self, value):
+        return Segment(
+            Coords(self.start.x, self.start.y - value),
+            Coords(self.end.x, self.end.y + value)
+        )
+
     def __eq__(self, o: object) -> bool:
         if isinstance(o, Segment):
             return self.start == o.start and self.end == o.end

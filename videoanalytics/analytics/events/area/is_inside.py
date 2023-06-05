@@ -20,7 +20,7 @@ def is_inside(tracked: Tracked, area: Area, period: int) -> bool:
             inside = period_passed
         else:
             tracked.timers[area] = datetime.now()
-            inside = False    
+            inside = False
     else:
         inside = False
 
