@@ -112,9 +112,9 @@ if __name__ == "__main__":
 
         uvicorn.run(app, host="0.0.0.0", port=8001, log_level="debug")
     else:
-        videoHandler = VideoHandler("resources/people.mp4")
+        videoHandler = VideoHandler("resources/tram.mp4")
         videoHandler._analyzer.active = True
-        videoHandler._analyzer.detector = ObjectPredetector("people")
+        videoHandler._analyzer.detector = ObjectPredetector("tram")
         videoHandler.run()
 
         # import cv2

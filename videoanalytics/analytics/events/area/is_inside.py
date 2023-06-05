@@ -9,15 +9,18 @@ def is_inside(tracked: Tracked, area: Area, period: int) -> bool:
     if disappeared(tracked):
         return False
 
-    in_area = area.contains(tracked.obj.box)
+    in_area = area.overlaps(tracked.obj.box)
 
     if period is None:
         inside = in_area
     elif in_area:
-        assert area in tracked.timers
-        in_area_time = datetime.now() - tracked.timers[area]
-        period_passed = in_area_time.total_seconds() >= period
-        inside = period_passed
+        if area in tracked.timers:
+            in_area_time = datetime.now() - tracked.timers[area]
+            period_passed = in_area_time.total_seconds() >= period
+            inside = period_passed
+        else:
+            tracked.timers[area] = datetime.now()
+            inside = False
     else:
         inside = False
 

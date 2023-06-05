@@ -18,6 +18,13 @@ def crosses(
     if disappeared(tracked):
         return False
 
+    if tool.start.x == tool.end.x and (tool.start.y == 0 and tool.end.y == 464):
+        actual_tool = tool.extend_y(1000)
+    elif tool.start.y == tool.end.y and (tool.start.y == 0 and tool.start.y == 848):
+        actual_tool = tool.extend_x(1000)
+    else:
+        actual_tool = tool
+
     if sides is None:
         sides = EvalTree(
             Side(SideValue.LEFT), 'op_or', EvalTree(
@@ -28,10 +35,10 @@ def crosses(
         )
 
     sides_crossing = {
-        SideValue.LEFT: Boolean(tool.intersects(tracked.obj.right)),
-        SideValue.RIGHT: Boolean(tool.intersects(tracked.obj.left)),
-        SideValue.TOP: Boolean(tool.intersects(tracked.obj.bottom)),
-        SideValue.BOTTOM: Boolean(tool.intersects(tracked.obj.top))
+        SideValue.LEFT: Boolean(actual_tool.intersects(tracked.obj.right)),
+        SideValue.RIGHT: Boolean(actual_tool.intersects(tracked.obj.left)),
+        SideValue.TOP: Boolean(actual_tool.intersects(tracked.obj.bottom)),
+        SideValue.BOTTOM: Boolean(actual_tool.intersects(tracked.obj.top))
     }
     new_crossing_state = object_crossing_state(sides_crossing)
 
@@ -40,19 +47,23 @@ def crosses(
             return sides_crossing[side.value]
         return side.fmap(lambda s: to_tracked_state_tree(s))
 
-    crossed: bool = sides.fmap(lambda side: to_tracked_state_tree(side)).evaluate()
+    crossed: Boolean
+    if isinstance(sides, Side):
+        crossed = sides_crossing[sides.value]
+    else:
+        crossed = sides.fmap(lambda side: to_tracked_state_tree(side)).evaluate()
     first_crossing = False
 
-    if crossed:
+    if crossed.value:
         # ни один бит в текущем состоянии не соответствует одному из битов,
         # соответствующих заданным сторонам => первое пересечение линии объектом
         if (tracked.states[tool] & sides.evaluate()) == TrackedState.NONE:
             first_crossing = True
 
         tracked.states[tool] |= new_crossing_state
-    else:  # reset all crossing flags for this tool
+    # else:  # reset all crossing flags for this tool
         # todo make sure this doesn't erase unnecessary states
-        tracked.states[tool] = tracked.states[tool] & ~all_crossing_states
+        # tracked.states[tool] = tracked.states[tool] & ~all_crossing_states
 
     # если объект пересекал эту же линию на предыдущих фреймах, действия выполнять не нужно
-    return crossed and first_crossing
+    return crossed.value and first_crossing

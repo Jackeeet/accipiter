@@ -1,4 +1,5 @@
 import queue
+import random
 
 from . import declared
 from videoanalytics.detection import ObjectDetector
@@ -42,16 +43,16 @@ class Analyzer:
                     if condition.condition.evaluate(tracked=tracked):
                         for action in condition.actions:
                             action.params['tracked'] = tracked
-                            self.count += 1
-                            print(self.count)
+                            # self.count += 1
+                            # print(self.count)
                             action.execute(self.alerts_queue)
 
                 # drawing the box
                 tracked.obj.draw(frame, tracked.event_colour)
 
-            # drawing all declared tools
-            for name, tool in declared.tools.items():
-                tool.draw_on(frame)
+        # drawing all declared tools
+        for name, tool in declared.tools.items():
+            tool.draw_on(frame)
 
         return frame
 
@@ -69,7 +70,7 @@ class Analyzer:
     def update_pool(
             pool: dict[Coords, Tracked], objects: list[Detected], markup: list[Markup]
     ) -> dict[Coords, Tracked]:
-        margin = 40
+        margin = 20
 
         pool = {coords: tracked for coords, tracked in pool.items() if not disappeared(tracked)}
         for tracked_object in pool.values():
@@ -79,6 +80,7 @@ class Analyzer:
             else:
                 tracked_object.event_colour_FTL = 0
                 tracked_object.event_colour = None
+                # tracked_object.event_colour = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 
             if tracked_object.FTL > 0:
                 tracked_object.states[markup[0]] &= ~TrackedState.NEW

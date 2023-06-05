@@ -64,6 +64,18 @@ class Segment(Component, Intersectable):
     def end_to_point(self, point):
         return Segment(self.end, point)
 
+    def extend_x(self, value):
+        return Segment(
+            Coords(self.start.x - value, self.start.y),
+            Coords(self.end.x + value, self.end.y)
+        )
+
+    def extend_y(self, value):
+        return Segment(
+            Coords(self.start.x, self.start.y - value),
+            Coords(self.end.x, self.end.y + value)
+        )
+
     def __eq__(self, o: object) -> bool:
         if isinstance(o, Segment):
             return self.start == o.start and self.end == o.end

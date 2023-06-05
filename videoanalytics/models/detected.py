@@ -1,3 +1,5 @@
+import random
+
 from cv2 import rectangle, putText, FONT_HERSHEY_COMPLEX
 
 from videoanalytics.analytics.tools import Segment

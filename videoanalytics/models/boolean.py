@@ -15,3 +15,6 @@ class Boolean(Evaluable):
     @staticmethod
     def op_or(left: bool, right: bool) -> bool:
         return left or right
+
+    def __repr__(self):
+        return f"{self.value}"
