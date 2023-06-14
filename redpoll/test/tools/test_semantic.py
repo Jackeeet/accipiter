@@ -62,7 +62,6 @@ def test_raise_on_undefined_id_as_arg():
     assert err.undeclared_tool_variable("т1") in str(error.value)
 
 
-# todo test all tool types
 def test_raise_on_unexpected_args():
     source = """объекты:; инструменты:
         *л1: прямая, радиус=2, от=.(20, 30), до=.(12, 12);
@@ -74,7 +73,6 @@ def test_raise_on_unexpected_args():
     assert err.unexpected_parameter_name("радиус") in str(error.value)
 
 
-# todo test all tool types
 def test_only_required_args():
     source = """объекты:; инструменты:
         *л1: прямая, от=.(20, 30), до=.(40, 50);
@@ -96,7 +94,6 @@ def test_raise_on_missing_required_arg():
     assert err.missing_required_tool_arg() in str(error.value)
 
 
-# todo test all arg kinds
 def test_arg_value_matching_arg_type():
     source = """объекты:; инструменты:
         *л2: прямая, до=.(50, 60), от=.(50, 50), цвет=rgb(255, 0, 0), толщина=1;
@@ -177,8 +174,6 @@ def test_raise_on_area_as_part():
     assert err.unsupported_tool_part_type() in str(error.value)
 
 
-# it could be useful to allow composite lines to be tool parts,
-# but then I'll need to track the start and the end of the line
 def test_raise_on_line_as_part():
     source = """объекты:; инструменты:
         *л1: линия, состав=...(

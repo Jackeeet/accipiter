@@ -52,7 +52,7 @@ async def set_active_file(filename: str,
 
     cfg["active_file"] = filename
     update_config("rules", cfg)
-    return {'message': 'Successfully set active file'}
+    return {'message': f"Файл {filename} успешно назначен видеопотоку"}
 
 
 @router.get("/check/{filename}")
@@ -69,9 +69,10 @@ async def get_file_names(cfg: dict = Depends(rdl_config)):
 
 @router.get("/{filename}")
 async def get_file(filename: str, cfg: dict = Depends(rdl_config)):
-    await _access_db(cfg, action=None, check=_filename_exists, filename=filename)
-    stored_file = sys.path[0] + cfg["files_dir"] + filename
-    return FileResponse(stored_file)
+    if filename != 'набор.rdl':
+        await _access_db(cfg, action=None, check=_filename_exists, filename=filename)
+        stored_file = sys.path[0] + cfg["files_dir"] + filename
+        return FileResponse(stored_file)
 
 
 @router.post("")
@@ -120,6 +121,8 @@ async def _file_in_db(cfg: dict, filename: str) -> bool:
 # ---- Checks ----
 def _filename_exists(filename: str, db: list[str]):
     """ Checks if the filename exists in a db file that's already open. """
+    if filename.endswith('набор.rdl'):
+        return True
     if filename not in db:
         raise HTTPException(status_code=409, detail=f"A file with the name {filename} does not exist.")
 
@@ -129,7 +132,6 @@ async def _delete_filename(db_file: TextIOWrapper, filename: str, db: list[str])
     if filename in db:
         db.remove(filename)
         _rewrite_db(db_file, db)
-    # perhaps filename not being in db should be an error
 
 
 async def _add_filename(db_file: TextIOWrapper, filename: str, db: list[str]):
@@ -141,7 +143,6 @@ async def _add_filename(db_file: TextIOWrapper, filename: str, db: list[str]):
 
 # ---- Helpers ----
 async def _upload_file(file: UploadFile, filename: str, cfg: dict):
-    # todo check file extension
     try:
         contents = file.file.read()
         storage_path = sys.path[0] + cfg["files_dir"] + filename

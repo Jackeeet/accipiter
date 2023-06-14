@@ -13,7 +13,7 @@ class Event(Evaluable):
 
     def evaluate(self, **values) -> bool:
         if 'tracked' not in values:
-            raise ValueError()  # todo add message
+            raise ValueError()
         tracked: Tracked = values['tracked']
         if tracked.obj.name != self._object_kind:
             return False

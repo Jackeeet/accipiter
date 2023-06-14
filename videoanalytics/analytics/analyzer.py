@@ -1,5 +1,4 @@
 import queue
-import random
 
 from . import declared
 from videoanalytics.detection import ObjectDetector
@@ -15,9 +14,8 @@ class Analyzer:
         self.active = False
         self.alerts_queue = queue.Queue()
         self._timers = []
-        self.count = 0
 
-    def process_frame(self, frame, frame_index = None):
+    def process_frame(self, frame, frame_index=None):
         if not self.active:
             return frame
 
@@ -30,12 +28,6 @@ class Analyzer:
             markup = [tool for tool in declared.tools.values() if isinstance(tool, Markup)]
             self.object_pool = self.update_pool(self.object_pool, detected, markup)
 
-            # print('------------------------')
-            # for item in self.object_pool.values():
-            #     print(item)
-            #     print(f"States: {item.states}")
-            #     print(f"Timers: {item.timers}")
-
             for tracked in self.object_pool.values():
                 # checking all declared conditions
                 for condition in declared.conditions:
@@ -43,9 +35,7 @@ class Analyzer:
                     if condition.condition.evaluate(tracked=tracked):
                         for action in condition.actions:
                             action.params['tracked'] = tracked
-                            # self.count += 1
-                            # print(self.count)
-                            action.execute(self.alerts_queue)
+                            action.execute(self.alerts_queue, self.logger)
 
                 # drawing the box
                 tracked.obj.draw(frame, tracked.event_colour)
@@ -80,7 +70,6 @@ class Analyzer:
             else:
                 tracked_object.event_colour_FTL = 0
                 tracked_object.event_colour = None
-                # tracked_object.event_colour = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 
             if tracked_object.FTL > 0:
                 tracked_object.states[markup[0]] &= ~TrackedState.NEW

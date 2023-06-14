@@ -1,29 +1,29 @@
 from videoanalytics.analytics.tools.interfaces import Intersectable
-from videoanalytics.models import SideValue, Tracked, TrackedState, all_crossing_states, Side
+from videoanalytics.models import SideValue, Tracked, TrackedState, Side
 from videoanalytics.models.boolean import Boolean
 from videoanalytics.models.evaltree import EvalTree
 from videoanalytics.models.tracked_state_helpers import object_crossing_state, disappeared
 
 
 def crosses(
-        tracked: Tracked, tool: Intersectable, sides: EvalTree
+        tracked: Tracked, tools: Intersectable, sides: EvalTree
 ) -> bool:
-    """ todo add description
+    """
 
     :param tracked: Отслеживаемый объект
-    :param tool: элемент разметки
+    :param tools: элемент разметки
     :param sides:
     :return: True, если объект пересекает элемент разметки, иначе False
     """
     if disappeared(tracked):
         return False
 
-    if tool.start.x == tool.end.x and (tool.start.y == 0 and tool.end.y == 464):
-        actual_tool = tool.extend_y(1000)
-    elif tool.start.y == tool.end.y and (tool.start.y == 0 and tool.start.y == 848):
-        actual_tool = tool.extend_x(1000)
+    if tools.start.x == tools.end.x and (tools.start.y == 0 and tools.end.y == 464):
+        actual_tool = tools.extend_y(1000)
+    elif tools.start.y == tools.end.y and (tools.start.y == 0 and tools.start.y == 848):
+        actual_tool = tools.extend_x(1000)
     else:
-        actual_tool = tool
+        actual_tool = tools
 
     if sides is None:
         sides = EvalTree(
@@ -57,13 +57,10 @@ def crosses(
     if crossed.value:
         # ни один бит в текущем состоянии не соответствует одному из битов,
         # соответствующих заданным сторонам => первое пересечение линии объектом
-        if (tracked.states[tool] & sides.evaluate()) == TrackedState.NONE:
+        if (tracked.states[tools] & sides.evaluate()) == TrackedState.NONE:
             first_crossing = True
 
-        tracked.states[tool] |= new_crossing_state
-    # else:  # reset all crossing flags for this tool
-        # todo make sure this doesn't erase unnecessary states
-        # tracked.states[tool] = tracked.states[tool] & ~all_crossing_states
+        tracked.states[tools] |= new_crossing_state
 
     # если объект пересекал эту же линию на предыдущих фреймах, действия выполнять не нужно
     return crossed.value and first_crossing

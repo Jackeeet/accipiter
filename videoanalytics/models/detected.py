@@ -11,7 +11,7 @@ class Detected:
         self.name = name
         self.confidence = conf
         self.box = Box(Coords(x, y), w, h)
-        self.colour = colour or 123
+        self.colour = colour or (10, 255, 10) #123
 
     @property
     def top_left(self) -> Coords:

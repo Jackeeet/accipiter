@@ -6,3 +6,4 @@ output/
 videoanalytics/detection/darknet
 videoanalytics/detection/declared.py
 /videoanalytics/detection/predetected/
+*^*

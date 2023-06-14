@@ -9,7 +9,7 @@ def enters(tracked: Tracked, area: Area) -> bool:
     if disappeared(tracked):
         return False
 
-    inside = area.overlaps(tracked.obj.box)
+    inside = area.contains(tracked.obj.box)
     if not inside:
         return False
 
