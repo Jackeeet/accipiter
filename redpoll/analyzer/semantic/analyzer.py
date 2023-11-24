@@ -73,7 +73,6 @@ class Analyzer(ExpressionVisitor):
         }
         part: SegmentExpr | ArcExpr | ToolIdExpr
         for part in composite.parts:
-            # the fact that we need to check the expression type here is kind of annoying
             if isinstance(part, ToolIdExpr):
                 part = self._get_part_by_id(part)
 
@@ -229,7 +228,6 @@ class Analyzer(ExpressionVisitor):
         self._visit_declarable_args(expr.args)
 
     def visit_action_name(self, expr: ActionNameExpr) -> None:
-        # todo implement
         pass
 
     def visit_event(self, expr: EventExpr) -> None:
@@ -251,7 +249,6 @@ class Analyzer(ExpressionVisitor):
                 expr.args[param_name] = None
 
     def visit_event_name(self, expr: EventNameExpr) -> None:
-        # todo implement
         pass
 
     def visit_binary(self, expr: BinaryExpr) -> None:

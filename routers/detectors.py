@@ -18,8 +18,6 @@ async def get_detector_names(cfg: dict = Depends(detectors_config)):
 
 @router.get("/{sys_filename}")
 async def get_file(sys_filename: str, cfg: dict = Depends(detectors_config)):
-    # db = await _access_db(cfg)
-    # todo check if file exists
     stored_file = sys.path[0] + cfg["files_dir"] + sys_filename.replace("-", "/")
     return FileResponse(stored_file)
 

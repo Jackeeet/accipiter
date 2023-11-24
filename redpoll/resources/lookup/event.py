@@ -43,14 +43,9 @@ required_params = {
 extra_params = {
     kw.CROSSING: [pn.SIDES],
 
-    kw.ENTERING: [pn.TOOLS],
+    kw.ENTERING: [],
     kw.IS_IN: [pn.PERIOD],
-    kw.LEAVING: [pn.TOOLS],
-
-    # kw.DIVERTS_FROM: [],
-    # kw.SPEEDING_UP: [],
-    # kw.SLOWING_DOWN: [],
-    # kw.STILL: [pn.PERIOD],
+    kw.LEAVING: [],
 
     kw.APPEARS: [],
     kw.DISAPPEARS: [],

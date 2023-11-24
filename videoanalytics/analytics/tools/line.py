@@ -17,7 +17,7 @@ class Line(Markup, Intersectable):
     def intersects(self, segment) -> bool:
         for component in self._components:
             if not isinstance(component, Intersectable):
-                raise ValueError  # todo add message
+                raise ValueError
             if component.intersects(segment):
                 return True
         return False

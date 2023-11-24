@@ -6,7 +6,6 @@ class FileWriter:
     _file: TextIO | None
 
     def __init__(self, file_path: str) -> None:
-        # todo implement a file path wrapper or find a library or something
         self._path = file_path
         self._file = None
 

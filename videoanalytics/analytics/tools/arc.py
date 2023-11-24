@@ -46,7 +46,6 @@ class Arc(Component, Intersectable):
         min_y = min(self.start.y, self.end.y)
         max_x = max(self.start.x, self.end.x)
         max_y = max(self.start.y, self.end.y)
-        # todo implement checks for edge cases (180 deg arc)
         return Segment(Coords(min_x, min_y), Coords(max_x, max_y))
 
     @property
@@ -134,7 +133,7 @@ class Arc(Component, Intersectable):
     @staticmethod
     def on_minor_arc(point: Coords, arc: 'Arc') -> bool:
         if not arc.is_minor:
-            raise ValueError  # todo add message
+            raise ValueError
 
         sx, sy, ex, ey = Arc.end_signs(arc)
         zero_count = [sx, sy, ex, ey].count(0)
@@ -211,7 +210,7 @@ class Arc(Component, Intersectable):
     @staticmethod
     def on_semicircular(point: Coords, arc: 'Arc') -> bool:
         if not arc.is_semicircular:
-            raise ValueError  # todo add error message
+            raise ValueError
 
         sx, sy, _, _ = Arc.end_signs(arc)
         in_0_x, in_0_y, _, _, in_x_radius, in_y_radius = Arc.arc_bounds(point, arc)

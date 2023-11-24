@@ -1,9 +1,22 @@
 from typing import Any, Callable
 
 from videoanalytics.interfaces.evaluable import Evaluable
+from videoanalytics.models.operators import op_and, op_or
 
 
-class EvalTree:
+class EvalTree(Evaluable):
+    @staticmethod
+    def op_and(left: Any, right: Any) -> Any:
+        if isinstance(left, EvalTree):
+            return op_and(left.evaluate(), right.evaluate())
+        return op_and(left, right)
+
+    @staticmethod
+    def op_or(left: Any, right: Any) -> Any:
+        if isinstance(left, EvalTree):
+            return op_or(left.evaluate(), right.evaluate())
+        return op_or(left, right)
+
     def __init__(
             self, left: Evaluable = None,
             op_or_val: Evaluable | str = None,
@@ -20,7 +33,7 @@ class EvalTree:
         if self.left is None and self.right is None:
             return func(self.operator_or_value)
         if self.left is not None and self.right is not None:
-            op = getattr(self.right.__class__, self.operator_or_value)
+            op = getattr(self.left.__class__, self.operator_or_value)
             return op(func(self.left), func(self.right))
         raise ValueError("missing an operand")
 

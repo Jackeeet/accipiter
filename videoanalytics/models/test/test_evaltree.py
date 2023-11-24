@@ -89,23 +89,3 @@ def test_fmaps_side_disjunction_chains():
     )
     fmapped = tree.fmap(lambda side: sides_crossing[side.value])
     assert fmapped.evaluate()
-
-# def test_evaluates_parametrized_bool():
-#     tree = EvalTree()
-
-
-# def test_evaluates_parametrized_bool_chains():
-#     tree = EvalTree(
-#         EvalTree(
-#             MockEvent(ParametrizedBool(True, {"period": 10})),
-#             "op_and",
-#             MockEvent(ParametrizedBool(True))
-#         ),
-#         "op_or",
-#         EvalTree(
-#             MockEvent(ParametrizedBool(False, {"period": 20})),
-#             "op_and",
-#             MockEvent(ParametrizedBool(True))
-#         )
-#     )
-#     assert tree.evaluate() == ParametrizedBool(True, {"period": 10})

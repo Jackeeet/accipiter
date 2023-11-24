@@ -86,7 +86,7 @@ class Translator(ExpressionVisitor):
             t.accept(self)
             self._file.writeln()
         self._file.writeln()
-        self._file.writeln("tools = {k:v for k,v in tools.items() if not isinstance(v, tuple)}")
+        self._file.writeln("tools = {k:v for k,v in tools.items() if not isinstance(v, Coords)}")
 
     def visit_tool_id(self, expr: ToolIdExpr) -> None:
         if expr.value in self._tools.inverse:
@@ -232,12 +232,12 @@ class Translator(ExpressionVisitor):
         self._file.write("        left=")
         expr.left.accept(self)
         self._file.writeln(",")
-        self._file.write("        op_or_val=op_")
+        self._file.write("        op_or_val='op_")
         match expr.op:
             case OpType.AND:
-                self._file.writeln("and,")
+                self._file.writeln("and',")
             case OpType.OR:
-                self._file.writeln("or,")
+                self._file.writeln("or',")
             case _:
                 raise TranslationError(f"Unsupported binary operator ({expr.op})")
         self._file.write("        right=")

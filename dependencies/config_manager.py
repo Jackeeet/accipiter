@@ -1,4 +1,5 @@
-__all__ = ['video_source', 'update_video_source', 'rdl_config', 'update_block', 'detectors_config', 'editor_config']
+__all__ = ['video_source', 'update_video_source', 'rdl_config', 'update_block', 'detectors_config', 'editor_config',
+           'logs_config', 'auth_config']
 
 import json
 import sys
@@ -32,6 +33,14 @@ async def detectors_config():
 
 async def editor_config():
     return cfg["editor"]
+
+
+async def logs_config():
+    return cfg["logs"]
+
+
+async def auth_config():
+    return cfg["auth"]
 
 
 def _update_block(name: str, contents: dict | str):
